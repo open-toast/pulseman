@@ -140,15 +140,16 @@ workflows:
           filters:
             tags:
               only: /.*/ # Runs on every branch and tag
-      - mac-build:
-          requires:
-            - linux-build
-          filters:
-            tags:
-              only: /.*/
+#      - mac-build:
+#          requires:
+#            - linux-build
+#          filters:
+#            tags:
+#              only: /.*/
       - publish-github-release:
           requires:
-            - mac-build
+            - linux-build
+#            - mac-build
           filters:
             branches:
               ignore: /.*/ # Does not publish on any branch, tags only

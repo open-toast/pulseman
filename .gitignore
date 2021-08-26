@@ -1,23 +1,27 @@
-# Compiled class file
-*.class
+# Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+!.gitattributes
+!.dockerignore
+!.github
 
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+*.iml
+*.ipr
+*.iws
 *.jar
-*.war
-*.nar
-*.ear
-*.zip
+*.pyc
 *.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+**/target/
+**/.metadata
+**/.classpath
+**/.project
+**/.settings
+**/tmp/
+**/classes
+**/out
+**/build
+
+last_config_loaded
+pulseman_config/

@@ -1,0 +1,190 @@
+/*
+ * Copyright (c) 2021 Toast Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.toasttab.pulseman.view
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Card
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.toasttab.pulseman.AppTheme
+import com.toasttab.pulseman.state.MessageClassSelector
+
+/**
+ * This view presents a list of all the pulsar message classes loaded to the project.
+ * The user can filter this list and select classes to serialize and deserialize with.
+ * You can select 1 class to serialize messages and multiple to deserialize
+ */
+@ExperimentalFoundationApi
+@Composable
+fun messageClassSelectorUI(state: MessageClassSelector) {
+    Column {
+        TextField(
+            label = { Text("Filter") },
+            value = state.filter.value,
+            onValueChange = state::onFilterChange,
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(0.5f).padding(4.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row {
+            val filteredClasses = state.filteredClasses()
+            if (filteredClasses.isEmpty()) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = AnnotatedString("No valid classes loaded"),
+                    modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else {
+                LazyColumn(state = state.listState) {
+                    stickyHeader {
+                        Card(
+                            backgroundColor = AppTheme.colors.backgroundMedium,
+                            border = BorderStroke(1.dp, AppTheme.colors.backgroundDark),
+                            modifier = Modifier.height(40.dp)
+                        ) {
+                            Row {
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = AnnotatedString("Name"),
+                                    modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically)
+                                )
+
+                                Divider(
+                                    color = AppTheme.colors.backgroundDark,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(1.dp)
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = AnnotatedString("Send"),
+                                    modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
+                                )
+
+                                Divider(
+                                    color = AppTheme.colors.backgroundDark,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(1.dp)
+                                )
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = AnnotatedString("Receive"),
+                                    modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
+                                )
+                            }
+                        }
+                    }
+
+                    items(filteredClasses) { classInfo ->
+                        Card(
+                            backgroundColor = AppTheme.colors.backgroundMedium,
+                            border = BorderStroke(1.dp, AppTheme.colors.backgroundDark),
+                            modifier = Modifier.height(40.dp)
+                        ) {
+                            Row {
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = AnnotatedString(classInfo.cls.name),
+                                    modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                Divider(
+                                    color = AppTheme.colors.backgroundDark,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(1.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                IconButton(
+                                    modifier = Modifier.weight(0.1F),
+                                    onClick = {
+                                        state.onSelectedSendClass(classInfo)
+                                        state.setUserFeedback("Selected ${classInfo.cls.name}")
+                                        state.onChange()
+                                    }
+                                ) {
+                                    if (state.selectedSendClass.selected === classInfo)
+                                        Icon(Icons.Default.RadioButtonChecked, "Selected class")
+                                    else
+                                        Icon(Icons.Default.RadioButtonUnchecked, "Click to select")
+                                }
+
+                                Divider(
+                                    color = AppTheme.colors.backgroundDark,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(1.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                IconButton(
+                                    modifier = Modifier.weight(0.1F),
+                                    onClick = {
+                                        state.onSelectedReceiveClass(classInfo)
+                                        state.onChange()
+                                    }
+                                ) {
+                                    if (state.selectedReceiveClasses[classInfo] == true)
+                                        Icon(Icons.Default.CheckBox, "Selected class")
+                                    else
+                                        Icon(Icons.Default.CheckBoxOutlineBlank, "Click to select")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

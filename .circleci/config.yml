@@ -1,0 +1,156 @@
+version: 2.1
+
+executors:
+  linux:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/openjdk:15.0.2
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+commands:
+  read_cache_linux:
+    steps:
+      - restore_cache:
+          key: v1-gradle-wrapper-linux-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          key: v1-gradle-cache-linux-{{ checksum "build.gradle.kts" }}
+  write_cache_linux:
+    steps:
+      - save_cache:
+          paths:
+            - ~/.gradle/wrapper
+          key: v1-gradle-wrapper-linux-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - save_cache:
+          paths:
+            - ~/.gradle/caches
+          key: v1-gradle-cache-linux-{{ checksum "build.gradle.kts" }}
+  read_cache_mac:
+    steps:
+      - restore_cache:
+          key: v1-gradle-wrapper-mac-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          key: v1-gradle-cache-mac-{{ checksum "build.gradle.kts" }}
+  write_cache_mac:
+    steps:
+      - save_cache:
+          paths:
+            - ~/.gradle/wrapper
+          key: v1-gradle-wrapper-mac-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - save_cache:
+          paths:
+            - ~/.gradle/caches
+          key: v1-gradle-cache-mac-{{ checksum "build.gradle.kts" }}
+
+jobs:
+  linux-build:
+    executor: linux
+    steps:
+      - checkout
+      - read_cache_linux
+      - run:
+          name: "Run tests"
+          command: ./gradlew iTest
+      - run:
+          name: "Create Package deb"
+          command: ./gradlew packageDeb
+      - write_cache_linux
+      - store_test_results:
+          path: ~/repo/build/test-results/iTest/
+      - run:
+          name: "Store deb to workspace"
+          command: mkdir -p artifacts; cp ~/repo/build/compose/binaries/main/deb/* artifacts/
+      - persist_to_workspace:
+          root: artifacts
+          paths:
+            - .
+      - store_artifacts:
+          path: artifacts/
+
+  mac-build:
+    macos:
+      xcode: 12.4.0
+    steps:
+      - checkout
+      - read_cache_mac
+      - attach_workspace:
+            at: artifacts
+      - run:
+          name: "Decode signing cert"
+          command: base64 -D -o cert.p12 \<<< $SIGNING_CERT
+      - run:
+          name: "Create new keychain"
+          command: security create-keychain -p keychain-pass compose.keychain
+      - run:
+          name: "Import signing cert"
+          command: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS -A
+      - run:
+          name: "Make chain accessible"
+          command: |
+            security list-keychains -s "compose.keychain"
+            security list-keychains
+            security default-keychain -s "compose.keychain"
+            security unlock-keychain -p "keychain-pass" "compose.keychain"
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k keychain-pass
+      - run:
+          name: "Check current java version"
+          command: java -version
+      - run:
+          name: "Install java 15"
+          command: |
+            brew tap adoptopenjdk/openjdk
+            brew install adoptopenjdk15
+            export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-15.jdk/Contents/Home
+      - run:
+          name: "Check current java version"
+          command: java -version
+      - run:
+          name: "Create DMG"
+          command: ./gradlew packageDmg --stacktrace
+      - run:
+          name: "Store dmg to workspace"
+          command: cp ~/project/build/compose/binaries/main/dmg/* artifacts/
+      - run:
+          name: "Notarize DMG"
+          command: ./gradlew notarizeDmg
+      - write_cache_mac
+      - persist_to_workspace:
+          root: artifacts
+          paths:
+            - .
+      - store_artifacts:
+          path: artifacts/
+
+  publish-github-release:
+    docker:
+      - image: cibuilds/github
+    steps:
+      - attach_workspace:
+          at: artifacts
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./artifacts/
+
+workflows:
+  version: 2.1
+  all-os-build:
+    jobs:
+      - linux-build:
+          filters:
+            tags:
+              only: /.*/ # Runs on every branch and tag
+      - mac-build:
+          requires:
+            - linux-build
+          filters:
+            tags:
+              only: /.*/
+      - publish-github-release:
+          requires:
+            - mac-build
+          filters:
+            branches:
+              ignore: /.*/ # Does not publish on any branch, tags only
+            tags:
+              only: /^\d+\.\d+\.\d+$/ # Only publishes on tags with this format: 1.2.3

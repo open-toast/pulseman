@@ -1,6 +1,7 @@
 # Ignore all dotfiles...
 .*
 # except for .gitignore
+!.circleci
 !.gitignore
 !.gitattributes
 !.dockerignore

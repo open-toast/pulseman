@@ -50,7 +50,7 @@ jobs:
       - read_cache_linux
       - run:
           name: "Run tests"
-          command: ./gradlew iTest
+          command: ./gradlew test
       - run:
           name: "Create Package deb"
           command: ./gradlew packageDeb

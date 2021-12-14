@@ -30,6 +30,7 @@ import org.apache.pulsar.client.api.MessageRoutingMode
 import org.apache.pulsar.client.api.Producer
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
+import org.apache.pulsar.client.api.SubscriptionMode
 import org.apache.pulsar.client.api.SubscriptionType
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -113,6 +114,7 @@ class Pulsar(
                 ?.consumerName("pulseman-subscription-${UUID.randomUUID()}")
                 ?.topic(pulsarSettings.topic.value)
                 ?.subscriptionType(SubscriptionType.Exclusive)
+                ?.subscriptionMode(SubscriptionMode.NonDurable)
                 ?.messageListener { c, m ->
                     c.acknowledge(m)
                     handleMessage(m)

@@ -15,14 +15,15 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.toasttab.pulseman.view.userFeedbackUI
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class UserFeedback(val userFeedback: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue())) {
+class UserFeedback(private val userFeedback: MutableState<TextFieldValue> = mutableStateOf(TextFieldValue())) {
 
     companion object {
         private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
@@ -30,16 +31,21 @@ class UserFeedback(val userFeedback: MutableState<TextFieldValue> = mutableState
 
     fun setUserFeedback(text: String) {
         val appendNewLine = if (userFeedback.value.text.isNotEmpty()) "\n" else ""
-        val newText = "${userFeedback.value.text}$appendNewLine${timeNow()}: $text"
         userFeedback.value = TextFieldValue(
-            text = "${userFeedback.value.text}$appendNewLine${timeNow()}: $text",
-            selection = TextRange(newText.length)
+            text = "${userFeedback.value.text}$appendNewLine${timeNow()}: $text"
         )
     }
 
-    fun onUserFeedbackClear() {
+    private fun onUserFeedbackClear() {
         userFeedback.value = TextFieldValue("")
     }
 
     private fun timeNow(): String = LocalDateTime.now().format(formatter)
+
+    fun ui(): @Composable () -> Unit = {
+        userFeedbackUI(
+            userFeedback = userFeedback.value.text,
+            onUserFeedbackClear = ::onUserFeedbackClear
+        )
+    }
 }

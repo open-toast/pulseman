@@ -17,6 +17,7 @@ package com.toasttab.pulseman.pulsar.handlers
 
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.util.JsonFormat
+import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import java.io.File
 
@@ -33,10 +34,10 @@ data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessag
             RunTimeJarLoader
                 .loader
                 .loadClass(cls.name)
-                .getDeclaredMethod("parseFrom", ByteArray::class.java)
+                .getDeclaredMethod(PARSE_METHOD, ByteArray::class.java)
                 .invoke(null, bytes)
         } catch (ex: Throwable) {
-            "Exception:$ex"
+            "$EXCEPTION:$ex"
         }
     }
 
@@ -49,5 +50,9 @@ data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessag
         val import = "import $fullName"
 
         return "$import\n\n$className\n\t.newBuilder()\n\t//TODO set values\n\t.build()"
+    }
+
+    companion object {
+        private const val PARSE_METHOD = "parseFrom"
     }
 }

@@ -15,9 +15,26 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.entities.ClassInfo
+import com.toasttab.pulseman.view.jarManagementTabsUI
 
-class JarManagementTabs(val jarManagers: List<Pair<String, JarManagement<out ClassInfo>>>) {
-    val currentView = mutableStateOf(jarManagers.first())
+class JarManagementTabs(private val jarManagers: List<Pair<String, JarManagement<out ClassInfo>>>) {
+    private val currentView = mutableStateOf(jarManagers.first())
+
+    fun getUI(): @Composable () -> Unit {
+        val currentViewState = currentView.value.second
+        return {
+            jarManagementTabsUI(
+                loadedJars = currentViewState.jars.loadedJars,
+                jarFolder = currentViewState.jars.jarFolder,
+                onRemoveJar = currentViewState::onRemoveJar,
+                onAddJar = currentViewState::onAddJar,
+                jarManagers = jarManagers,
+                currentView = currentView.value,
+                setCurrentView = currentView::onStateChange
+            )
+        }
+    }
 }

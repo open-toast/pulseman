@@ -18,7 +18,6 @@ package com.toasttab.pulseman.state
 import com.toasttab.pulseman.entities.TabValues
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
-import org.fife.ui.rsyntaxtextarea.Theme
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class PropertyConfiguration(
@@ -34,14 +33,6 @@ class PropertyConfiguration(
             SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS,
             onChange
         )
-
-    init {
-        Theme.load(
-            javaClass.getResourceAsStream(
-                "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"
-            )
-        ).apply { apply(textArea) }
-    }
 
     val sp = RTextScrollPane(textArea)
 

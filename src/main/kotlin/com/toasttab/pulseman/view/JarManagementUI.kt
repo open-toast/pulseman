@@ -15,9 +15,7 @@
 
 package com.toasttab.pulseman.view
 
-import androidx.compose.desktop.DesktopTheme
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +29,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -43,86 +40,87 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.toasttab.pulseman.AppStrings.ADD_JAR
+import com.toasttab.pulseman.AppStrings.DELETE_JAR
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.files.FileManagement.addFileDialog
-import com.toasttab.pulseman.state.JarManagement
+import java.io.File
 
 /**
  * This view allows a user to add or remove a jar to a JarManager and store that jar in the project.
  */
-@ExperimentalFoundationApi
 @Composable
-fun <T : ClassInfo> jarManagementUI(state: JarManagement<T>) {
-    MaterialTheme(colors = AppTheme.colors.material) {
-        DesktopTheme {
-            Surface {
-                Box {
-                    val stateVertical = rememberScrollState(0)
-                    Column(modifier = Modifier.verticalScroll(stateVertical)) {
-                        state.jars.loadedJars.forEach { jar ->
-                            Card(
-                                backgroundColor = AppTheme.colors.backgroundMedium,
-                                border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)
+fun jarManagementUI(
+    loadedJars: List<File>,
+    jarFolder: File,
+    onRemoveJar: (File) -> Unit,
+    onAddJar: (File) -> Unit,
+) {
+    Surface {
+        Box {
+            val stateVertical = rememberScrollState(0)
+            Column(modifier = Modifier.verticalScroll(stateVertical)) {
+                loadedJars.forEach { jar ->
+                    Card(
+                        backgroundColor = AppTheme.colors.backgroundMedium,
+                        border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)
+                    ) {
+                        Row {
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(
+                                text = AnnotatedString(jar.name),
+                                modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            IconButton(
+                                onClick = { onRemoveJar(jar) }
                             ) {
-                                Row {
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    Text(
-                                        text = AnnotatedString(jar.name),
-                                        modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    IconButton(
-                                        onClick = { state.onRemoveJar(jar) }
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete jar")
-                                    }
-
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                }
+                                Icon(Icons.Default.Delete, contentDescription = DELETE_JAR)
                             }
-                        }
-                        Card(
-                            backgroundColor = AppTheme.colors.backgroundMedium,
-                            border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)
-                        ) {
-                            Row {
-                                Spacer(modifier = Modifier.width(8.dp))
 
-                                Text(
-                                    text = AnnotatedString("Add Jar"),
-                                    modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                IconButton(
-                                    onClick = {
-                                        addFileDialog(state.jars.jarFolder) {
-                                            state.onAddJar(it)
-                                        }
-                                    }
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add jar")
-                                }
-
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
+                            Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
-                    VerticalScrollbar(
-                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                        adapter = rememberScrollbarAdapter(stateVertical)
-                    )
+                }
+                Card(
+                    backgroundColor = AppTheme.colors.backgroundMedium,
+                    border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)
+                ) {
+                    Row {
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = AnnotatedString(ADD_JAR),
+                            modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        IconButton(
+                            onClick = {
+                                addFileDialog(jarFolder) {
+                                    onAddJar(it)
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = ADD_JAR)
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                 }
             }
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(stateVertical)
+            )
         }
     }
 }

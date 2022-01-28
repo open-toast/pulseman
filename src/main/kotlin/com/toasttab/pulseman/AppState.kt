@@ -39,7 +39,7 @@ class AppState {
                 GeneratedMessageV3Filter()
             )
         ),
-        jarFolderName = "message_jars"
+        jarFolderName = MESSAGE_JAR_FOLDER
     )
 
     val authJars: JarManager<PulsarAuthHandler> = JarManager(
@@ -49,14 +49,14 @@ class AppState {
                 AuthClassFilter()
             )
         ),
-        jarFolderName = "auth_jars"
+        jarFolderName = AUTH_JAR_FOLDER
     )
 
     val dependencyJars: JarManager<ClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
             classFilters = emptyList()
         ),
-        jarFolderName = "dependency_jars"
+        jarFolderName = DEPENDENCY_JAR_FOLDER
     )
 
     private val jarManagers = listOf(pulsarMessageJars, authJars, dependencyJars)
@@ -79,6 +79,10 @@ class AppState {
         }
     }
 
+    fun loadDefault(initialMessage: String?) {
+        requestTabs.open(initialMessage)
+    }
+
     fun save(quickSave: Boolean) {
         FileManagement.saveProject(
             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(ProjectSettings(requestTabs.allTabValues())),
@@ -94,5 +98,11 @@ class AppState {
 
     private val mapper = ObjectMapper().apply {
         disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-    }.registerModule(KotlinModule())
+    }.registerModule(KotlinModule.Builder().build())
+
+    companion object {
+        private const val AUTH_JAR_FOLDER = "auth_jars"
+        private const val DEPENDENCY_JAR_FOLDER = "dependency_jars"
+        private const val MESSAGE_JAR_FOLDER = "message_jars"
+    }
 }

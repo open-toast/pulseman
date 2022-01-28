@@ -25,7 +25,7 @@ object DefaultMapper {
         enable(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)
         disable(SerializationFeature.FAIL_ON_SELF_REFERENCES)
         disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-        registerModule(KotlinModule())
+        registerModule(KotlinModule.Builder().build())
         registerModule(JavaTimeModule())
     }
 }

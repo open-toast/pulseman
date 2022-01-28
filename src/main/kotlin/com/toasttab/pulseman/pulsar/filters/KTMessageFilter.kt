@@ -19,6 +19,7 @@ import com.toasttab.protokt.rt.KtMessage
 import com.toasttab.pulseman.pulsar.handlers.KTMessageHandler
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 import org.reflections.Reflections
+import org.reflections.scanners.Scanners
 import java.io.File
 import java.net.URLClassLoader
 
@@ -29,10 +30,10 @@ import java.net.URLClassLoader
 class KTMessageFilter : ClassFilter<PulsarMessage> {
     override fun getClasses(file: File): Set<KTMessageHandler> {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
-        val resultSet = mutableSetOf<KTMessageHandler>()
-        Reflections(classLoader).getSubTypesOf(KtMessage::class.java).map {
-            resultSet.add(KTMessageHandler(it, file))
-        }
-        return resultSet
+        return Reflections(classLoader.urLs)
+            .get(Scanners.SubTypes.of(KtMessage::class.java).asClass<Any>(classLoader))
+            .filterIsInstance<Class<out KtMessage>>()
+            .map { KTMessageHandler(it, file) }
+            .toSet()
     }
 }

@@ -17,72 +17,74 @@ package com.toasttab.pulseman.state
 
 import androidx.compose.runtime.mutableStateListOf
 import com.toasttab.pulseman.AppState
+import com.toasttab.pulseman.AppStrings.COPY
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValues
 
 class TabHolder(private val appState: AppState) {
-    private val selection = SingleSelection<Tab>()
-    val active: Tab? get() = selection.selected
-    val tabs = mutableStateListOf<Tab>()
+    private val selection = SingleSelection<TabState>()
+    val active: TabState? get() = selection.selected
+    val tabState = mutableStateListOf<TabState>()
 
-    fun allTabValues() = tabs.map { it.tabValues(save = true) }
+    fun allTabValues() = tabState.map { it.tabValues(save = true) }
 
-    fun open() {
-        val tab = Tab(
+    fun open(initialMessage: String?) {
+        val tab = TabState(
             appState = appState,
             selection = selection,
-            close = ::close
+            close = ::close,
+            initialMessage = initialMessage
         )
-        tabs.add(tab)
+        tabState.add(tab)
         tab.activate()
     }
 
     fun savedChanges() {
-        tabs.forEach { it.unsavedChanges.value = false }
+        tabState.forEach { it.unsavedChanges.value = false }
     }
 
     fun load(tabSettings: List<TabValues>) {
         tabSettings.forEach {
-            val tab = Tab(
+            val tab = TabState(
                 appState = appState,
                 selection = selection,
                 close = ::close,
                 initialSettings = it
             )
-            tabs.add(tab)
+            tabState.add(tab)
         }
-        tabs.firstOrNull()?.activate()
+        tabState.firstOrNull()?.activate()
     }
 
     fun copyCurrentTab() {
         selection.selected?.let { currentTab ->
-            val copiedTab = Tab(
+            val copiedTab = TabState(
                 appState = appState,
                 selection = selection,
                 close = ::close,
                 initialSettings = currentTab.tabValues().let { currentTabValues ->
                     currentTabValues.copy(
-                        tabName = currentTabValues.tabName + " - copy"
+                        tabName = currentTabValues.tabName + " - $COPY"
                     )
                 }
             )
-            tabs.add(copiedTab)
+            tabState.add(copiedTab)
             copiedTab.activate()
         }
     }
 
     fun closeAll() {
-        tabs.forEach { it.cleanUp() }
-        tabs.clear()
+        tabState.forEach { it.cleanUp() }
+        tabState.clear()
         selection.selected = null
     }
 
-    private fun close(tab: Tab) {
-        val index = tabs.indexOf(tab)
-        tabs.remove(tab)
+    private fun close(tab: TabState) {
+        val index = tabState.indexOf(tab)
+        tabState.remove(tab)
         tab.cleanUp()
         if (tab.isActive) {
-            selection.selected = tabs.getOrNull(index.coerceAtMost(tabs.lastIndex))
+            selection.selected = tabState.getOrNull(index.coerceAtMost(tabState.lastIndex))
         }
     }
 }

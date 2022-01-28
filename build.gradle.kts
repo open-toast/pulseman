@@ -18,8 +18,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.10"
-    id("org.jetbrains.compose") version "0.5.0-build227"
+    kotlin("jvm") version "1.5.31"
+    id("org.jetbrains.compose") version "1.0.0"
     id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
 }
 
@@ -35,19 +35,20 @@ repositories {
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 
-val protoktVersion: String by rootProject
-val reflectionsVersion: String by rootProject
-val kotlinVersion: String by rootProject
-val rsyntaxVersion: String by rootProject
-val composeVersion: String by rootProject
-val jacksonVersion: String by rootProject
-val protobufUtils: String by rootProject
-val pulsarVersion: String by rootProject
-val jUnitVersion: String by rootProject
 val assertJVersion: String by rootProject
-val testContainerPulsar: String by rootProject
-val mockkVersion: String by rootProject
+val composeVersion: String by rootProject
 val googleCommonProtos: String by rootProject
+val jacksonVersion: String by rootProject
+val jUnitVersion: String by rootProject
+val kotlinVersion: String by rootProject
+val mockkVersion: String by rootProject
+val protobufUtils: String by rootProject
+val protoktVersion: String by rootProject
+val pulsarVersion: String by rootProject
+val reflectionsVersion: String by rootProject
+val rsyntaxVersion: String by rootProject
+val sl4jNoop: String by rootProject
+val testContainerPulsar: String by rootProject
 
 dependencies {
     implementation(compose.desktop.currentOs)
@@ -61,16 +62,7 @@ dependencies {
     implementation("com.toasttab.protokt:protokt-core:$protoktVersion")
     implementation("com.toasttab.protokt:protokt-extensions:$protoktVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")
-    /**
-     * Directly importing the pulsar-client jar as it is causing an issue with signing mac apps, something to do with
-     * the compressed size being mismatched. They must be somehow modifying the jar before publishing.
-     *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
-     * Directly adding the jar to the project as a workaround for now. I stripped all the meta info manually to make it
-     * work. Stripping all META-INF from the import may resolve it.
-     * This happened with multiple versions of the import.
-     */
-    // implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
-    implementation(files("pulsar-client-2.8.0.jar"))
+    implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
 
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
@@ -83,6 +75,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
+    implementation("org.slf4j:slf4j-nop:$sl4jNoop")
 
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.apache.pulsar:pulsar-client-admin-original:$pulsarVersion")

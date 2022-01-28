@@ -18,6 +18,18 @@ package com.toasttab.pulseman.pulsar
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.toasttab.pulseman.AppStrings.COULD_NOT_TRANSMIT_TOPIC
+import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.AppStrings.FAILED_TO_CLOSE_PULSAR
+import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_CONSUMER
+import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_PRODUCER
+import com.toasttab.pulseman.AppStrings.FAILED_TO_DESERIALIZE_PROPERTIES
+import com.toasttab.pulseman.AppStrings.FAILED_TO_SETUP_PULSAR
+import com.toasttab.pulseman.AppStrings.MESSAGE_SENT_ID
+import com.toasttab.pulseman.AppStrings.NO_CLASS_GENERATED_TO_SEND
+import com.toasttab.pulseman.AppStrings.ON_TOPIC
+import com.toasttab.pulseman.AppStrings.SERVICE_URL_NOT_SET
+import com.toasttab.pulseman.AppStrings.TOPIC_NOT_SET
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
@@ -45,16 +57,11 @@ class Pulsar(
     private val pulsarSettings: PulsarSettings,
     private val setUserFeedback: (String) -> Unit
 ) {
-    companion object {
-        private val mapper = ObjectMapper().registerModule(KotlinModule())
-        private val mapTypeRef = object : TypeReference<Map<String, String>>() {}
-    }
-
     fun close() {
         try {
             pulsarClient?.shutdown()
         } catch (ex: Throwable) {
-            setUserFeedback("Failed to close pulsar:$ex")
+            setUserFeedback("$FAILED_TO_CLOSE_PULSAR:$ex")
         }
     }
 
@@ -89,7 +96,7 @@ class Pulsar(
                 authenticatedPulsarClient(pulsarAuthClass)
             } ?: unAuthenticatedPulsarClient()
         } catch (ex: Throwable) {
-            setUserFeedback("Failed to setup pulsar:$ex")
+            setUserFeedback("$FAILED_TO_SETUP_PULSAR:$ex")
             null
         }
     }
@@ -103,7 +110,7 @@ class Pulsar(
                 ?.sendTimeout(500, TimeUnit.MILLISECONDS)
                 ?.create()
         } catch (ex: Throwable) {
-            setUserFeedback("Failed to create producer:$ex")
+            setUserFeedback("$FAILED_TO_CREATE_PRODUCER:$ex")
             null
         }
     }
@@ -111,7 +118,7 @@ class Pulsar(
     fun createNewConsumer(handleMessage: (Message<ByteArray>) -> Unit): CompletableFuture<Consumer<ByteArray>>? {
         return try {
             pulsarClient?.newConsumer()
-                ?.consumerName("pulseman-subscription-${UUID.randomUUID()}")
+                ?.consumerName("$SUBSCRIPTION_NAME${UUID.randomUUID()}")
                 ?.topic(pulsarSettings.topic.value)
                 ?.subscriptionType(SubscriptionType.Exclusive)
                 ?.subscriptionMode(SubscriptionMode.NonDurable)
@@ -119,10 +126,10 @@ class Pulsar(
                     c.acknowledge(m)
                     handleMessage(m)
                 }
-                ?.subscriptionName("pulseman-subscription-${UUID.randomUUID()}")
+                ?.subscriptionName("$SUBSCRIPTION_NAME${UUID.randomUUID()}")
                 ?.subscribeAsync()
         } catch (ex: Throwable) {
-            setUserFeedback("Failed to create consumer:$ex")
+            setUserFeedback("$FAILED_TO_CREATE_CONSUMER:$ex")
             null
         }
     }
@@ -133,7 +140,7 @@ class Pulsar(
             try {
                 return mapper.readValue(propertiesJsonMap, mapTypeRef)
             } catch (ex: Exception) {
-                setUserFeedback("Failed to deserialize properties=$propertiesJsonMap. Error=$ex")
+                setUserFeedback("$FAILED_TO_DESERIALIZE_PROPERTIES=$propertiesJsonMap. $EXCEPTION=$ex")
             }
         }
         return emptyMap()
@@ -141,30 +148,37 @@ class Pulsar(
 
     fun sendMessage(message: ByteArray?) {
         if (pulsarSettings.serviceUrl.value.isBlank()) {
-            setUserFeedback("Service Url is not set")
+            setUserFeedback(SERVICE_URL_NOT_SET)
             return
         }
         val topic = pulsarSettings.topic.value
         if (topic.isBlank()) {
-            setUserFeedback("Topic is not set")
+            setUserFeedback(TOPIC_NOT_SET)
             return
         }
         if (message == null) {
-            setUserFeedback("No class generated to send")
+            setUserFeedback(NO_CLASS_GENERATED_TO_SEND)
             return
         }
 
-        return try {
-            val messageId = createNewProducer(topic)
+        try {
+            createNewProducer(topic)
                 ?.newMessage()
                 ?.value(message)
                 ?.eventTime(System.currentTimeMillis())
                 ?.properties(properties())
                 ?.send()
-
-            setUserFeedback("Message sent with id $messageId on topic $topic")
+                ?.let { messageId ->
+                    setUserFeedback("$MESSAGE_SENT_ID $messageId $ON_TOPIC $topic")
+                }
         } catch (ex: Throwable) {
-            setUserFeedback("Could not transmit on topic $topic.\nError:$ex")
+            setUserFeedback("$COULD_NOT_TRANSMIT_TOPIC $topic.\n$EXCEPTION:$ex")
         }
+    }
+
+    companion object {
+        private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+        private val mapTypeRef = object : TypeReference<Map<String, String>>() {}
+        private const val SUBSCRIPTION_NAME = "pulseman-subscription-"
     }
 }

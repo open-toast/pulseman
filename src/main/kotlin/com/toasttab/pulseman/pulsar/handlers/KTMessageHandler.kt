@@ -17,6 +17,8 @@ package com.toasttab.pulseman.pulsar.handlers
 
 import com.toasttab.protokt.rt.KtDeserializer
 import com.toasttab.protokt.rt.KtMessage
+import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.AppStrings.TODO
 import java.io.File
 
 data class KTMessageHandler(override val cls: Class<out KtMessage>, override val file: File) : PulsarMessage {
@@ -29,13 +31,13 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
     override fun deserialize(bytes: ByteArray): Any {
         return try {
             cls.declaredClasses
-                .first { it.name.contains("Deserializer") }
+                .first { it.name.contains(DESERIALIZER_CLASS) }
                 .let {
                     val deserializer = (it.kotlin.objectInstance as KtDeserializer<*>)
                     deserializer.deserialize(bytes)
                 }
         } catch (ex: Throwable) {
-            "Exception:$ex"
+            "$EXCEPTION:$ex"
         }
     }
 
@@ -50,21 +52,27 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
         val variables = StringBuilder()
         cls.declaredFields
             .filter {
-                it.name !in listOf(
-                    "\$\$delegatedProperties",
-                    "messageSize\$delegate",
-                    "unknownFields",
-                    "Deserializer"
-                )
+                it.name !in IGNORE_FIELDS
             }
             .forEach {
                 if (!it.type.isPrimitive)
                     importSet.add(it.type.name)
-                variables.appendLine("\t${it.name} = //TODO")
+                variables.appendLine("\t${it.name} = //$TODO")
             }
         val imports = StringBuilder()
-        importSet.sorted().forEach { imports.appendLine("import $it") }
+        importSet.sorted().forEach { imports.appendLine("$IMPORT $it") }
 
         return "$imports\n$className {\n$variables}"
+    }
+
+    companion object {
+        private const val IMPORT = "import"
+        private const val DESERIALIZER_CLASS = "Deserializer"
+        private val IGNORE_FIELDS = listOf(
+            "\$\$delegatedProperties",
+            "messageSize\$delegate",
+            "unknownFields",
+            "Deserializer"
+        )
     }
 }

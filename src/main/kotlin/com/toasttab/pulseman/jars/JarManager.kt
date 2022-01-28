@@ -17,10 +17,13 @@ package com.toasttab.pulseman.jars
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.toasttab.pulseman.AppStrings.ADDED
+import com.toasttab.pulseman.AppStrings.DELETED_CLASS_FEEDBACK
+import com.toasttab.pulseman.AppStrings.REMOVED
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.entities.SingleSelection
+import com.toasttab.pulseman.files.FileManagement.APP_FOLDER_NAME
 import com.toasttab.pulseman.files.FileManagement.appFolder
-import com.toasttab.pulseman.files.FileManagement.appFolderName
 import com.toasttab.pulseman.files.FileManagement.deleteFile
 import com.toasttab.pulseman.files.FileManagement.loadedJars
 import com.toasttab.pulseman.files.FileManagement.makeFolder
@@ -44,7 +47,7 @@ data class JarManager<T : ClassInfo>(
     private val jarFolderName: String
 ) {
     private val jarFolderPath = "$jarFolderName/"
-    val jarFolder = File("$appFolderName$jarFolderPath")
+    val jarFolder = File("$APP_FOLDER_NAME$jarFolderPath")
 
     init {
         // This app folder creation will be repeated, as I'm wary of object creation order with FileManagement
@@ -88,7 +91,7 @@ data class JarManager<T : ClassInfo>(
         if (!loadedJars.contains(file)) {
             addJar(file)
             sortLists()
-            setUserFeedback("Added ${file.path}")
+            setUserFeedback("$ADDED ${file.path}")
             onChange()
         }
     }
@@ -100,10 +103,9 @@ data class JarManager<T : ClassInfo>(
         onChange: () -> Unit
     ) {
         removeJar(jar)
-        var feedback = "Removed ${jar.path}"
+        var feedback = "$REMOVED ${jar.path}"
         if (selectedClass?.selected?.file == jar) {
-            feedback += "\nSelected class was in deleted file and is no longer available." +
-                "${selectedClass.selected?.cls?.name}"
+            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass.selected?.cls?.name}"
             selectedClass.selected = null
         }
         setUserFeedback(feedback)

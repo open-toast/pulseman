@@ -15,86 +15,78 @@
 
 package com.toasttab.pulseman
 
-import androidx.compose.desktop.AppManager
-import androidx.compose.desktop.DesktopTheme
-import androidx.compose.desktop.Window
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.v1.KeyStroke
-import androidx.compose.ui.window.v1.Menu
-import androidx.compose.ui.window.v1.MenuBar
-import androidx.compose.ui.window.v1.MenuItem
+import androidx.compose.ui.window.MenuBar
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import com.toasttab.pulseman.AppResources.PULSE_LOGO
+import com.toasttab.pulseman.AppStrings.COPY_CURRENT_TAB
+import com.toasttab.pulseman.AppStrings.FAILED_TO_LOAD_PROJECT
+import com.toasttab.pulseman.AppStrings.FILE
+import com.toasttab.pulseman.AppStrings.LOAD_PROJECT
+import com.toasttab.pulseman.AppStrings.PULSEMAN
+import com.toasttab.pulseman.AppStrings.SAVE
+import com.toasttab.pulseman.AppStrings.SAVE_AS
 import com.toasttab.pulseman.view.tabHolderUI
-import java.awt.image.BufferedImage
-import javax.imageio.ImageIO
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
-fun main() {
-    val appState = AppState()
-    appState.loadFile(true)
-
-    // To use Apple global menu.
-    System.setProperty("apple.laf.useScreenMenuBar", "true")
-
-    AppManager.setMenu(
-        MenuBar(
-            Menu(
-                name = "File",
-                MenuItem(
-                    name = "Save",
-                    onClick = {
-                        appState.save(true)
-                    },
-                    shortcut = KeyStroke(Key.S)
-                ),
-                MenuItem(
-                    name = "Save as",
-                    onClick = {
-                        appState.save(false)
-                    }
-                ),
-                MenuItem(
-                    name = "Load project",
-                    onClick = {
-                        appState.loadFile(false)
-                    },
-                    shortcut = KeyStroke(Key.L)
-                ),
-                MenuItem(
-                    name = "Copy current tab",
-                    onClick = { appState.copyCurrentTab() }
-                )
-            )
-        )
-    )
-
-    Window(title = "Pulseman", size = IntSize(900, 1200), icon = getWindowIcon()) {
+fun main() = application {
+    val appState = remember {
+        try {
+            AppState().apply {
+                loadFile(true)
+            }
+        } catch (ex: Exception) {
+            AppState().apply {
+                loadDefault("$FAILED_TO_LOAD_PROJECT:\n$ex")
+            }
+        }
+    }
+    val tabs = appState.requestTabs.tabState
+    val activeTab = appState.requestTabs.active
+    val openTab = appState.requestTabs::open
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = PULSEMAN,
+        icon = painterResource(PULSE_LOGO),
+        state = rememberWindowState(width = 900.dp, height = 1200.dp)
+    ) {
         MaterialTheme(colors = AppTheme.colors.material) {
-            DesktopTheme {
-                Surface {
-                    Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-                        tabHolderUI(appState.requestTabs)
-                    }
+            Surface {
+                Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
+                    tabHolderUI(tabs.map { it.toTab() }, activeTab?.toTab(), openTab)
                 }
+            }
+        }
+        MenuBar {
+            Menu(FILE) {
+                Item(
+                    text = SAVE,
+                    onClick = { appState.save(true) },
+                    shortcut = KeyShortcut(key = Key.S, meta = true)
+                )
+                Item(text = SAVE_AS, onClick = { appState.save(false) })
+                Item(
+                    text = LOAD_PROJECT,
+                    onClick = { appState.loadFile(false) },
+                    shortcut = KeyShortcut(key = Key.L, meta = true)
+                )
+                Item(text = COPY_CURRENT_TAB, onClick = { appState.copyCurrentTab() })
             }
         }
     }
 }
-
-private fun getWindowIcon() = try {
-    Thread.currentThread().contextClassLoader.getResourceAsStream("pulse.png")?.let {
-        ImageIO.read(it)
-    }
-} catch (e: Throwable) {
-    null
-} ?: BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)

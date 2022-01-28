@@ -15,7 +15,9 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,13 +26,14 @@ import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValues
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.view.messageClassSelectorUI
 
 class MessageClassSelector(
     private val pulsarMessageJars: JarManager<PulsarMessage>,
     val selectedSendClass: SingleSelection<PulsarMessage> = SingleSelection(),
     val selectedReceiveClasses: SnapshotStateMap<PulsarMessage, Boolean> = mutableStateMapOf(),
     val filter: MutableState<String> = mutableStateOf(""),
-    val listState: LazyListState = LazyListState(),
+    private val listState: LazyListState = LazyListState(),
     val setUserFeedback: (String) -> Unit,
     val onChange: () -> Unit,
     initialSettings: TabValues?
@@ -47,17 +50,31 @@ class MessageClassSelector(
         }
     }
 
-    fun onFilterChange(newValue: String) {
-        filter.value = newValue
-    }
-
-    fun onSelectedSendClass(newValue: PulsarMessage) {
+    private fun onSelectedSendClass(newValue: PulsarMessage) {
         selectedSendClass.selected = newValue
     }
 
-    fun onSelectedReceiveClass(newValue: PulsarMessage) {
+    private fun onSelectedReceiveClass(newValue: PulsarMessage) {
         selectedReceiveClasses[newValue] = selectedReceiveClasses[newValue] != true
     }
 
-    fun filteredClasses() = pulsarMessageJars.loadedClasses.filter(filter.value)
+    private fun filteredClasses() = pulsarMessageJars.loadedClasses.filter(filter.value)
+
+    @ExperimentalFoundationApi
+    fun getUI(): @Composable () -> Unit {
+        return {
+            messageClassSelectorUI(
+                filter = filter.value,
+                onFilterChange = filter::onStateChange,
+                filteredClasses = filteredClasses(),
+                onSelectedSendClass = ::onSelectedSendClass,
+                selectedSendClass = selectedSendClass.selected,
+                selectedReceiveClasses = selectedReceiveClasses,
+                onSelectedReceiveClass = ::onSelectedReceiveClass,
+                listState = listState,
+                setUserFeedback = setUserFeedback,
+                onChange = onChange,
+            )
+        }
+    }
 }

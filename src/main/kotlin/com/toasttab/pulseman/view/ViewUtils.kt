@@ -22,8 +22,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppTheme
@@ -56,25 +54,24 @@ object ViewUtils {
         scope: CoroutineScope,
         activeText: String,
         waitingText: String,
-        state: MutableState<ButtonState>,
+        buttonState: ButtonState,
+        onButtonStateChange: (ButtonState) -> Unit,
         action: suspend () -> Unit
     ) {
-        val buttonState = remember(state) { state }
-
         Button(
             modifier = Modifier.padding(4.dp),
-            enabled = buttonState.value == ButtonState.WAITING,
+            enabled = buttonState == ButtonState.WAITING,
             onClick = {
-                if (buttonState.value == ButtonState.WAITING) {
-                    buttonState.value = ButtonState.ACTIVE
+                if (buttonState == ButtonState.WAITING) {
+                    onButtonStateChange(ButtonState.ACTIVE)
                     scope.launch {
                         action()
-                        buttonState.value = ButtonState.WAITING
+                        onButtonStateChange(ButtonState.WAITING)
                     }
                 }
             }
         ) {
-            when (buttonState.value) {
+            when (buttonState) {
                 ButtonState.ACTIVE -> Text(activeText)
                 ButtonState.WAITING -> Text(waitingText)
             }

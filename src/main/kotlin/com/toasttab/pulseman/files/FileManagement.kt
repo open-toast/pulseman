@@ -39,19 +39,26 @@ import javax.swing.filechooser.FileNameExtensionFilter
  * TODO pull all view logic out of here
  */
 object FileManagement {
-    private val os = System.getProperty("os.name")
-
-    // Sand boxed mac apps only have access by default to this folder
-    private val HOME_DIRECTORY = if (os.contains("Mac")) System.getProperty("user.home") + "/Library/Pulseman/" else ""
-    val APP_FOLDER_NAME = "${HOME_DIRECTORY}pulseman_config/"
-
-    val appFolder = File(APP_FOLDER_NAME)
-
-    private const val projectsFolderName = "projects/"
-    private val lastConfigLoadedPath = "${APP_FOLDER_NAME}last_config_loaded"
+    private const val MAC_HOME_FOLDER = "/Library/Pulseman/"
+    private const val CONFIG_DIRECTORY = "pulseman_config/"
+    private const val LAST_CONFIG_USED_FILENAME = "last_config_loaded"
+    private const val PROJECTS_FOLDER_NAME = "projects/"
     private const val ZIP_EXTENSION = "zip"
     private const val JAR_EXTENSION = "jar"
-    private val projectFolder = File("$APP_FOLDER_NAME$projectsFolderName")
+    private const val MAC_OS = "Mac"
+    private const val OS_PROPERTY = "os.name"
+    private const val HOME_PROPERTY = "user.home"
+
+    private val os = System.getProperty(OS_PROPERTY)
+
+    // Sand boxed mac apps only have access by default to this folder
+    private val HOME_DIRECTORY = if (os.contains(MAC_OS)) System.getProperty(HOME_PROPERTY) + MAC_HOME_FOLDER else ""
+
+    val APP_FOLDER_NAME = "${HOME_DIRECTORY}$CONFIG_DIRECTORY"
+    val appFolder = File(APP_FOLDER_NAME)
+
+    private val lastConfigLoadedPath = "${APP_FOLDER_NAME}$LAST_CONFIG_USED_FILENAME"
+    private val projectFolder = File("$APP_FOLDER_NAME$PROJECTS_FOLDER_NAME")
     private val zipManager = ZipManagement(HOME_DIRECTORY)
 
     init {

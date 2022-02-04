@@ -168,7 +168,6 @@ class TabState(
     }
 
     @ExperimentalFoundationApi
-    @ExperimentalComposeUiApi
     @Composable
     fun toTab(): Tab {
         return Tab(

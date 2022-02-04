@@ -98,7 +98,8 @@ class AppState {
 
     private val mapper = ObjectMapper().apply {
         disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-    }.registerModule(KotlinModule.Builder().build())
+        registerModule(KotlinModule.Builder().build())
+    }
 
     companion object {
         private const val AUTH_JAR_FOLDER = "auth_jars"

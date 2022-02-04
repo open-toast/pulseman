@@ -95,7 +95,6 @@ class PulsarSettings(
     )
 
     @ExperimentalFoundationApi
-    @ExperimentalComposeUiApi
     @Composable
     fun getUI(): @Composable () -> Unit {
         val popupState = rememberDialogState().apply {

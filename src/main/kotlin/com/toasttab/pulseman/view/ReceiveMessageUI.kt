@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
@@ -122,11 +123,13 @@ fun receiveMessageUI(
                             }
                             if (receivedMessage.expanded.value) {
                                 Divider(color = AppTheme.colors.backgroundMedium, thickness = 2.dp)
-                                Text(
-                                    text = AnnotatedString(receivedMessage.message),
-                                    modifier = Modifier.fillMaxWidth().background(AppTheme.colors.backgroundDark)
-                                        .padding(10.dp)
-                                )
+                                SelectionContainer {
+                                    Text(
+                                        text = receivedMessage.message,
+                                        modifier = Modifier.fillMaxWidth().background(AppTheme.colors.backgroundDark)
+                                            .padding(10.dp)
+                                    )
+                                }
                             }
                         }
                     }

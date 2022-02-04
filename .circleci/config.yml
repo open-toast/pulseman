@@ -69,7 +69,7 @@ jobs:
 
   mac-build:
     macos:
-      xcode: 12.4.0
+      xcode: 13.2.1
     steps:
       - checkout
       - read_cache_mac

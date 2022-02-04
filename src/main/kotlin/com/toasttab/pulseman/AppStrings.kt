@@ -18,7 +18,7 @@ package com.toasttab.pulseman
 // TODO move these all into resource files
 object AppStrings {
     const val ADDED = "Added"
-    const val ADD_CREDENTIAL_VALUES = "add your credential values"
+    const val ADD_CREDENTIAL_VALUES = "Add your credential values"
     const val ADD_JAR = "Add Jar"
     const val ADD_TAB = "Add tab"
     const val AUTH = "Auth"
@@ -37,7 +37,7 @@ object AppStrings {
     const val COMPILE = "Compile"
     const val COMPILING = "Compiling..."
     const val CONNECTION_CLOSED = "Connection closed"
-    const val COPY = "copy"
+    const val COPY = "Copy"
     const val COPY_CURRENT_TAB = "Copy current tab"
     const val COULD_NOT_TRANSMIT_TOPIC = "Could not transmit on topic"
     const val DELETED_CLASS_FEEDBACK = "Selected class was in deleted file and is no longer available"

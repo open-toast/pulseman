@@ -15,12 +15,15 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.toasttab.pulseman.AppStrings.SELECTED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.pulsar.PulsarConfig
+import com.toasttab.pulseman.view.topicSelectorUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,31 +35,44 @@ class TopicSelector(
 ) {
     private val pulsarConfig = PulsarConfig(setUserFeedback)
     private val topics: SnapshotStateList<String> = mutableStateListOf()
+    private val topicRetrievalState = mutableStateOf(ButtonState.WAITING)
+    private val pulsarUrl = mutableStateOf(DEFAULT_PULSAR_URL)
 
     val filter: MutableState<String> = mutableStateOf("")
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    val topicRetrievalState = mutableStateOf(ButtonState.WAITING)
-    val pulsarUrl = mutableStateOf("http://localhost:8079")
 
-    fun onFilterChange(newValue: String) {
-        filter.value = newValue
-    }
+    private fun filteredTopics() = topics.filter { it.contains(filter.value) }.sortedBy { it }
 
-    fun filteredTopics() = topics.filter { it.contains(filter.value) }.sortedBy { it }
-
-    fun onLoadTopics() {
+    private fun onLoadTopics() {
         val newTopicList = pulsarConfig.getTopics(pulsarUrl.value).toMutableList()
         topics.removeAll { true }
         topics.addAll(newTopicList)
     }
 
-    fun onPulsarUrlChange(newValue: String) {
-        pulsarUrl.value = newValue
+    private fun onSelectSettingsTopic(selectedTopic: String) {
+        settingsTopic.value = selectedTopic
+        setUserFeedback("$SELECTED $selectedTopic")
+        showDiscover.value = false
     }
 
-    fun onSelectSettingsTopic(selectedTopic: String) {
-        settingsTopic.value = selectedTopic
-        setUserFeedback("Selected $selectedTopic")
-        showDiscover.value = false
+    fun getUI(): @Composable () -> Unit {
+        return {
+            topicSelectorUI(
+                scope = scope,
+                filter = filter.value,
+                onFilterChange = filter::onStateChange,
+                pulsarUrl = pulsarUrl.value,
+                onPulsarUrlChange = pulsarUrl::onStateChange,
+                onLoadTopics = ::onLoadTopics,
+                topicRetrievalState = topicRetrievalState.value,
+                onTopicRetrievalStateChange = topicRetrievalState::onStateChange,
+                filteredTopics = filteredTopics(),
+                onSelectSettingsTopic = ::onSelectSettingsTopic
+            )
+        }
+    }
+
+    companion object {
+        private const val DEFAULT_PULSAR_URL = "http://localhost:8079"
     }
 }

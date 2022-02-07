@@ -18,6 +18,7 @@
 
 package com.toasttab.pulseman.thirdparty.rsyntaxtextarea
 
+import com.toasttab.pulseman.AppResources.RSYNTAX_THEME
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.Theme
 import javax.swing.event.DocumentEvent
@@ -31,7 +32,7 @@ object RSyntaxTextArea {
     fun textArea(initialText: String, syntaxStyle: String, onChange: () -> Unit) =
         RSyntaxTextArea(initialText).let { textArea ->
             textArea.syntaxEditingStyle = syntaxStyle
-            Theme.load(javaClass.getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/dark.xml"))
+            Theme.load(javaClass.getResourceAsStream(RSYNTAX_THEME))
                 .apply { apply(textArea) }
             textArea.document.addDocumentListener(object : DocumentListener {
                 override fun insertUpdate(e: DocumentEvent?) {}

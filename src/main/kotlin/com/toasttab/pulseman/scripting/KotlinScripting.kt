@@ -15,6 +15,10 @@
 
 package com.toasttab.pulseman.scripting
 
+import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.AppStrings.GENERATED_CLASS_NOT_SAME_AS_SELECTED
+import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
+import com.toasttab.pulseman.AppStrings.SUCCESSFULLY_COMPILED_CLASS
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
@@ -38,24 +42,26 @@ object KotlinScripting {
     ): ByteArray? {
         val classToGenerate = selectedClass.selected
         if (classToGenerate == null) {
-            setUserFeedback("No class selected")
+            setUserFeedback(NO_CLASS_SELECTED)
             return null
         }
 
         try {
             addJarsToClassLoader()
-            val engine: ScriptEngine = ScriptEngineManager(RunTimeJarLoader.loader).getEngineByExtension("kts")
+            val engine: ScriptEngine = ScriptEngineManager(RunTimeJarLoader.loader).getEngineByExtension(KTS_EXTENSION)
 
             val generatedClass = engine.eval(code)
             if (generatedClass.javaClass.name != classToGenerate.cls.name) {
-                setUserFeedback("Generated class not the same as selected class")
+                setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
                 return null
             }
-            setUserFeedback("Successfully compiled class")
+            setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
             return classToGenerate.serialize(generatedClass)
         } catch (ex: Throwable) {
-            setUserFeedback("Error:\n$ex")
+            setUserFeedback("$EXCEPTION:\n$ex")
         }
         return null
     }
+
+    private const val KTS_EXTENSION = "kts"
 }

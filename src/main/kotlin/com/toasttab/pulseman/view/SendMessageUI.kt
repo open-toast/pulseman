@@ -15,7 +15,6 @@
 
 package com.toasttab.pulseman.view
 
-import androidx.compose.desktop.SwingPanel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +22,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
-import com.toasttab.pulseman.pulsar.Pulsar
-import com.toasttab.pulseman.scripting.KotlinScripting
-import com.toasttab.pulseman.state.SendMessage
+import com.toasttab.pulseman.AppStrings.COMPILE
+import com.toasttab.pulseman.AppStrings.COMPILING
+import com.toasttab.pulseman.AppStrings.GENERATE
+import com.toasttab.pulseman.AppStrings.GENERATING
+import com.toasttab.pulseman.AppStrings.SEND
+import com.toasttab.pulseman.AppStrings.SENDING
+import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.view.ViewUtils.threadedButton
+import kotlinx.coroutines.CoroutineScope
+import org.fife.ui.rtextarea.RTextScrollPane
 import javax.swing.BoxLayout
 import javax.swing.JPanel
 
@@ -38,34 +44,31 @@ import javax.swing.JPanel
  * - Send a pulsar message
  */
 @Composable
-fun sendMessageUI(state: SendMessage) {
+fun sendMessageUI(
+    scope: CoroutineScope,
+    generateState: ButtonState,
+    onGenerateStateChange: (ButtonState) -> Unit,
+    compileState: ButtonState,
+    onCompileStateChange: (ButtonState) -> Unit,
+    sendState: ButtonState,
+    onSendStateChange: (ButtonState) -> Unit,
+    generateClassTemplate: () -> Unit,
+    compileMessage: () -> Unit,
+    sendPulsarMessage: () -> Unit,
+    scrollPane: RTextScrollPane
+) {
     Column {
         Row {
-            threadedButton(state.scope, "Generating...", "Generate", state.generateState) {
-                val currentlySelected = state.selectedClass.selected
-                state.textArea.text = if (currentlySelected == null) {
-                    state.setUserFeedback("No class selected")
-                    ""
-                } else {
-                    state.setUserFeedback("Generated code template")
-                    currentlySelected.generateClassTemplate()
-                }
+            threadedButton(scope, GENERATING, GENERATE, generateState, onGenerateStateChange) {
+                generateClassTemplate()
             }
 
-            threadedButton(state.scope, "Compiling...", "Compile", state.compileState) {
-                state.generatedBytes =
-                    KotlinScripting.compileMessage(state.textArea.text, state.selectedClass, state.setUserFeedback)
+            threadedButton(scope, COMPILING, COMPILE, compileState, onCompileStateChange) {
+                compileMessage()
             }
 
-            threadedButton(state.scope, "Sending...", "Send", state.sendState) {
-                val pulsar = Pulsar(state.pulsarSettings, state.setUserFeedback)
-                try {
-                    pulsar.sendMessage(state.generatedBytes)
-                } catch (ex: Throwable) {
-                    state.setUserFeedback("Failed to send message:$ex")
-                } finally {
-                    pulsar.close()
-                }
+            threadedButton(scope, SENDING, SEND, sendState, onSendStateChange) {
+                sendPulsarMessage()
             }
         }
 
@@ -79,7 +82,7 @@ fun sendMessageUI(state: SendMessage) {
                 factory = {
                     JPanel().apply {
                         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-                        add(state.sp)
+                        add(scrollPane)
                     }
                 }
             )

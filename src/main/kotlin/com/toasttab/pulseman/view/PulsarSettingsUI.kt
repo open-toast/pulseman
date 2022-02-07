@@ -15,7 +15,6 @@
 
 package com.toasttab.pulseman.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,69 +28,92 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.toasttab.pulseman.state.PulsarSettings
-import com.toasttab.pulseman.state.PulsarSettings.Companion.popupState
+import androidx.compose.ui.window.DialogState
+import com.toasttab.pulseman.AppStrings.AUTH_SETTINGS
+import com.toasttab.pulseman.AppStrings.JARS
+import com.toasttab.pulseman.AppStrings.MANAGE_CONFIGURATION_JARS
+import com.toasttab.pulseman.AppStrings.PROPERTIES
+import com.toasttab.pulseman.AppStrings.SEARCH_FOR_TOPIC
+import com.toasttab.pulseman.AppStrings.SELECT_TOPIC_UNSECURED
+import com.toasttab.pulseman.AppStrings.SERVICE_URL
+import com.toasttab.pulseman.AppStrings.SET_AUTHORIZATION_VALUES
+import com.toasttab.pulseman.AppStrings.SET_MESSAGE_PROPERTY_VALUES
 import com.toasttab.pulseman.view.ViewUtils.styledTextField
 
 /**
  * This view collects the multiple configuration settings in the top half of the tab.
  */
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
 @Composable
-fun pulsarSettingsUI(state: PulsarSettings) {
+fun pulsarSettingsUI(
+    popupState: DialogState,
+    topic: String,
+    onTopicChange: (String) -> Unit,
+    showDiscover: Boolean,
+    onShowDiscoverChange: (Boolean) -> Unit,
+    serviceUrl: String,
+    onServiceUrlChange: (String) -> Unit,
+    showJarManagement: Boolean,
+    onShowJarManagementChange: (Boolean) -> Unit,
+    showAuthSettings: Boolean,
+    onShowAuthSettingsChange: (Boolean) -> Unit,
+    showPropertySettings: Boolean,
+    onShowPropertySettingsChange: (Boolean) -> Unit,
+    topicSelectorUI: @Composable () -> Unit,
+    jarManagementTabsUI: @Composable () -> Unit,
+    authSelectorUI: @Composable () -> Unit,
+    propertyConfigurationUI: @Composable () -> Unit
+) {
     val padding = 4.dp
     Column {
         Row {
             styledTextField(
                 "Topic",
-                state.topic.value,
+                topic,
                 modifier = Modifier.weight(1F).padding(padding),
-                onValueChange = state::onTopicChange
+                onValueChange = onTopicChange
             )
 
             IconButton(
-                onClick = { state.onShowDiscoverChange(true) },
+                onClick = { onShowDiscoverChange(true) },
                 modifier = Modifier.align(alignment = Alignment.CenterVertically)
             ) {
-                Icon(Icons.Default.Search, contentDescription = "Search for topic")
+                Icon(Icons.Default.Search, contentDescription = SEARCH_FOR_TOPIC)
             }
-            if (state.showDiscover.value) {
+            if (showDiscover) {
                 Dialog(
-                    onCloseRequest = { state.showDiscover.value = false },
-                    title = "Select topic - unsecured",
+                    onCloseRequest = { onShowDiscoverChange(false) },
+                    title = SELECT_TOPIC_UNSECURED,
                     state = popupState
                 ) {
-                    topicSelectorUI(state.topicSelector)
+                    topicSelectorUI()
                 }
             }
         }
         Row {
             styledTextField(
-                "Service Url",
-                state.serviceUrl.value,
+                SERVICE_URL,
+                serviceUrl,
                 modifier = Modifier.weight(1F).padding(padding),
-                onValueChange = state::onServiceUrlChange
+                onValueChange = onServiceUrlChange
             )
         }
         Row {
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = { state.onShowJarManagementChange(true) },
+                onClick = { onShowJarManagementChange(true) },
             ) {
-                Text("Jars")
+                Text(JARS)
             }
-            if (state.showJarManagement.value) {
+            if (showJarManagement) {
                 Dialog(
-                    onCloseRequest = { state.onShowJarManagementChange(false) },
-                    title = "Manage configurations jars",
+                    onCloseRequest = { onShowJarManagementChange(false) },
+                    title = MANAGE_CONFIGURATION_JARS,
                     state = popupState
                 ) {
-                    jarManagementTabsUI(state.jarManagementTabs)
+                    jarManagementTabsUI()
                 }
             }
 
@@ -99,17 +121,17 @@ fun pulsarSettingsUI(state: PulsarSettings) {
 
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = { state.onShowAuthSettingsChange(true) },
+                onClick = { onShowAuthSettingsChange(true) },
             ) {
-                Text("Auth Settings")
+                Text(AUTH_SETTINGS)
             }
-            if (state.showAuthSettings.value) {
+            if (showAuthSettings) {
                 Dialog(
-                    onCloseRequest = { state.onShowAuthSettingsChange(false) },
-                    title = "Set Authorization Values",
+                    onCloseRequest = { onShowAuthSettingsChange(false) },
+                    title = SET_AUTHORIZATION_VALUES,
                     state = popupState
                 ) {
-                    authSelectorUI(state.authSelector)
+                    authSelectorUI()
                 }
             }
 
@@ -117,17 +139,17 @@ fun pulsarSettingsUI(state: PulsarSettings) {
 
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = { state.onShowPropertySettingsChange(true) },
+                onClick = { onShowPropertySettingsChange(true) },
             ) {
-                Text("Properties")
+                Text(PROPERTIES)
             }
-            if (state.showPropertySettings.value) {
+            if (showPropertySettings) {
                 Dialog(
-                    onCloseRequest = { state.onShowPropertySettingsChange(false) },
-                    title = "Set message property values",
+                    onCloseRequest = { onShowPropertySettingsChange(false) },
+                    title = SET_MESSAGE_PROPERTY_VALUES,
                     state = popupState
                 ) {
-                    propertyConfigurationUI(state.propertySettings)
+                    propertyConfigurationUI()
                 }
             }
         }

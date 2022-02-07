@@ -18,6 +18,9 @@ package com.toasttab.pulseman.pulsar
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.toasttab.pulseman.AppStrings.FAILED_TO_DESERIALIZE_PULSAR
+import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED_DESERIALIZE
+import com.toasttab.pulseman.AppStrings.PROPERTIES
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 import org.apache.pulsar.client.api.Message
@@ -36,7 +39,7 @@ class MessageHandling(
         try {
             val classes = selectedReceiveClasses.filter { it.value }.map { it.key }
             if (classes.isEmpty()) {
-                setUserFeedback("No class selected to deserialize")
+                setUserFeedback(NO_CLASS_SELECTED_DESERIALIZE)
                 return
             }
 
@@ -46,14 +49,14 @@ class MessageHandling(
                 val publishTime = Instant.ofEpochMilli(message.publishTime)
                 receivedMessages.add(
                     ReceivedMessages(
-                        "$messageString\nProperties:\n${message.properties}",
+                        "$messageString\n$PROPERTIES:\n${message.properties}",
                         "$publishTime - ${it.cls.simpleName}$indexString",
                         mutableStateOf(false)
                     )
                 )
             }
         } catch (ex: Throwable) {
-            setUserFeedback("Failed to deserialize pulsar:$ex.")
+            setUserFeedback("$FAILED_TO_DESERIALIZE_PULSAR:$ex.")
         }
     }
 }

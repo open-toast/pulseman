@@ -15,10 +15,16 @@
 
 package com.toasttab.pulseman.files
 
-import androidx.compose.desktop.AppManager
+import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_DIRECTORY
+import com.toasttab.pulseman.AppStrings.SELECT_JAR_FILE
+import com.toasttab.pulseman.AppStrings.ZIP_FILE
 import java.io.File
 import java.io.FileWriter
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import javax.swing.JFileChooser
+import javax.swing.JFrame
 import javax.swing.filechooser.FileNameExtensionFilter
 
 /**
@@ -33,15 +39,27 @@ import javax.swing.filechooser.FileNameExtensionFilter
  * TODO pull all view logic out of here
  */
 object FileManagement {
-    const val appFolderName = "pulseman_config/"
-    const val projectTabsFileName = "project_tabs.json"
+    private const val MAC_HOME_FOLDER = "/Library/Pulseman/"
+    private const val CONFIG_DIRECTORY = "pulseman_config/"
+    private const val LAST_CONFIG_USED_FILENAME = "last_config_loaded"
+    private const val PROJECTS_FOLDER_NAME = "projects/"
+    private const val ZIP_EXTENSION = "zip"
+    private const val JAR_EXTENSION = "jar"
+    private const val MAC_OS = "Mac"
+    private const val OS_PROPERTY = "os.name"
+    private const val HOME_PROPERTY = "user.home"
 
-    val appFolder = File(appFolderName)
+    private val os = System.getProperty(OS_PROPERTY)
 
-    private const val projectsFolderName = "projects/"
-    private const val lastConfigLoadedPath = "${appFolderName}last_config_loaded"
-    private val projectFolder = File("$appFolderName$projectsFolderName")
-    private val zipManager = ZipManagement()
+    // Sand boxed mac apps only have access by default to this folder
+    private val HOME_DIRECTORY = if (os.contains(MAC_OS)) System.getProperty(HOME_PROPERTY) + MAC_HOME_FOLDER else ""
+
+    val APP_FOLDER_NAME = "${HOME_DIRECTORY}$CONFIG_DIRECTORY"
+    val appFolder = File(APP_FOLDER_NAME)
+
+    private val lastConfigLoadedPath = "${APP_FOLDER_NAME}$LAST_CONFIG_USED_FILENAME"
+    private val projectFolder = File("$APP_FOLDER_NAME$PROJECTS_FOLDER_NAME")
+    private val zipManager = ZipManagement(HOME_DIRECTORY)
 
     init {
         makeFolder(appFolder)
@@ -49,18 +67,20 @@ object FileManagement {
     }
 
     fun makeFolder(file: File) {
+        val path: Path = Paths.get(file.toURI())
+        Files.createDirectories(path)
         if (!file.exists() && !file.mkdir())
-            throw Exception("Failed to create directory")
+            throw Exception(FAILED_TO_CREATE_DIRECTORY)
     }
 
     fun addFileDialog(jarFolder: File, action: (File) -> Unit) {
         val file = JFileChooser().apply {
             fileSelectionMode = JFileChooser.FILES_ONLY
-            fileFilter = FileNameExtensionFilter("Select Jar file", "jar")
+            fileFilter = FileNameExtensionFilter(SELECT_JAR_FILE, JAR_EXTENSION)
         }
 
         // Need to get a JFrame to use swing
-        val frame = AppManager.focusedWindow?.window?.contentPane ?: AppManager.windows.first().window.contentPane
+        val frame = JFrame()
 
         when (file.showOpenDialog(frame)) {
             JFileChooser.APPROVE_OPTION -> {
@@ -81,19 +101,19 @@ object FileManagement {
         val filename = if (!quickSave) {
             val fileChooser = JFileChooser().apply {
                 currentDirectory = projectFolder
-                fileFilter = FileNameExtensionFilter("Zip file", "zip")
+                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
             }
 
             // Need to get a JFrame to use swing
-            val frame = AppManager.windows.first().window.contentPane
+            val frame = JFrame()
 
             when (fileChooser.showSaveDialog(frame)) {
                 JFileChooser.APPROVE_OPTION -> {
                     val fileName = fileChooser.selectedFile.toString()
-                    if (fileName.substringAfterLast(".") == "zip")
+                    if (fileName.substringAfterLast(".") == ZIP_EXTENSION)
                         fileName
                     else
-                        "$fileName.zip"
+                        "$fileName.$ZIP_EXTENSION"
                 }
                 else -> null
             }
@@ -113,11 +133,11 @@ object FileManagement {
             val file = JFileChooser().apply {
                 currentDirectory = projectFolder
                 fileSelectionMode = JFileChooser.FILES_ONLY
-                fileFilter = FileNameExtensionFilter("Zip file", "zip")
+                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
             }
 
             // Need to get a JFrame to use swing
-            val frame = AppManager.windows.first().window.contentPane
+            val frame = JFrame()
 
             when (file.showOpenDialog(frame)) {
                 JFileChooser.APPROVE_OPTION -> {

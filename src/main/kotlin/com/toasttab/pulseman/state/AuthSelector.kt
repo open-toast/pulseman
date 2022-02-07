@@ -15,15 +15,19 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.toasttab.pulseman.AppStrings.ADD_CREDENTIAL_VALUES
+import com.toasttab.pulseman.AppStrings.SELECTED
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValues
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
+import com.toasttab.pulseman.view.authSelectorUI
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
-import org.fife.ui.rsyntaxtextarea.Theme
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class AuthSelector(
@@ -34,7 +38,7 @@ class AuthSelector(
     private val onChange: () -> Unit,
     initialSettings: TabValues?
 ) {
-    private val defaultJsonParameters = "// TODO add your credential values"
+    private val defaultJsonParameters = "// $ADD_CREDENTIAL_VALUES"
 
     private val textArea =
         RSyntaxTextArea.textArea(
@@ -47,30 +51,34 @@ class AuthSelector(
         initialSettings?.selectedAuthClass?.let { savedSelection ->
             selectedAuthClass.selected = authJars.loadedClasses.getClass(savedSelection)
         }
-
-        Theme.load(
-            javaClass.getResourceAsStream(
-                "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"
-            )
-        ).apply { apply(textArea) }
     }
 
-    val sp = RTextScrollPane(textArea)
+    private val sp = RTextScrollPane(textArea)
 
-    fun onFilterChange(newValue: String) {
-        filter.value = newValue
-    }
-
-    fun onSelectedAuthClass(newValue: PulsarAuthHandler) {
+    private fun onSelectedAuthClass(newValue: PulsarAuthHandler) {
         selectedAuthClass.selected =
             if (selectedAuthClass.selected == newValue)
                 null
             else newValue
-        setUserFeedback("Selected ${newValue.cls.name}")
+        setUserFeedback("$SELECTED ${newValue.cls.name}")
         onChange()
     }
 
-    fun filteredClasses() = authJars.loadedClasses.filter(filter.value)
+    private fun filteredClasses() = authJars.loadedClasses.filter(filter.value)
 
     fun authJsonParameters(): String = textArea.text
+
+    @ExperimentalFoundationApi
+    fun getUI(): @Composable () -> Unit {
+        return {
+            authSelectorUI(
+                filter.value,
+                filter::onStateChange,
+                filteredClasses(),
+                selectedAuthClass.selected,
+                ::onSelectedAuthClass,
+                sp
+            )
+        }
+    }
 }

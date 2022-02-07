@@ -15,6 +15,8 @@
 
 package com.toasttab.pulseman.pulsar
 
+import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.AppStrings.FAILED_TO_RETRIEVE_TOPICS
 import org.apache.pulsar.client.admin.PulsarAdmin
 import java.util.concurrent.TimeUnit
 
@@ -40,7 +42,7 @@ class PulsarConfig(private val setUserFeedback: (String) -> Unit) {
                     }
                 }
         } catch (ex: Throwable) {
-            setUserFeedback("Failed to retrieve topics. Error:$ex")
+            setUserFeedback("$FAILED_TO_RETRIEVE_TOPICS. $EXCEPTION:$ex")
             return emptyList()
         }
     }

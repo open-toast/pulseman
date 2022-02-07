@@ -16,7 +16,6 @@
 package com.toasttab.pulseman.files
 
 import com.toasttab.pulseman.files.FileManagement.loadedJars
-import com.toasttab.pulseman.files.FileManagement.projectTabsFileName
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -37,9 +36,7 @@ import java.util.zip.ZipOutputStream
  * Unzips a project file it will take all the zipped jar files and copy them as they are out of the zip
  * and return the json configuration for each tab.
  */
-class ZipManagement {
-    private val skipFiles = listOf(".DS_Store")
-
+class ZipManagement(private val homeDirectory: String) {
     fun zipProject(tabsJson: String, zipName: String, jarFolders: List<File>) {
         FileOutputStream(File(zipName)).use { fos ->
             BufferedOutputStream(fos).use { bos ->
@@ -55,7 +52,7 @@ class ZipManagement {
                         loadedJars(jarFolder).forEach { jar ->
                             FileInputStream(jar).use { input ->
                                 BufferedInputStream(input).use { origin ->
-                                    val entry = ZipEntry(jar.path)
+                                    val entry = ZipEntry(savePath(jar))
                                     zos.putNextEntry(entry)
                                     origin.copyTo(zos, 1024)
                                 }
@@ -66,6 +63,8 @@ class ZipManagement {
             }
         }
     }
+
+    private fun savePath(file: File) = File(homeDirectory).toURI().relativize(file.toURI()).path
 
     fun unzipProject(zippedFile: File): String? {
         var projectJson: String? = null
@@ -78,7 +77,8 @@ class ZipManagement {
                             if (nextEntry.name == projectTabsFileName) {
                                 projectJson = String(zis.readAllBytes())
                             } else {
-                                BufferedOutputStream(FileOutputStream(File(nextEntry.name))).use { bos ->
+                                val newFile = File("$homeDirectory${nextEntry.name}")
+                                BufferedOutputStream(FileOutputStream(newFile)).use { bos ->
                                     val bytesIn = ByteArray(1024)
                                     var read: Int
                                     while (zis.read(bytesIn).also { read = it } != -1) {
@@ -92,5 +92,10 @@ class ZipManagement {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val projectTabsFileName = "project_tabs.json"
+        private val skipFiles = listOf(".DS_Store")
     }
 }

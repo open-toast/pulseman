@@ -27,9 +27,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.toasttab.pulseman.AppStrings.CLEAR_LOG
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.state.UserFeedback
 
 /**
  * This views shows a scrollable history of events in the current tab.
@@ -38,18 +40,25 @@ import com.toasttab.pulseman.state.UserFeedback
  * TODO get selectable text working in this view
  */
 @Composable
-fun userFeedbackUI(state: UserFeedback) {
+fun userFeedbackUI(
+    userFeedback: String,
+    onUserFeedbackClear: () -> Unit
+) {
     Row {
         TextField(
             label = { },
-            value = state.userFeedback.value,
+            value = TextFieldValue(
+                text = userFeedback,
+                // Force the userfeedback to always show the end of the text
+                selection = TextRange(userFeedback.length)
+            ),
             readOnly = true,
             onValueChange = {},
             trailingIcon = {
                 IconButton(
-                    onClick = { state.onUserFeedbackClear() }
+                    onClick = { onUserFeedbackClear() }
                 ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Clear log")
+                    Icon(Icons.Default.Delete, contentDescription = CLEAR_LOG)
                 }
             },
             modifier = Modifier

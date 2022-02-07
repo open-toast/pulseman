@@ -15,18 +15,24 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import com.toasttab.pulseman.AppStrings.FAILED_TO_SEND_MESSAGE
+import com.toasttab.pulseman.AppStrings.GENERATED_CODE_TEMPLATE
+import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValues
+import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.scripting.KotlinScripting
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
+import com.toasttab.pulseman.view.sendMessageUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
-import org.fife.ui.rsyntaxtextarea.Theme
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class SendMessage(
@@ -36,34 +42,74 @@ class SendMessage(
     onChange: () -> Unit,
     initialSettings: TabValues? = null,
 ) {
-    val generateState = mutableStateOf(ButtonState.WAITING)
-    val sendState = mutableStateOf(ButtonState.WAITING)
-    val compileState = mutableStateOf(ButtonState.WAITING)
+    private val generateState = mutableStateOf(ButtonState.WAITING)
+    private val sendState = mutableStateOf(ButtonState.WAITING)
+    private val compileState = mutableStateOf(ButtonState.WAITING)
 
-    var generatedBytes: ByteArray? = null
+    private var generatedBytes: ByteArray? = null
 
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    val textArea =
+    private val textArea =
         RSyntaxTextArea.textArea(
             initialSettings?.code ?: "",
             SyntaxConstants.SYNTAX_STYLE_JAVA,
             onChange
         )
 
+    private fun generateClassTemplate() {
+        textArea.text = selectedClass.selected?.let {
+            setUserFeedback(GENERATED_CODE_TEMPLATE)
+            it.generateClassTemplate()
+        } ?: run {
+            setUserFeedback(NO_CLASS_SELECTED)
+            ""
+        }
+    }
+
     fun close() {
-        scope.cancel("Close SendMessage")
+        scope.cancel(CANCEL_SCOPE_LOG)
     }
 
-    init {
-        Theme.load(
-            javaClass.getResourceAsStream(
-                "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"
-            )
-        ).apply { apply(textArea) }
+    private fun compileMessage() {
+        generatedBytes =
+            KotlinScripting.compileMessage(textArea.text, selectedClass, setUserFeedback)
     }
 
-    val sp = RTextScrollPane(textArea)
+    private fun sendPulsarMessage() {
+        val pulsar = Pulsar(pulsarSettings, setUserFeedback)
+        try {
+            pulsar.sendMessage(generatedBytes)
+        } catch (ex: Throwable) {
+            setUserFeedback("$FAILED_TO_SEND_MESSAGE:$ex")
+        } finally {
+            pulsar.close()
+        }
+    }
+
+    private val sp = RTextScrollPane(textArea)
 
     fun currentCode(): String = textArea.text
+
+    fun getUI(): @Composable () -> Unit {
+        return {
+            sendMessageUI(
+                scope = scope,
+                generateState = generateState.value,
+                onGenerateStateChange = generateState::onStateChange,
+                compileState = compileState.value,
+                onCompileStateChange = compileState::onStateChange,
+                sendState = sendState.value,
+                onSendStateChange = sendState::onStateChange,
+                generateClassTemplate = ::generateClassTemplate,
+                compileMessage = ::compileMessage,
+                sendPulsarMessage = ::sendPulsarMessage,
+                scrollPane = sp
+            )
+        }
+    }
+
+    companion object {
+        private const val CANCEL_SCOPE_LOG = "Shutting down SendMessage"
+    }
 }

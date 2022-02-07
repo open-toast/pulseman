@@ -78,7 +78,7 @@ See [CHANGELOG](CHANGELOG.md) for a history of changes to this repo.
 
 [Stephen Kirk](mailto:stephen.kirk@toasttab.com),
 [Paul Queruel](mailto:paul.queruel@toasttab.comron),
-[Ronan Kileen](mailto:ronan.killeen@toasttab.com)  
+[Ronan Kileen](mailto:ronan.killeen@toasttab.com)
 
 ## License
 

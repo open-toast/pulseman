@@ -18,6 +18,7 @@ package com.toasttab.pulseman.pulsar.filters
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
 import org.apache.pulsar.client.api.Authentication
 import org.reflections.Reflections
+import org.reflections.scanners.Scanners.SubTypes
 import java.io.File
 import java.net.URLClassLoader
 
@@ -28,10 +29,10 @@ import java.net.URLClassLoader
 class AuthClassFilter : ClassFilter<PulsarAuthHandler> {
     override fun getClasses(file: File): Set<PulsarAuthHandler> {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
-        val resultSet = mutableSetOf<PulsarAuthHandler>()
-        Reflections(classLoader).getSubTypesOf(Authentication::class.java).forEach {
-            resultSet.add(PulsarAuthHandler(it, file))
-        }
-        return resultSet
+        return Reflections(classLoader.urLs)
+            .get(SubTypes.of(Authentication::class.java).asClass<Any>(classLoader))
+            .filterIsInstance<Class<out Authentication>>()
+            .map { PulsarAuthHandler(it, file) }
+            .toSet()
     }
 }

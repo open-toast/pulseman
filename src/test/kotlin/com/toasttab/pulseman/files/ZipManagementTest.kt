@@ -46,9 +46,7 @@ class ZipManagementTest {
     }
 
     @Test
-    fun `Zip and unzip a project successfully`(
-        @TempDir tempDir: File,
-    ) {
+    fun `Zip and unzip a project successfully`(@TempDir tempDir: File) {
         // Set up all the needed temp directories and files
         val directories = directories(tempDir)
         directories.forEach {
@@ -68,7 +66,7 @@ class ZipManagementTest {
 
         // Zip the files
         val jarsToZip = generatedJarFiles.map { it.file }
-        val zipManagement = ZipManagement()
+        val zipManagement = ZipManagement("")
         zipManagement.zipProject(inJson, savedZipFile.absolutePath, jarsToZip)
 
         // Delete the original files

@@ -15,8 +15,6 @@
 
 package com.toasttab.pulseman.view
 
-import androidx.compose.desktop.DesktopTheme
-import androidx.compose.desktop.SwingPanel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -35,7 +33,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -45,12 +42,21 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.toasttab.pulseman.AppStrings.AUTH_PARAMETERS
+import com.toasttab.pulseman.AppStrings.CLICK_TO_SELECT
+import com.toasttab.pulseman.AppStrings.FILTER
+import com.toasttab.pulseman.AppStrings.NAME
+import com.toasttab.pulseman.AppStrings.NO_VALID_CLASSES_LOADED
+import com.toasttab.pulseman.AppStrings.SELECT
+import com.toasttab.pulseman.AppStrings.SELECTED_CLASS
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.state.AuthSelector
+import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
+import org.fife.ui.rtextarea.RTextScrollPane
 import javax.swing.BoxLayout
 import javax.swing.JPanel
 
@@ -63,132 +69,134 @@ import javax.swing.JPanel
  */
 @ExperimentalFoundationApi
 @Composable
-fun authSelectorUI(state: AuthSelector) {
-    val filteredClasses = state.filteredClasses()
-    MaterialTheme(colors = AppTheme.colors.material) {
-        DesktopTheme {
-            Surface(modifier = Modifier.fillMaxSize()) {
-                Column {
-                    TextField(
-                        label = { Text("Filter") },
-                        value = state.filter.value,
-                        onValueChange = state::onFilterChange,
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(0.5f).padding(4.dp)
+fun authSelectorUI(
+    filter: String,
+    onFilterChange: (String) -> Unit,
+    filteredClasses: List<PulsarAuthHandler>,
+    selectedAuthClass: PulsarAuthHandler?,
+    onSelectedAuthClass: (PulsarAuthHandler) -> Unit,
+    scrollPane: RTextScrollPane
+) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column {
+            TextField(
+                label = { Text(FILTER) },
+                value = filter,
+                onValueChange = onFilterChange,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(0.5f).padding(4.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(modifier = Modifier.weight(0.3F)) {
+                val listState = rememberLazyListState()
+                if (filteredClasses.isEmpty()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = AnnotatedString(NO_VALID_CLASSES_LOADED),
+                        modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                } else {
+                    LazyColumn(state = listState) {
+                        stickyHeader {
+                            Card(
+                                backgroundColor = AppTheme.colors.backgroundMedium,
+                                border = BorderStroke(1.dp, AppTheme.colors.backgroundDark),
+                                modifier = Modifier.height(40.dp)
+                            ) {
+                                Row {
+                                    Spacer(modifier = Modifier.width(8.dp))
 
-                    Row(modifier = Modifier.weight(0.3F)) {
-                        val listState = rememberLazyListState()
-                        if (filteredClasses.isEmpty()) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = AnnotatedString("No valid classes loaded"),
-                                modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        } else {
-                            LazyColumn(state = listState) {
-                                stickyHeader {
-                                    Card(
-                                        backgroundColor = AppTheme.colors.backgroundMedium,
-                                        border = BorderStroke(1.dp, AppTheme.colors.backgroundDark),
-                                        modifier = Modifier.height(40.dp)
-                                    ) {
-                                        Row {
-                                            Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = AnnotatedString(NAME),
+                                        modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically)
+                                    )
 
-                                            Text(
-                                                text = AnnotatedString("Name"),
-                                                modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically)
-                                            )
+                                    Divider(
+                                        color = AppTheme.colors.backgroundDark,
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .width(1.dp)
+                                    )
 
-                                            Divider(
-                                                color = AppTheme.colors.backgroundDark,
-                                                modifier = Modifier
-                                                    .fillMaxHeight()
-                                                    .width(1.dp)
-                                            )
+                                    Spacer(modifier = Modifier.width(8.dp))
 
-                                            Spacer(modifier = Modifier.width(8.dp))
-
-                                            Text(
-                                                text = AnnotatedString("Select"),
-                                                modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
-                                            )
-                                        }
-                                    }
+                                    Text(
+                                        text = AnnotatedString(SELECT),
+                                        modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
+                                    )
                                 }
+                            }
+                        }
 
-                                items(filteredClasses.size) { i ->
-                                    val classInfo = filteredClasses[i]
-                                    Card(
-                                        backgroundColor = AppTheme.colors.backgroundMedium,
-                                        border = BorderStroke(1.dp, AppTheme.colors.backgroundDark),
-                                        modifier = Modifier.height(40.dp)
-                                    ) {
-                                        Row {
-                                            Spacer(modifier = Modifier.width(8.dp))
+                        items(filteredClasses.size) { i ->
+                            val classInfo = filteredClasses[i]
+                            Card(
+                                backgroundColor = AppTheme.colors.backgroundMedium,
+                                border = BorderStroke(1.dp, AppTheme.colors.backgroundDark),
+                                modifier = Modifier.height(40.dp)
+                            ) {
+                                Row {
+                                    Spacer(modifier = Modifier.width(8.dp))
 
-                                            Text(
-                                                text = AnnotatedString(classInfo.cls.name),
-                                                modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically),
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
+                                    Text(
+                                        text = AnnotatedString(classInfo.cls.name),
+                                        modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
 
-                                            Divider(
-                                                color = AppTheme.colors.backgroundDark,
-                                                modifier = Modifier
-                                                    .fillMaxHeight()
-                                                    .width(1.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
+                                    Divider(
+                                        color = AppTheme.colors.backgroundDark,
+                                        modifier = Modifier
+                                            .fillMaxHeight()
+                                            .width(1.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
 
-                                            IconButton(
-                                                modifier = Modifier.weight(0.1F),
-                                                onClick = {
-                                                    state.onSelectedAuthClass(classInfo)
-                                                }
-                                            ) {
-                                                if (state.selectedAuthClass.selected === classInfo)
-                                                    Icon(Icons.Default.CheckCircle, "Selected class")
-                                                else
-                                                    Icon(Icons.Default.Clear, "Click to select")
-                                            }
+                                    IconButton(
+                                        modifier = Modifier.weight(0.1F),
+                                        onClick = {
+                                            onSelectedAuthClass(classInfo)
                                         }
+                                    ) {
+                                        if (selectedAuthClass === classInfo)
+                                            Icon(Icons.Default.CheckCircle, SELECTED_CLASS)
+                                        else
+                                            Icon(Icons.Default.Clear, CLICK_TO_SELECT)
                                     }
                                 }
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = AnnotatedString("Auth parameters"),
-                        modifier = Modifier.padding(4.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Box(
-                        modifier = Modifier.weight(0.5f).fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        SwingPanel(
-                            background = Color.White,
-                            modifier = Modifier.fillMaxSize(),
-                            factory = {
-                                JPanel().apply {
-                                    layout = BoxLayout(this, BoxLayout.Y_AXIS)
-                                    add(state.sp)
-                                }
-                            }
-                        )
-                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = AnnotatedString(AUTH_PARAMETERS),
+                modifier = Modifier.padding(4.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Box(
+                modifier = Modifier.weight(0.5f).fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                SwingPanel(
+                    background = Color.White,
+                    modifier = Modifier.fillMaxSize(),
+                    factory = {
+                        JPanel().apply {
+                            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+                            add(scrollPane)
+                        }
+                    }
+                )
             }
         }
     }

@@ -15,15 +15,23 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogState
 import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.WindowSize
+import androidx.compose.ui.window.rememberDialogState
 import com.toasttab.pulseman.AppState
+import com.toasttab.pulseman.AppStrings.AUTH
+import com.toasttab.pulseman.AppStrings.MESSAGE
+import com.toasttab.pulseman.AppStrings.OTHER
 import com.toasttab.pulseman.entities.TabValues
+import com.toasttab.pulseman.view.propertyConfigurationUI
+import com.toasttab.pulseman.view.pulsarSettingsUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -42,7 +50,7 @@ class PulsarSettings(
 ) {
     init {
         topic.value = initialSettings?.topic ?: ""
-        serviceUrl.value = initialSettings?.serviceUrl ?: "pulsar://localhost:6650"
+        serviceUrl.value = initialSettings?.serviceUrl ?: DEFAULT_SERVICE_URL
     }
 
     fun close() {
@@ -51,7 +59,7 @@ class PulsarSettings(
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    val topicSelector = TopicSelector(
+    private val topicSelector = TopicSelector(
         settingsTopic = topic,
         setUserFeedback = setUserFeedback
     )
@@ -63,49 +71,62 @@ class PulsarSettings(
     private val dependencyJarManagement =
         JarManagement(appState.dependencyJars, null, setUserFeedback, onChange)
 
-    val showDiscover = mutableStateOf(false)
-    val showJarManagement = mutableStateOf(false)
-    val showAuthSettings = mutableStateOf(false)
-    val showPropertySettings = mutableStateOf(false)
+    private val showDiscover = mutableStateOf(false)
+    private val showJarManagement = mutableStateOf(false)
+    private val showAuthSettings = mutableStateOf(false)
+    private val showPropertySettings = mutableStateOf(false)
 
-    fun onShowDiscoverChange(newValue: Boolean) {
-        showDiscover.value = newValue
-    }
-
-    fun onShowJarManagementChange(newValue: Boolean) {
-        showJarManagement.value = newValue
-    }
-
-    fun onShowAuthSettingsChange(newValue: Boolean) {
-        showAuthSettings.value = newValue
-    }
-
-    fun onShowPropertySettingsChange(newValue: Boolean) {
-        showPropertySettings.value = newValue
-    }
-
-    fun onTopicChange(newValue: String) {
+    private fun onTopicChange(newValue: String) {
         topic.value = newValue
         onChange()
     }
 
-    fun onServiceUrlChange(newValue: String) {
+    private fun onServiceUrlChange(newValue: String) {
         serviceUrl.value = newValue
         onChange()
     }
 
-    val jarManagementTabs = JarManagementTabs(
+    private val jarManagementTabs = JarManagementTabs(
         listOf(
-            Pair("Message", pulsarJarManagement),
-            Pair("Auth", authJarManagement),
-            Pair("Other", dependencyJarManagement)
+            Pair(MESSAGE, pulsarJarManagement),
+            Pair(AUTH, authJarManagement),
+            Pair(OTHER, dependencyJarManagement)
         )
     )
 
-    companion object {
-        val popupState = DialogState().apply {
-            size = WindowSize(750.dp, 600.dp)
+    @ExperimentalFoundationApi
+    @Composable
+    fun getUI(): @Composable () -> Unit {
+        val popupState = rememberDialogState().apply {
+            size = DpSize(750.dp, 600.dp)
             position = WindowPosition.Aligned(Alignment.Center)
         }
+        return {
+            pulsarSettingsUI(
+                popupState = popupState,
+                topic = topic.value,
+                onTopicChange = ::onTopicChange,
+                showDiscover = showDiscover.value,
+                onShowDiscoverChange = showDiscover::onStateChange,
+                serviceUrl = serviceUrl.value,
+                onServiceUrlChange = ::onServiceUrlChange,
+                showJarManagement = showJarManagement.value,
+                onShowJarManagementChange = showJarManagement::onStateChange,
+                showAuthSettings = showAuthSettings.value,
+                onShowAuthSettingsChange = showAuthSettings::onStateChange,
+                showPropertySettings = showPropertySettings.value,
+                onShowPropertySettingsChange = showPropertySettings::onStateChange,
+                topicSelectorUI = topicSelector.getUI(),
+                jarManagementTabsUI = jarManagementTabs.getUI(),
+                authSelectorUI = authSelector.getUI(),
+                propertyConfigurationUI = {
+                    propertyConfigurationUI(scrollPane = propertySettings.sp)
+                }
+            )
+        }
+    }
+
+    companion object {
+        private const val DEFAULT_SERVICE_URL = "pulsar://localhost:6650"
     }
 }

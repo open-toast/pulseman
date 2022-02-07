@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.1.0] - 2022-02-07
+
+- Upgrade to 1.0.0 release of Jetpack Compose for Desktop, general refactor was required.
+  - Update AppManager to using Window.
+  - Use JFrame for swing components. 
+- Make all the views as stateless as possible using state hoisting. 
+- Use the correct home directory on Mac so the app has permissions and a signed version of the app can be used. 
+- Moved companion objects to the bottom of all classes.
+- Fix issue where a successful send message was logged even on fail.
+- Alphabetise imports and dependencies.
+- Upgrade all import versions to latest.
+- Refactor usage of Reflections library with latest version, the old api was deprecated.
+- Slightly refactor Jackson serialisation usage after version update.
+- Remove manually imported and cleaned up pulsar-client jar as it no longer blocks signing of the app.
+- import sl4jNoop to prevent warnings.(Currently no logging framework is used but its been imported by a dependency).
+- Move all translatable and reusable strings into AppStrings.kt, moving them to a resource file to follow up in future.
+- Covert all string where possible into consts.
+- Put repeated definition of the RSyntax theme to one location in AppResources.kt.
+- Change multiple onChange type functions to a generic onStateChange function.
+
+### Features
+
+- Add support for mac signed apps
+
 ## [1.0.0] - 2021-08-26
 
 - Initial release

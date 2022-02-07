@@ -26,6 +26,29 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 open class PulsarITestSupport {
+    fun sendMessage(bytes: ByteArray, topic: String, properties: Map<String, String>) {
+        pulsarClient
+            .newProducer()
+            .topic(topic)
+            .create()
+            .newMessage()
+            .properties(properties)
+            .value(bytes)
+            .send()
+    }
+
+    fun responseFuture(topic: String): CompletableFuture<Message<ByteArray>> {
+        val messageResponseFuture = CompletableFuture<Message<ByteArray>>()
+        pulsarClient.newConsumer()
+            .topic(topic)
+            .messageListener { c, m ->
+                c.acknowledge(m)
+                c.close()
+                messageResponseFuture.complete(m)
+            }.subscriptionName("test-response-${UUID.randomUUID()}").subscribe()
+        return messageResponseFuture
+    }
+
     companion object {
         private const val pulsarVersion = "2.8.0"
         private const val nameSpacePublic = "/admin/v2/namespaces/public"
@@ -69,28 +92,5 @@ open class PulsarITestSupport {
                 }
             }
         }
-    }
-
-    fun sendMessage(bytes: ByteArray, topic: String, properties: Map<String, String>) {
-        pulsarClient
-            .newProducer()
-            .topic(topic)
-            .create()
-            .newMessage()
-            .properties(properties)
-            .value(bytes)
-            .send()
-    }
-
-    fun responseFuture(topic: String): CompletableFuture<Message<ByteArray>> {
-        val messageResponseFuture = CompletableFuture<Message<ByteArray>>()
-        pulsarClient.newConsumer()
-            .topic(topic)
-            .messageListener { c, m ->
-                c.acknowledge(m)
-                c.close()
-                messageResponseFuture.complete(m)
-            }.subscriptionName("test-response-${UUID.randomUUID()}").subscribe()
-        return messageResponseFuture
     }
 }

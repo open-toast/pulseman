@@ -62,7 +62,16 @@ dependencies {
     implementation("com.toasttab.protokt:protokt-core:$protoktVersion")
     implementation("com.toasttab.protokt:protokt-extensions:$protoktVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")
-    implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
+    /**
+     * Directly importing the pulsar-client jar as it is causing an issue with signing mac apps, something to do with
+     * the compressed size being mismatched. They must be somehow modifying the jar before publishing.
+     *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
+     * Directly adding the jar to the project as a workaround for now. I stripped all the meta info manually to make it
+     * work. Stripping all META-INF from the import may resolve it.
+     * This happened with multiple versions of the import.
+     */
+    // implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
+    implementation(files("pulsar-client-2.9.0.jar"))
 
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")

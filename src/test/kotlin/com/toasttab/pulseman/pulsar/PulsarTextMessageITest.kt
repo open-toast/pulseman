@@ -31,11 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
 /**
- * Test all the functionality of the pulsar class
- *
- * TODO tests for authenticated connections
- * TODO failure paths
- * TODO split these pulsar tests into integration tests
+ * Tests text serialization and deserialization
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PulsarTextMessageITest : PulsarITestSupport() {

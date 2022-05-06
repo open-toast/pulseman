@@ -12,26 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package com.toasttab.pulseman
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.entities.ProjectSettings
+import com.toasttab.pulseman.entities.ProjectSettingsV2
 import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.jars.LoadedClasses
 import com.toasttab.pulseman.pulsar.filters.AuthClassFilter
-import com.toasttab.pulseman.pulsar.filters.GeneratedMessageV3Filter
-import com.toasttab.pulseman.pulsar.filters.KTMessageFilter
+import com.toasttab.pulseman.pulsar.filters.protobuf.GeneratedMessageV3Filter
+import com.toasttab.pulseman.pulsar.filters.protobuf.KTMessageFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.TabHolder
 
 class AppState {
-    val pulsarMessageJars: JarManager<PulsarMessage> = JarManager(
+    val pulsarMessageJars: JarManager<PulsarMessageClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
             classFilters = listOf(
                 // Add all the pulsar message formats supported here
@@ -69,7 +72,13 @@ class AppState {
 
             val newTabs =
                 FileManagement.loadProject(projectFile)?.let { loadedProject ->
-                    mapper.readValue(loadedProject, ProjectSettings::class.java).tabs
+                    try {
+                        mapper.readValue(loadedProject, ProjectSettingsV2::class.java).tabs
+                    } catch (ex: ValueInstantiationException) {
+                        throw ex
+                    } catch (ex: Exception) {
+                        mapper.readValue(loadedProject, ProjectSettings::class.java).toV2()
+                    }
                 }
             if (newTabs != null) {
                 jarManagers.forEach { it.refresh() }
@@ -85,7 +94,13 @@ class AppState {
 
     fun save(quickSave: Boolean) {
         FileManagement.saveProject(
-            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(ProjectSettings(requestTabs.allTabValues())),
+            mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(
+                    ProjectSettingsV2(
+                        configVersion = ProjectSettingsV2.V1,
+                        tabs = requestTabs.allTabValues()
+                    )
+                ),
             quickSave,
             jarManagers.map { it.jarFolder }
         )

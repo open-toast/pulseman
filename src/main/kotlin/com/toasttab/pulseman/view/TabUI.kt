@@ -20,16 +20,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppStrings.TAB_NAME
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.entities.SelectedView
 import com.toasttab.pulseman.view.ViewUtils.styledTextField
 
 /**
@@ -39,13 +41,10 @@ import com.toasttab.pulseman.view.ViewUtils.styledTextField
 fun tabUI(
     tabName: String,
     onTabNameChange: (String) -> Unit,
-    selectedView: SelectedView,
     userFeedbackUI: @Composable () -> Unit,
-    messageClassSelectorUI: @Composable () -> Unit,
     pulsarSettingsUI: @Composable () -> Unit,
-    receiveMessageUI: @Composable () -> Unit,
-    sendMessageUI: @Composable () -> Unit,
-    selectTabViewUI: @Composable () -> Unit,
+    protocolUI: @Composable () -> Unit,
+    serializationFormatSelectorUI: @Composable () -> Unit
 ) {
     val padding = 4.dp
     Surface(Modifier.fillMaxSize(), color = AppTheme.colors.backgroundDark) {
@@ -65,31 +64,17 @@ fun tabUI(
                             modifier = Modifier.padding(padding).fillMaxWidth(0.25F),
                             onValueChange = onTabNameChange
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Column(modifier = Modifier.align(alignment = Alignment.CenterVertically)) {
+                            serializationFormatSelectorUI()
+                        }
                     }
                     pulsarSettingsUI()
                 }
             }
             Box(Modifier.weight(0.85F).padding(4.dp)) {
-                Column {
-                    selectTabViewUI()
-                    Box(
-                        Modifier
-                            .background(color = AppTheme.colors.backgroundLight)
-                            .padding(2.dp)
-                    ) {
-                        when (selectedView) {
-                            SelectedView.SEND -> {
-                                sendMessageUI()
-                            }
-                            SelectedView.RECEIVE -> {
-                                receiveMessageUI()
-                            }
-                            SelectedView.PROTOBUF_CLASS -> {
-                                messageClassSelectorUI()
-                            }
-                        }
-                    }
-                }
+                protocolUI()
             }
             Box(Modifier.weight(0.15F)) {
                 userFeedbackUI()

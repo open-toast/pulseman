@@ -13,16 +13,17 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar.handlers
+package com.toasttab.pulseman.pulsar.handlers.protobuf
 
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.util.JsonFormat
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.jars.RunTimeJarLoader
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
 
 data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessageV3>, override val file: File) :
-    PulsarMessage {
+    PulsarMessageClassInfo {
 
     override fun serialize(cls: Any): ByteArray {
         val generatedMessageV3 = cls as GeneratedMessageV3

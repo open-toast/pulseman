@@ -19,5 +19,7 @@ import androidx.compose.runtime.MutableState
 
 /**
  * Is used in the "Receive" tab to store each messages content.
+ *
+ * TODO try have stateless version of this for views
  */
 data class ReceivedMessages(val message: String, val header: String, val expanded: MutableState<Boolean>)

@@ -22,7 +22,7 @@ import com.toasttab.pulseman.AppStrings.SUCCESSFULLY_COMPILED_CLASS
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -37,7 +37,7 @@ import javax.script.ScriptEngineManager
 object KotlinScripting {
     fun compileMessage(
         code: String,
-        selectedClass: SingleSelection<PulsarMessage>,
+        selectedClass: SingleSelection<PulsarMessageClassInfo>,
         setUserFeedback: (String) -> Unit
     ): ByteArray? {
         val classToGenerate = selectedClass.selected

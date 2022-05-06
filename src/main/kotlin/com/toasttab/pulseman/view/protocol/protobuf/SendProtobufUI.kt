@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.view
+package com.toasttab.pulseman.view.protocol.protobuf
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +44,7 @@ import javax.swing.JPanel
  * - Send a pulsar message
  */
 @Composable
-fun sendMessageUI(
+fun sendProtobufUI(
     scope: CoroutineScope,
     generateState: ButtonState,
     onGenerateStateChange: (ButtonState) -> Unit,

@@ -15,6 +15,7 @@ Current formats supported for serialization and deserialization of messages.
   protobuf format)
 - [GeneratedMessageV3](https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html) (
   protobuf format)
+- Text format. Standard character sets are supported.
 
 Currently, this has only been tested and targeted to work on macOS.
 

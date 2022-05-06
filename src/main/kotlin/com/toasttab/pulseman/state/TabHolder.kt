@@ -19,7 +19,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.COPY
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValues
+import com.toasttab.pulseman.entities.TabValuesV2
 
 class TabHolder(private val appState: AppState) {
     private val selection = SingleSelection<TabState>()
@@ -43,7 +43,7 @@ class TabHolder(private val appState: AppState) {
         tabState.forEach { it.unsavedChanges.value = false }
     }
 
-    fun load(tabSettings: List<TabValues>) {
+    fun load(tabSettings: List<TabValuesV2>) {
         tabSettings.forEach {
             val tab = TabState(
                 appState = appState,

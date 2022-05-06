@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar.filters
+package com.toasttab.pulseman.pulsar.filters.protobuf
 
 import com.google.protobuf.GeneratedMessageV3
-import com.toasttab.pulseman.pulsar.handlers.GeneratedMessageV3Handler
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.filters.ClassFilter
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.pulsar.handlers.protobuf.GeneratedMessageV3Handler
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 import java.io.File
@@ -27,7 +28,7 @@ import java.net.URLClassLoader
  * Filters for classes that implement the GeneratedMessageV3 protobuf message interface
  * https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html
  */
-class GeneratedMessageV3Filter : ClassFilter<PulsarMessage> {
+class GeneratedMessageV3Filter : ClassFilter<PulsarMessageClassInfo> {
     override fun getClasses(file: File): Set<GeneratedMessageV3Handler> {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
         return Reflections(classLoader.urLs)

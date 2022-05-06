@@ -16,23 +16,24 @@
 package com.toasttab.pulseman.state
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
-import com.toasttab.pulseman.entities.TabValuesV2
+import androidx.compose.runtime.mutableStateOf
+import com.toasttab.pulseman.view.dropdownSelectorUI
 
-data class Tab(
-    val tabName: String,
-    val close: () -> Unit,
-    val unsavedChanges: Boolean,
-    val initialSettings: TabValuesV2?,
-    val isActive: Boolean,
-    val onFocusedUpdate: (Boolean) -> Unit,
-    val activate: () -> Unit,
-    val image: ImageVector,
-    val onEnterIconUnsavedChanges: () -> Unit,
-    val onExitIconUnsavedChanges: () -> Unit,
-    val onEnterIcon: () -> Unit,
-    val onExitIcon: () -> Unit,
-    val drawBackground: Boolean,
-    val focused: Boolean,
-    val ui: @Composable () -> Unit
-)
+class DropdownSelector(
+    private val options: List<String>,
+    private val onSelected: (String) -> Unit
+) {
+    private val expanded = mutableStateOf(false)
+
+    fun getUI(currentlySelected: String): @Composable () -> Unit {
+        return {
+            dropdownSelectorUI(
+                expanded = expanded.value,
+                currentlySelected = currentlySelected,
+                options = options,
+                onChangeExpanded = expanded::onChange,
+                onSelectedOption = onSelected
+            )
+        }
+    }
+}

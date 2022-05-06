@@ -50,11 +50,10 @@ import com.toasttab.pulseman.AppStrings.FILTER
 import com.toasttab.pulseman.AppStrings.NAME
 import com.toasttab.pulseman.AppStrings.NO_VALID_CLASSES_LOADED
 import com.toasttab.pulseman.AppStrings.RECEIVE
-import com.toasttab.pulseman.AppStrings.SELECTED
 import com.toasttab.pulseman.AppStrings.SELECTED_CLASS
 import com.toasttab.pulseman.AppStrings.SEND
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 
 /**
  * This view presents a list of all the pulsar message classes loaded to the project.
@@ -66,14 +65,12 @@ import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 fun messageClassSelectorUI(
     filter: String,
     onFilterChange: (String) -> Unit,
-    filteredClasses: List<PulsarMessage>,
-    selectedSendClass: PulsarMessage?,
-    onSelectedSendClass: (PulsarMessage) -> Unit,
-    selectedReceiveClasses: Map<PulsarMessage, Boolean>,
-    onSelectedReceiveClass: (PulsarMessage) -> (Unit),
-    listState: LazyListState,
-    setUserFeedback: (String) -> Unit,
-    onChange: () -> Unit
+    filteredClasses: List<PulsarMessageClassInfo>,
+    selectedSendClass: PulsarMessageClassInfo?,
+    onSelectedSendClass: (PulsarMessageClassInfo) -> Unit,
+    selectedReceiveClasses: Map<PulsarMessageClassInfo, Boolean>,
+    onSelectedReceiveClass: (PulsarMessageClassInfo) -> (Unit),
+    listState: LazyListState
 ) {
     Column {
         TextField(
@@ -167,11 +164,7 @@ fun messageClassSelectorUI(
 
                                 IconButton(
                                     modifier = Modifier.weight(0.1F),
-                                    onClick = {
-                                        onSelectedSendClass(classInfo)
-                                        setUserFeedback("$SELECTED ${classInfo.cls.name}")
-                                        onChange()
-                                    }
+                                    onClick = { onSelectedSendClass(classInfo) }
                                 ) {
                                     if (selectedSendClass === classInfo)
                                         Icon(Icons.Default.RadioButtonChecked, SELECTED_CLASS)
@@ -189,10 +182,7 @@ fun messageClassSelectorUI(
 
                                 IconButton(
                                     modifier = Modifier.weight(0.1F),
-                                    onClick = {
-                                        onSelectedReceiveClass(classInfo)
-                                        onChange()
-                                    }
+                                    onClick = { onSelectedReceiveClass(classInfo) }
                                 ) {
                                     if (selectedReceiveClasses[classInfo] == true)
                                         Icon(Icons.Default.CheckBox, SELECTED_CLASS)

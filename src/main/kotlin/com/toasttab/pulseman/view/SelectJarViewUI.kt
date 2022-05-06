@@ -38,20 +38,23 @@ fun selectJarViewUI(
     setCurrentView: (Pair<String, JarManagement<out ClassInfo>>) -> Unit
 ) {
     Row {
+        val showHeader = jarManagers.size > 1
         jarManagers.forEach {
             Surface(color = if (currentView == it) AppTheme.colors.backgroundLight else AppTheme.colors.backgroundMedium) {
                 Row(
                     modifier = Modifier.clickable(onClick = { setCurrentView(it) }),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        it.first,
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        modifier = Modifier.padding(4.dp)
-                    )
+                    if (showHeader) {
+                        Text(
+                            it.first,
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
                 }
             }
         }

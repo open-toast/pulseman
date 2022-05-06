@@ -36,7 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.awtEvent
+import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -66,7 +66,7 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                     modifier = Modifier.pointerInput(tab) {
                         forEachGesture {
                             awaitPointerEventScope {
-                                awaitPointerEvent().awtEvent.let { mouseEvent ->
+                                awaitPointerEvent().awtEventOrNull?.let { mouseEvent ->
                                     if (mouseEvent.button == MouseEvent.BUTTON2 && mouseEvent.id == MouseEvent.MOUSE_PRESSED) {
                                         tab.close()
                                     }

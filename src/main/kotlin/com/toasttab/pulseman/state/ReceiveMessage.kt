@@ -18,10 +18,8 @@ package com.toasttab.pulseman.state
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.toasttab.pulseman.AppStrings.CLEARED_HISTORY
 import com.toasttab.pulseman.AppStrings.CONNECTION_CLOSED
 import com.toasttab.pulseman.AppStrings.FAIL_TO_SUBSCRIBE
@@ -31,7 +29,6 @@ import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
 import com.toasttab.pulseman.pulsar.MessageHandling
 import com.toasttab.pulseman.pulsar.Pulsar
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 import com.toasttab.pulseman.view.receiveMessageUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,16 +40,14 @@ import java.util.concurrent.TimeUnit
 class ReceiveMessage(
     private val setUserFeedback: (String) -> Unit,
     private val pulsarSettings: PulsarSettings,
-    selectedReceiveClasses: SnapshotStateMap<PulsarMessage, Boolean>
+    private val receivedMessages: SnapshotStateList<ReceivedMessages>,
+    private val messageHandling: MessageHandling
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val subscribeState = mutableStateOf(ButtonState.WAITING)
     private val clearState = mutableStateOf(ButtonState.WAITING)
     private val closeState = mutableStateOf(ButtonState.WAITING)
-
-    private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
-    private val messageHandling = MessageHandling(selectedReceiveClasses, receivedMessages, setUserFeedback)
 
     private val pulsar: MutableState<Pulsar?> = mutableStateOf(null)
     private var consumer: Consumer<ByteArray>? = null

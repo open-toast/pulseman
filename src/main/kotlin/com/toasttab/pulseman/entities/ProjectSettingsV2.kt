@@ -15,8 +15,20 @@
 
 package com.toasttab.pulseman.entities
 
-enum class SelectedView {
-    SEND,
-    RECEIVE,
-    PROTOBUF_CLASS
+import com.toasttab.pulseman.AppStrings.CONFIG_VERSION_NOT_SUPPORTED
+
+data class ProjectSettingsV2(
+    val configVersion: String,
+    val tabs: List<TabValuesV2>
+) {
+    init {
+        require(supportedConfigVersions.contains(configVersion)) {
+            "$configVersion $CONFIG_VERSION_NOT_SUPPORTED"
+        }
+    }
+
+    companion object {
+        const val V1 = "1.0.0"
+        private val supportedConfigVersions = setOf(V1)
+    }
 }

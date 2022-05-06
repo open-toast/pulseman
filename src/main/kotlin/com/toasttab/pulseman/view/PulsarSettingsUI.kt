@@ -34,7 +34,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogState
 import com.toasttab.pulseman.AppStrings.AUTH_SETTINGS
 import com.toasttab.pulseman.AppStrings.JARS
-import com.toasttab.pulseman.AppStrings.MANAGE_CONFIGURATION_JARS
+import com.toasttab.pulseman.AppStrings.MANAGE_JARS
 import com.toasttab.pulseman.AppStrings.PROPERTIES
 import com.toasttab.pulseman.AppStrings.SEARCH_FOR_TOPIC
 import com.toasttab.pulseman.AppStrings.SELECT_TOPIC_UNSECURED
@@ -110,7 +110,7 @@ fun pulsarSettingsUI(
             if (showJarManagement) {
                 Dialog(
                     onCloseRequest = { onShowJarManagementChange(false) },
-                    title = MANAGE_CONFIGURATION_JARS,
+                    title = MANAGE_JARS,
                     state = popupState
                 ) {
                     jarManagementTabsUI()

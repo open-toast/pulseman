@@ -15,33 +15,23 @@
 
 package com.toasttab.pulseman.pulsar.handlers
 
+import com.toasttab.pulseman.entities.ClassInfo
+import java.io.File
+
 /**
- * Defines an interface for serializing and deserializing pulsar messages
+ * Defines an interface for serializing, deserializing and generating kotlin templates of a specific pulsar
+ * messaging class
  *
  * TODO make this interface more type safe
  */
-interface PulsarMessage {
-    /**
-     * Serializes a class to a byte array
-     *
-     * @param cls the object that will be serialized.
-     * @return A array of bytes containing the cls info
-     */
-    fun serialize(cls: Any): ByteArray
+interface PulsarMessageClassInfo : PulsarMessage, ClassInfo {
+    override val file: File
+    override val cls: Class<out Any>
 
     /**
-     * Deserializes a byte array to a class
+     * Generates a kotlin scripting code template for the class, this code will be used to create a pulsar message class
      *
-     * @param bytes the byte array that will be deserialized.
-     * @return The deserialized byte array information
+     * @return A string template for the class.
      */
-    fun deserialize(bytes: ByteArray): Any
-
-    /**
-     * Prints the class in a custom format
-     *
-     * @param cls the class to be printed
-     * @return The string version of the class
-     */
-    fun prettyPrint(cls: Any): String
+    fun generateClassTemplate(): String
 }

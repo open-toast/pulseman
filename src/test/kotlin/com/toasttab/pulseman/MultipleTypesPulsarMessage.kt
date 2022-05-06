@@ -16,10 +16,11 @@
 package com.toasttab.pulseman
 
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
 
-class MultipleTypesPulsarMessage(override val cls: Class<out MultipleTypes>, override val file: File) : PulsarMessage {
+class MultipleTypesPulsarMessage(override val cls: Class<out MultipleTypes>, override val file: File) :
+    PulsarMessageClassInfo {
     override fun serialize(cls: Any): ByteArray = (cls as MultipleTypes).toBytes()
 
     override fun deserialize(bytes: ByteArray): Any = MultipleTypes.fromBytes(bytes)

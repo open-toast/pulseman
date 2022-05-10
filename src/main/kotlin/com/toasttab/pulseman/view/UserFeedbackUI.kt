@@ -23,9 +23,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -34,8 +31,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,7 +44,7 @@ import com.toasttab.pulseman.AppTheme
  */
 @Composable
 fun userFeedbackUI(
-    userFeedback: String,
+    userFeedback: List<String>,
     onUserFeedbackClear: () -> Unit
 ) {
     SelectionContainer {
@@ -65,7 +60,14 @@ fun userFeedbackUI(
                     .verticalScroll(state = ScrollState(0), reverseScrolling = true)
                     .fillMaxWidth(fraction = 0.95f)
             ) {
-                Text(text = userFeedback, overflow = TextOverflow.Ellipsis)
+                userFeedback.forEach {
+                    Text(
+                        text = it,
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
+                        maxLines = 1
+                    )
+                }
             }
             Column(
                 modifier = Modifier

@@ -30,7 +30,7 @@ class UserFeedback(
     }
 
     fun setUserFeedback(text: String) {
-        userFeedback.add("${timeNow()}: $text")
+        userFeedback.add("${timeNow()}: $text${System.lineSeparator()}")
     }
 
     private fun onUserFeedbackClear() {

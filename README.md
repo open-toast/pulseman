@@ -1,57 +1,58 @@
-# pulseman
+# Pulseman
 
-Pulseman(Pulsar manager) is an [Apache Pulsar](https://pulsar.apache.org/) test tool that allows users to
+Pulseman (Pulsar manager) is an [Apache Pulsar](https://pulsar.apache.org/) test tool that allows users to:
 
-- Generate messages and send them to a pulsar topic using Kotlin Scripting
-- Monitor/receive messages from a topic
-- Query all topics(non-authenticated connections only at the moment)
-- Import jars for serialization and deserialization of messages
-- Import custom authentication jars
+- Generate and publish messages to a pulsar topic using Kotlin Scripting
+- Subscribe to a Pulsar topic and receive messages
+- Query all topics (non-authenticated connections only at the moment)
+- Import JAR files for serialization and deserialization of messages
+- Import custom authentication JAR files
 - Store and share test collections
 
-Current formats supported for serialization and deserialization of messages.
-
-- [protokt](https://github.com/open-toast/protokt/blob/main/protokt-runtime/src/main/kotlin/com/toasttab/protokt/rt/KtMessage.kt) (
-  protobuf format)
-- [GeneratedMessageV3](https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html) (
-  protobuf format)
-
 Currently, this has only been tested and targeted to work on macOS.
+
+## Supported formats
+
+Current formats supported for serialization and deserialization of messages:
+
+- [Protobuf messages](https://github.com/open-toast/protokt/blob/main/protokt-runtime/src/main/kotlin/com/toasttab/protokt/rt/KtMessage.kt) compiled with [protokt](https://github.com/open-toast/protokt)
+- [Protobuf messages]((https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html)) compiled with [protoc](https://developers.google.com/protocol-buffers)
 
 ## Getting Started
 
 ### Local development
 
-Previous development was done in intellij with java SDK version 15.
-![Sample project structure settings](sdkversion.png)
+Development of Pulseman is done using Java 15. In order for IntelliJ to work correctly and be able to run and debug the application you'll need to set the correct Java version.
 
-### Create an unsigned distributable (mac)
+Open IntelliJ and go to `File -> Project Structure` and set the `SDK` and `Language Level` to be Java 15.
 
-When a stable build has been completed, generate a distributable installer with this gradle command:
+![Sample project structure settings](./docs/media/sdkversion.png)
 
+### Create an unsigned distributable (macOS)
+
+To create an unsigned distributable run this Gradle command:
 ```
 ./gradlew createDistributable
 ```
 
-The file can be found in `build/compose/binaries/main/app/`. Note that the installer needs to be run on the target OS.
+The resulting distributable can be found in `build/compose/binaries/main/app/`.
 
-Install on a machine by dragging from where it is saved, onto the `Applications` in Finder. You may need to show
-Favourites.
+You can install it on your computer by dragging it into your `~/Applications` folder.
 
-As mac apps need to be signed, the program cannot be started the standard way.  
-Run it from Terminal with:
-
+As macOS need applications to be signed to be run, you can't run it the usual way.
+To run the application you'll need to run this command:
 ```
-/Applications/Pulseman.app/Contents/MacOS/Pulseman
-``` 
+~/Applications/Pulseman.app/Contents/MacOS/Pulseman
+```
+If run from the Applications folder, configuration files for the application, by default, will be stored in `~/pulseman_config`.
 
-If run from the Applications folder, configuration files for the app by default will be stored in `~/pulseman_config`.  
-Editing files in here manually may affect saved configurations and app functionality.
+#### Note
+Editing these configuration files manually may corrupt your saved configurations and application functionnality.
 
-### Create a signed distributable (mac)
+### Create a signed distributable (macOS)
 
-Steps on how to sign and notarize a mac app can be
-found [here](https://github.com/JetBrains/compose-jb/tree/master/tutorials/Signing_and_notarization_on_macOS)
+Steps on how to sign and notarize a macOS application can be
+found [here](https://github.com/JetBrains/compose-jb/tree/master/tutorials/Signing_and_notarization_on_macOS).
 
 ### Creating a project
 
@@ -59,7 +60,7 @@ See [CREATE-PROJECT](CREATE-PROJECT.md)
 
 ## Running the tests
 
-Run the junit tests from the root folder as follows
+Run the JUnit tests from the root folder using the following command:
 
 ```
 ./gradlew test
@@ -68,11 +69,11 @@ Run the junit tests from the root folder as follows
 ## Contributing
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull
-requests to us.
+requests.
 
 ## Versioning
 
-See [CHANGELOG](CHANGELOG.md) for a history of changes to this repo.
+See [CHANGELOG](CHANGELOG.md) for a history of changes to this repository.
 
 ## Authors
 
@@ -89,6 +90,6 @@ This project is licensed under the Apache 2 License - see the [LICENSE](LICENSE)
 [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea) was super helpful for generating pretty code editors
 quickly.
 
-[Reflections](https://github.com/ronmamo/reflections) made parsing jars for classes super simple.
+[Reflections](https://github.com/ronmamo/reflections) made parsing JAR files for classes super simple.
 
-The name pulseman is an ode to [Postman](https://www.postman.com/).  
+The name Pulseman is an ode to [Postman](https://www.postman.com/).  

@@ -61,9 +61,22 @@ object FileManagement {
     private val projectFolder = File("$APP_FOLDER_NAME$PROJECTS_FOLDER_NAME")
     private val zipManager = ZipManagement(HOME_DIRECTORY)
 
+    private val jarFileChooser: JFileChooser
+    private val saveFileChooser: JFileChooser
+
     init {
         makeFolder(appFolder)
         makeFolder(projectFolder)
+
+        jarFileChooser = JFileChooser().apply {
+            fileSelectionMode = JFileChooser.FILES_ONLY
+            fileFilter = FileNameExtensionFilter(SELECT_JAR_FILE, JAR_EXTENSION)
+        }
+
+        saveFileChooser = JFileChooser().apply {
+            currentDirectory = projectFolder
+            fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
+        }
     }
 
     fun makeFolder(file: File) {
@@ -74,18 +87,13 @@ object FileManagement {
     }
 
     fun addFileDialog(jarFolder: File, action: (File) -> Unit) {
-        val file = JFileChooser().apply {
-            fileSelectionMode = JFileChooser.FILES_ONLY
-            fileFilter = FileNameExtensionFilter(SELECT_JAR_FILE, JAR_EXTENSION)
-        }
-
         // Need to get a JFrame to use swing
         val frame = JFrame()
 
-        when (file.showOpenDialog(frame)) {
+        when (jarFileChooser.showOpenDialog(frame)) {
             JFileChooser.APPROVE_OPTION -> {
-                val newFile = File(jarFolder, file.selectedFile.name)
-                file.selectedFile.copyTo(newFile, true)
+                val newFile = File(jarFolder, jarFileChooser.selectedFile.name)
+                jarFileChooser.selectedFile.copyTo(newFile, true)
                 action(newFile)
             }
             else -> return
@@ -99,17 +107,12 @@ object FileManagement {
 
     fun saveProject(tabsJson: String, quickSave: Boolean, jarFolders: List<File>) {
         val filename = if (!quickSave) {
-            val fileChooser = JFileChooser().apply {
-                currentDirectory = projectFolder
-                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
-            }
-
             // Need to get a JFrame to use swing
             val frame = JFrame()
 
-            when (fileChooser.showSaveDialog(frame)) {
+            when (saveFileChooser.showSaveDialog(frame)) {
                 JFileChooser.APPROVE_OPTION -> {
-                    val fileName = fileChooser.selectedFile.toString()
+                    val fileName = saveFileChooser.selectedFile.toString()
                     if (fileName.substringAfterLast(".") == ZIP_EXTENSION)
                         fileName
                     else

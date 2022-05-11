@@ -87,7 +87,7 @@ object AppStrings {
     const val SAVE_AS = "Save as"
     const val SEARCH_FOR_TOPIC = "Search for topic"
     const val SELECT = "Select"
-    const val SELECT_JAR_FILE = "Select Jar file"
+    const val SELECT_JAR_FILE = "JAR files (*.jar)"
     const val SELECT_TOPIC_UNSECURED = "Select topic - unsecured"
     const val SELECTED = "Selected"
     const val SELECTED_CLASS = "Selected class"
@@ -105,5 +105,5 @@ object AppStrings {
     const val TODO = "TODO"
     const val TOPIC = "Topic"
     const val TOPIC_NOT_SET = "Topic is not set"
-    const val ZIP_FILE = "Zip file"
+    const val ZIP_FILE = "Zip files (*.zip)"
 }

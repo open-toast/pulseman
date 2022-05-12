@@ -19,8 +19,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,6 +48,7 @@ import com.toasttab.pulseman.view.tabHolderUI
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
+@ExperimentalMaterialApi
 fun main() = application {
     val appState = remember {
         try {
@@ -59,8 +64,29 @@ fun main() = application {
     val tabs = appState.requestTabs.tabState
     val activeTab = appState.requestTabs.active
     val openTab = appState.requestTabs::open
+
+    val promptForUnsavedChanges: (() -> Unit) = {
+        if (appState.requestTabs.hasUnsavedChanges()) {
+            AlertDialog(
+                onDismissRequest = { exitApplication() },
+                confirmButton = {
+                    TextButton(onClick = {})
+                    { Text(text = "OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {})
+                    { Text(text = "Cancel") }
+                },
+                title = { Text(text = "Please confirm") },
+                text = { Text(text = "Should I continue with the requested action?") }
+            )
+        } else {
+            exitApplication()
+        }
+    }
+    
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = promptForUnsavedChanges,
         title = PULSEMAN,
         icon = painterResource(PULSE_LOGO),
         state = rememberWindowState(width = 900.dp, height = 1200.dp)

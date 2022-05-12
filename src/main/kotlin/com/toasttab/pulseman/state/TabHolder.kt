@@ -42,6 +42,10 @@ class TabHolder(private val appState: AppState) {
     fun savedChanges() {
         tabState.forEach { it.unsavedChanges.value = false }
     }
+    
+    fun hasUnsavedChanges(): Boolean {
+        return tabState.any { it.unsavedChanges.value }
+    }
 
     fun load(tabSettings: List<TabValues>) {
         tabSettings.forEach {

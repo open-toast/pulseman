@@ -18,8 +18,11 @@ package com.toasttab.pulseman.files
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_DIRECTORY
 import com.toasttab.pulseman.AppStrings.SELECT_JAR_FILE
 import com.toasttab.pulseman.AppStrings.ZIP_FILE
+import java.awt.FileDialog
+import java.awt.Frame
 import java.io.File
 import java.io.FileWriter
+import java.io.FilenameFilter
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -74,22 +77,23 @@ object FileManagement {
     }
 
     fun addFileDialog(jarFolder: File, action: (File) -> Unit) {
-        val file = JFileChooser().apply {
-            fileSelectionMode = JFileChooser.FILES_ONLY
-            fileFilter = FileNameExtensionFilter(SELECT_JAR_FILE, JAR_EXTENSION)
+        val fileDialog = FileDialog(Frame(), "Select JAR files", FileDialog.LOAD)
+        fileDialog.filenameFilter = FilenameFilter { _, name -> name.endsWith(".jar") }
+        fileDialog.isVisible = true
+
+        val directory: String? = fileDialog.directory
+        val file: String? = fileDialog.file
+
+        if (directory == null || file == null) {
+            return
         }
 
-        // Need to get a JFrame to use swing
-        val frame = JFrame()
+        val selectedFile = File(directory).resolve(file)
+        val copiedFile = File(jarFolder, selectedFile.absolutePath)
 
-        when (file.showOpenDialog(frame)) {
-            JFileChooser.APPROVE_OPTION -> {
-                val newFile = File(jarFolder, file.selectedFile.name)
-                file.selectedFile.copyTo(newFile, true)
-                action(newFile)
-            }
-            else -> return
-        }
+        selectedFile.copyTo(copiedFile, true)
+
+        action(copiedFile)
     }
 
     fun deleteFile(file: File) {
@@ -99,23 +103,25 @@ object FileManagement {
 
     fun saveProject(tabsJson: String, quickSave: Boolean, jarFolders: List<File>) {
         val filename = if (!quickSave) {
-            val fileChooser = JFileChooser().apply {
-                currentDirectory = projectFolder
-                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
-            }
+            val fileDialog = FileDialog(Frame(), "Save Project", FileDialog.SAVE)
+            fileDialog.filenameFilter = FilenameFilter { _, name -> name.endsWith(".zip") }
+            fileDialog.directory = projectFolder.absolutePath
+            fileDialog.file = "pulseman-project.zip"
+            fileDialog.isVisible = true
 
-            // Need to get a JFrame to use swing
-            val frame = JFrame()
+            val directory: String? = fileDialog.directory
+            val file: String? = fileDialog.file
 
-            when (fileChooser.showSaveDialog(frame)) {
-                JFileChooser.APPROVE_OPTION -> {
-                    val fileName = fileChooser.selectedFile.toString()
-                    if (fileName.substringAfterLast(".") == ZIP_EXTENSION)
-                        fileName
-                    else
-                        "$fileName.$ZIP_EXTENSION"
+            if (directory != null && file != null) {
+                val saveFile = File(directory).resolve(file)
+
+                if (saveFile.absolutePath.endsWith(".zip")) {
+                    saveFile.absolutePath
+                } else {
+                    saveFile.absolutePath + ".zip"
                 }
-                else -> null
+            } else {
+                null
             }
         } else {
             getLastLoadedFile()?.absolutePath

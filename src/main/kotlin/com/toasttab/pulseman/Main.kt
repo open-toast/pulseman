@@ -19,12 +19,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,7 +41,11 @@ import com.toasttab.pulseman.AppStrings.LOAD_PROJECT
 import com.toasttab.pulseman.AppStrings.PULSEMAN
 import com.toasttab.pulseman.AppStrings.SAVE
 import com.toasttab.pulseman.AppStrings.SAVE_AS
+import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_MESSAGE
+import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_TITLE
 import com.toasttab.pulseman.view.tabHolderUI
+import javax.swing.JFrame
+import javax.swing.JOptionPane
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
@@ -67,19 +68,21 @@ fun main() = application {
 
     val promptForUnsavedChanges: (() -> Unit) = {
         if (appState.requestTabs.hasUnsavedChanges()) {
-            AlertDialog(
-                onDismissRequest = { exitApplication() },
-                confirmButton = {
-                    TextButton(onClick = {})
-                    { Text(text = "OK") }
-                },
-                dismissButton = {
-                    TextButton(onClick = {})
-                    { Text(text = "Cancel") }
-                },
-                title = { Text(text = "Please confirm") },
-                text = { Text(text = "Should I continue with the requested action?") }
+            val result = JOptionPane.showConfirmDialog(
+                JFrame(),
+                UNSAVED_CHANGES_DIALOG_MESSAGE,
+                UNSAVED_CHANGES_DIALOG_TITLE,
+                JOptionPane.YES_NO_CANCEL_OPTION
             )
+            when (result) {
+                JOptionPane.YES_OPTION -> {
+                    appState.save(true)
+                    exitApplication()
+                }
+                JOptionPane.NO_OPTION -> {
+                    exitApplication()
+                }
+            }
         } else {
             exitApplication()
         }

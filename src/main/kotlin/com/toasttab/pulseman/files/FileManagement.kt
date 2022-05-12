@@ -98,31 +98,36 @@ object FileManagement {
     }
 
     fun saveProject(tabsJson: String, quickSave: Boolean, jarFolders: List<File>) {
-        val filename = if (!quickSave) {
-            val fileChooser = JFileChooser().apply {
-                currentDirectory = projectFolder
-                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
-            }
-
-            // Need to get a JFrame to use swing
-            val frame = JFrame()
-
-            when (fileChooser.showSaveDialog(frame)) {
-                JFileChooser.APPROVE_OPTION -> {
-                    val fileName = fileChooser.selectedFile.toString()
-                    if (fileName.substringAfterLast(".") == ZIP_EXTENSION)
-                        fileName
-                    else
-                        "$fileName.$ZIP_EXTENSION"
-                }
-                else -> null
-            }
+        val filename = if (quickSave) {
+            getLastLoadedFile()?.absolutePath ?: getFileForSave()
         } else {
-            getLastLoadedFile()?.absolutePath
+            getFileForSave()
         }
+
         filename?.let {
             zipManager.zipProject(tabsJson, filename, jarFolders)
             FileWriter(lastConfigLoadedPath).use { fw -> fw.write(filename) }
+        }
+    }
+
+    private fun getFileForSave(): String? {
+        val fileChooser = JFileChooser().apply {
+            currentDirectory = projectFolder
+            fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
+        }
+
+        // Need to get a JFrame to use swing
+        val frame = JFrame()
+
+        return when (fileChooser.showSaveDialog(frame)) {
+            JFileChooser.APPROVE_OPTION -> {
+                val fileName = fileChooser.selectedFile.toString()
+                if (fileName.substringAfterLast(".") == ZIP_EXTENSION)
+                    fileName
+                else
+                    "$fileName.$ZIP_EXTENSION"
+            }
+            else -> null
         }
     }
 

@@ -107,4 +107,6 @@ object AppStrings {
     const val TODO = "TODO"
     const val TOPIC = "Topic"
     const val TOPIC_NOT_SET = "Topic is not set"
+    const val UNSAVED_CHANGES_DIALOG_MESSAGE = "Do you want to save your changes?"
+    const val UNSAVED_CHANGES_DIALOG_TITLE = "Unsaved changes"
 }

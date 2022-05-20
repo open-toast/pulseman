@@ -13,21 +13,24 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state
+package com.toasttab.pulseman.state.protocol.protobuf
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.FAILED_TO_SEND_MESSAGE
 import com.toasttab.pulseman.AppStrings.GENERATED_CODE_TEMPLATE
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValues
+import com.toasttab.pulseman.entities.TabValuesV2
 import com.toasttab.pulseman.pulsar.Pulsar
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.scripting.KotlinScripting
+import com.toasttab.pulseman.state.PulsarSettings
+import com.toasttab.pulseman.state.onStateChange
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
-import com.toasttab.pulseman.view.sendMessageUI
+import com.toasttab.pulseman.view.protocol.protobuf.sendProtobufUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,12 +38,13 @@ import kotlinx.coroutines.cancel
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 
-class SendMessage(
+class SendProtobufMessage(
+    val appState: AppState,
     val setUserFeedback: (String) -> Unit,
-    val selectedClass: SingleSelection<PulsarMessage>,
+    val selectedClass: SingleSelection<PulsarMessageClassInfo>,
     val pulsarSettings: PulsarSettings,
     onChange: () -> Unit,
-    initialSettings: TabValues? = null,
+    initialSettings: TabValuesV2? = null,
 ) {
     private val generateState = mutableStateOf(ButtonState.WAITING)
     private val sendState = mutableStateOf(ButtonState.WAITING)
@@ -52,7 +56,7 @@ class SendMessage(
 
     private val textArea =
         RSyntaxTextArea.textArea(
-            initialSettings?.code ?: "",
+            initialSettings?.protobufSettings?.code ?: "",
             SyntaxConstants.SYNTAX_STYLE_JAVA,
             onChange
         )
@@ -93,7 +97,7 @@ class SendMessage(
 
     fun getUI(): @Composable () -> Unit {
         return {
-            sendMessageUI(
+            sendProtobufUI(
                 scope = scope,
                 generateState = generateState.value,
                 onGenerateStateChange = generateState::onStateChange,
@@ -110,6 +114,6 @@ class SendMessage(
     }
 
     companion object {
-        private const val CANCEL_SCOPE_LOG = "Shutting down SendMessage"
+        private const val CANCEL_SCOPE_LOG = "Shutting down SendProtobufMessage"
     }
 }

@@ -15,4 +15,39 @@
 
 package com.toasttab.pulseman.entities
 
-data class ProjectSettings(val tabs: List<TabValues>)
+import com.toasttab.pulseman.state.protocol.protobuf.ProtobufTabValues
+import com.toasttab.pulseman.state.protocol.text.TextTabValues
+
+/**
+ * This is deprecated, keeping it for backwards compatibility with old config format, will eventually delete altogether.
+ */
+@Deprecated(
+    "This is an old save format, use ProjectSettingsV2 instead",
+    replaceWith = ReplaceWith("ProjectSettingsV2"),
+    level = DeprecationLevel.WARNING
+)
+data class ProjectSettings(@Suppress("DEPRECATION") val tabs: List<TabValues>) {
+    fun toV2(): List<TabValuesV2> {
+        return tabs.map { tab ->
+            TabValuesV2(
+                tabName = tab.tabName,
+                topic = tab.topic,
+                serviceUrl = tab.serviceUrl,
+                selectedAuthClass = tab.selectedAuthClass,
+                authJsonParameters = tab.authJsonParameters,
+                propertyMap = tab.propertyMap,
+                serializationFormat = SerializationFormat.PROTOBUF,
+                protobufSettings = ProtobufTabValues(
+                    code = tab.code,
+                    selectedClassSend = tab.selectedClassSend,
+                    selectedClassReceive = tab.selectedClassReceive
+                ),
+                textSettings = TextTabValues(
+                    text = null,
+                    selectedSendEncoding = null,
+                    selectedReceiveEncoding = null
+                )
+            )
+        }
+    }
+}

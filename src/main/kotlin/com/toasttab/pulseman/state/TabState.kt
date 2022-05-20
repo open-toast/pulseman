@@ -22,13 +22,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.window.DialogState
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.NEW_TAB
-import com.toasttab.pulseman.entities.SelectedView
+import com.toasttab.pulseman.AppStrings.SELECTED
+import com.toasttab.pulseman.AppStrings.SERIALIZATION_FORMAT
+import com.toasttab.pulseman.entities.SerializationFormat
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValues
-import com.toasttab.pulseman.view.selectTabViewUI
+import com.toasttab.pulseman.entities.TabValuesV2
 import com.toasttab.pulseman.view.tabUI
 
 class TabState(
@@ -37,20 +38,24 @@ class TabState(
     val selection: SingleSelection<TabState>,
     val close: ((TabState) -> Unit),
     val unsavedChanges: MutableState<Boolean> = mutableStateOf(false),
-    val initialSettings: TabValues? = null,
+    val initialSettings: TabValuesV2? = null,
     initialMessage: String? = null
 ) {
-    private var lastSavedTabValues: TabValues? = initialSettings
+    private var lastSavedTabValues: TabValuesV2? = initialSettings
 
     private val userFeedback = UserFeedback()
 
-    private val protobufSelector =
-        MessageClassSelector(
-            pulsarMessageJars = appState.pulsarMessageJars,
-            setUserFeedback = userFeedback::setUserFeedback,
-            onChange = ::onChange,
-            initialSettings = initialSettings
-        )
+    private val serializationFormat =
+        mutableStateOf((initialSettings?.serializationFormat ?: SerializationFormat.PROTOBUF))
+
+    private val serializationFormatSelector = DropdownSelector(
+        options = SerializationFormat.values().map { it.format },
+        onSelected = {
+            serializationFormat.value = SerializationFormat.fromFormat(it)
+            userFeedback.setUserFeedback("$SELECTED $it $SERIALIZATION_FORMAT")
+            onChange()
+        }
+    )
 
     private val authSelector =
         AuthSelector(
@@ -62,24 +67,40 @@ class TabState(
 
     private val propertySettings = PropertyConfiguration(::onChange, initialSettings)
 
+    private val pulsarSettings =
+        PulsarSettings(
+            appState = appState,
+            setUserFeedback = userFeedback::setUserFeedback,
+            initialSettings = initialSettings,
+            authSelector = authSelector,
+            propertySettings = propertySettings,
+            onChange = ::onChange
+        )
+
+    private val serializationState = SerializationState(
+        appState = appState,
+        initialSettings = initialSettings,
+        pulsarSettings = pulsarSettings,
+        setUserFeedback = userFeedback::setUserFeedback,
+        onChange = ::onChange
+    )
+
     fun cleanUp() {
-        receiveMessage.close()
-        sendMessage.close()
+        serializationState.cleanUp()
         pulsarSettings.close()
     }
 
-    fun tabValues(save: Boolean = false): TabValues {
-        val tabValues = TabValues(
+    fun tabValues(save: Boolean = false): TabValuesV2 {
+        val tabValues = TabValuesV2(
             tabName = tabName.value,
             topic = pulsarSettings.topic.value,
             serviceUrl = pulsarSettings.serviceUrl.value,
-            code = sendMessage.currentCode(),
-            selectedClassSend = protobufSelector.selectedSendClass.selected?.cls?.name,
-            selectedClassReceive = protobufSelector.selectedReceiveClasses
-                .mapNotNull { if (it.value) it.key.cls.name else null },
             selectedAuthClass = authSelector.selectedAuthClass.selected?.cls?.name,
             authJsonParameters = authSelector.authJsonParameters(),
-            propertyMap = propertySettings.propertyMap()
+            propertyMap = propertySettings.propertyMap(),
+            serializationFormat = serializationFormat.value,
+            protobufSettings = serializationState.protobufState.toProtobufTabValues(),
+            textSettings = serializationState.textState.toTextTabValues()
         )
 
         if (save) {
@@ -104,32 +125,6 @@ class TabState(
     fun activate() {
         selection.selected = this
     }
-
-    private val pulsarSettings =
-        PulsarSettings(
-            appState = appState,
-            setUserFeedback = userFeedback::setUserFeedback,
-            initialSettings = initialSettings,
-            protobufSelector = protobufSelector,
-            authSelector = authSelector,
-            propertySettings = propertySettings,
-            onChange = ::onChange
-        )
-
-    private val selectedView = mutableStateOf(SelectedView.SEND)
-
-    private val sendMessage = SendMessage(
-        setUserFeedback = userFeedback::setUserFeedback,
-        selectedClass = protobufSelector.selectedSendClass,
-        pulsarSettings = pulsarSettings,
-        initialSettings = initialSettings,
-        onChange = ::onChange
-    )
-    private val receiveMessage = ReceiveMessage(
-        setUserFeedback = userFeedback::setUserFeedback,
-        pulsarSettings = pulsarSettings,
-        selectedReceiveClasses = protobufSelector.selectedReceiveClasses
-    )
 
     // Tab icon settings
     private val focused = mutableStateOf(false)
@@ -169,7 +164,7 @@ class TabState(
 
     @ExperimentalFoundationApi
     @Composable
-    fun toTab(): Tab {
+    fun toTab(popupState: DialogState): Tab {
         return Tab(
             tabName = tabName.value,
             close = { close(this) },
@@ -189,15 +184,16 @@ class TabState(
                 tabUI(
                     tabName = tabName.value,
                     onTabNameChange = ::onTabNameChange,
-                    selectedView = selectedView.value,
                     userFeedbackUI = userFeedback.ui(),
-                    messageClassSelectorUI = protobufSelector.getUI(),
-                    pulsarSettingsUI = pulsarSettings.getUI(),
-                    receiveMessageUI = receiveMessage.getUI(),
-                    sendMessageUI = sendMessage.getUI(),
-                    selectTabViewUI = {
-                        selectTabViewUI(selectedView.value, selectedView::onStateChange)
-                    }
+                    pulsarSettingsUI = pulsarSettings.getUI(
+                        popupState = popupState
+                    ),
+                    protocolUI = serializationState.getUI(
+                        serializationFormat = serializationFormat.value
+                    ),
+                    serializationFormatSelectorUI = serializationFormatSelector.getUI(
+                        currentlySelected = serializationFormat.value.format
+                    )
                 )
             }
         )

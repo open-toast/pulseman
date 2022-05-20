@@ -19,17 +19,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPosition
-import androidx.compose.ui.window.rememberDialogState
+import androidx.compose.ui.window.DialogState
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.AUTH
-import com.toasttab.pulseman.AppStrings.MESSAGE
 import com.toasttab.pulseman.AppStrings.OTHER
-import com.toasttab.pulseman.entities.TabValues
+import com.toasttab.pulseman.entities.TabValuesV2
 import com.toasttab.pulseman.view.propertyConfigurationUI
 import com.toasttab.pulseman.view.pulsarSettingsUI
 import kotlinx.coroutines.CoroutineScope
@@ -41,12 +35,11 @@ class PulsarSettings(
     val appState: AppState,
     val topic: MutableState<String> = mutableStateOf(""),
     val serviceUrl: MutableState<String> = mutableStateOf(""),
-    val protobufSelector: MessageClassSelector,
     val authSelector: AuthSelector,
     val propertySettings: PropertyConfiguration,
     setUserFeedback: (String) -> Unit,
     val onChange: () -> Unit,
-    initialSettings: TabValues? = null,
+    initialSettings: TabValuesV2? = null
 ) {
     init {
         topic.value = initialSettings?.topic ?: ""
@@ -64,8 +57,6 @@ class PulsarSettings(
         setUserFeedback = setUserFeedback
     )
 
-    private val pulsarJarManagement =
-        JarManagement(appState.pulsarMessageJars, protobufSelector.selectedSendClass, setUserFeedback, onChange)
     private val authJarManagement =
         JarManagement(appState.authJars, authSelector.selectedAuthClass, setUserFeedback, onChange)
     private val dependencyJarManagement =
@@ -88,7 +79,6 @@ class PulsarSettings(
 
     private val jarManagementTabs = JarManagementTabs(
         listOf(
-            Pair(MESSAGE, pulsarJarManagement),
             Pair(AUTH, authJarManagement),
             Pair(OTHER, dependencyJarManagement)
         )
@@ -96,11 +86,7 @@ class PulsarSettings(
 
     @ExperimentalFoundationApi
     @Composable
-    fun getUI(): @Composable () -> Unit {
-        val popupState = rememberDialogState().apply {
-            size = DpSize(750.dp, 600.dp)
-            position = WindowPosition.Aligned(Alignment.Center)
-        }
+    fun getUI(popupState: DialogState): @Composable () -> Unit {
         return {
             pulsarSettingsUI(
                 popupState = popupState,

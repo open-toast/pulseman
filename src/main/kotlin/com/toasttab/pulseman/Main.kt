@@ -22,15 +22,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberDialogState
 import androidx.compose.ui.window.rememberWindowState
 import com.toasttab.pulseman.AppResources.PULSE_LOGO
 import com.toasttab.pulseman.AppStrings.COPY_CURRENT_TAB
@@ -95,7 +99,11 @@ fun main() = application {
         MaterialTheme(colors = AppTheme.colors.material) {
             Surface {
                 Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-                    tabHolderUI(tabs.map { it.toTab() }, activeTab?.toTab(), openTab)
+                    val popupState = rememberDialogState().apply {
+                        size = DpSize(750.dp, 600.dp)
+                        position = WindowPosition.Aligned(Alignment.Center)
+                    }
+                    tabHolderUI(tabs.map { it.toTab(popupState) }, activeTab?.toTab(popupState), openTab)
                 }
             }
         }

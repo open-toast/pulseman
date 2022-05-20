@@ -13,14 +13,10 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state
+package com.toasttab.pulseman.state.protocol.text
 
-import androidx.compose.runtime.MutableState
-
-fun <T> MutableState<T>.onStateChange(newState: T) {
-    this.value = newState
-}
-
-fun MutableState<Boolean>.onChange() {
-    this.value = !this.value
-}
+data class TextTabValues(
+    val text: String?,
+    val selectedSendEncoding: String?,
+    val selectedReceiveEncoding: String?
+)

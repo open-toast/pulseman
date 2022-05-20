@@ -13,14 +13,15 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state
+package com.toasttab.pulseman.entities
 
-import androidx.compose.runtime.MutableState
+enum class SerializationFormat(val format: String) {
+    TEXT("Text"),
+    PROTOBUF("Protobuf");
 
-fun <T> MutableState<T>.onStateChange(newState: T) {
-    this.value = newState
-}
+    companion object {
+        private val formatMapping = values().associateBy { it.format }
 
-fun MutableState<Boolean>.onChange() {
-    this.value = !this.value
+        fun fromFormat(format: String): SerializationFormat = formatMapping[format]!!
+    }
 }

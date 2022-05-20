@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state
+package com.toasttab.pulseman.state.protocol.protobuf
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyListState
@@ -22,40 +22,45 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValues
+import com.toasttab.pulseman.entities.TabValuesV2
 import com.toasttab.pulseman.jars.JarManager
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.state.onStateChange
 import com.toasttab.pulseman.view.messageClassSelectorUI
 
-class MessageClassSelector(
-    private val pulsarMessageJars: JarManager<PulsarMessage>,
-    val selectedSendClass: SingleSelection<PulsarMessage> = SingleSelection(),
-    val selectedReceiveClasses: SnapshotStateMap<PulsarMessage, Boolean> = mutableStateMapOf(),
+class ProtobufMessageClassSelector(
+    private val pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
+    val selectedSendClass: SingleSelection<PulsarMessageClassInfo> = SingleSelection(),
+    val selectedReceiveClasses: SnapshotStateMap<PulsarMessageClassInfo, Boolean> = mutableStateMapOf(),
     val filter: MutableState<String> = mutableStateOf(""),
     private val listState: LazyListState = LazyListState(),
     val setUserFeedback: (String) -> Unit,
     val onChange: () -> Unit,
-    initialSettings: TabValues?
+    initialSettings: TabValuesV2?
 ) {
 
     init {
-        initialSettings?.selectedClassSend?.let { savedSelection ->
+        initialSettings?.protobufSettings?.selectedClassSend?.let { savedSelection ->
             selectedSendClass.selected = pulsarMessageJars.loadedClasses.getClass(savedSelection)
         }
-        initialSettings?.selectedClassReceive?.forEach { savedSelection ->
+        initialSettings?.protobufSettings?.selectedClassReceive?.forEach { savedSelection ->
             pulsarMessageJars.loadedClasses.getClass(savedSelection)?.let {
                 selectedReceiveClasses[it] = true
             }
         }
     }
 
-    private fun onSelectedSendClass(newValue: PulsarMessage) {
+    private fun onSelectedSendClass(newValue: PulsarMessageClassInfo) {
         selectedSendClass.selected = newValue
+        setUserFeedback("${AppStrings.SELECTED} ${newValue.cls.name}")
+        onChange()
     }
 
-    private fun onSelectedReceiveClass(newValue: PulsarMessage) {
+    private fun onSelectedReceiveClass(newValue: PulsarMessageClassInfo) {
         selectedReceiveClasses[newValue] = selectedReceiveClasses[newValue] != true
+        onChange()
     }
 
     private fun filteredClasses() = pulsarMessageJars.loadedClasses.filter(filter.value)
@@ -71,9 +76,7 @@ class MessageClassSelector(
                 selectedSendClass = selectedSendClass.selected,
                 selectedReceiveClasses = selectedReceiveClasses,
                 onSelectedReceiveClass = ::onSelectedReceiveClass,
-                listState = listState,
-                setUserFeedback = setUserFeedback,
-                onChange = onChange,
+                listState = listState
             )
         }
     }

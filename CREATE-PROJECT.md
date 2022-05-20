@@ -9,7 +9,9 @@ e.g `pulsar+ssl://pulsar.eng.com:6651`
 
 ## Adding jars to a project
 
-Three types of Jars can be added in the **Message**, **Auth** or **Other** jars tabs.  
+Two types of Jars can be added in the **Auth** or **Other** jars tabs in the top pane.  
+If the **Protobuf** serialization option is selected you can add the messaging jars in the **Jars** tab on the bottom
+pane.  
 These are described below. If a jar is added to any tab it is available to the whole project.
 
 ## Set up auth
@@ -72,7 +74,7 @@ More messaging formats will be added in the future.
 
 ### Steps
 
-1. Press the **Jars** button and go to the **Message** tab.
+1. Select the **Jars** tab in any **Protobuf** test tab.
 2. Add any jars containing your message classes.
 3. In the **Class** tab you can now select any class to send a message with or deserialize with.  
    You can define multiple deserialization classes if you want to try to decode a message into multiple formats.

@@ -17,6 +17,7 @@ Current formats supported for serialization and deserialization of messages:
 
 - [Protobuf messages](https://github.com/open-toast/protokt/blob/main/protokt-runtime/src/main/kotlin/com/toasttab/protokt/rt/KtMessage.kt) compiled with [protokt](https://github.com/open-toast/protokt)
 - [Protobuf messages](https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html) compiled with [protoc](https://developers.google.com/protocol-buffers)
+- Text format. Standard character sets are supported.
 
 ## Getting Started
 

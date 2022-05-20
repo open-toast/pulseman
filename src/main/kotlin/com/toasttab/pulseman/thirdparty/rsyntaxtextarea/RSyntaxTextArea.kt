@@ -28,9 +28,8 @@ import javax.swing.event.DocumentListener
  * Reusable UI components
  */
 object RSyntaxTextArea {
-
     fun textArea(initialText: String, syntaxStyle: String, onChange: () -> Unit) =
-        RSyntaxTextArea(initialText).let { textArea ->
+        RSyntaxTextArea(initialText).also { textArea ->
             textArea.syntaxEditingStyle = syntaxStyle
             Theme.load(javaClass.getResourceAsStream(RSYNTAX_THEME))
                 .apply { apply(textArea) }
@@ -41,6 +40,5 @@ object RSyntaxTextArea {
                     onChange()
                 }
             })
-            textArea
         }
 }

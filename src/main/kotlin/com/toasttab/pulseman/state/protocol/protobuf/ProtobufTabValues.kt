@@ -13,14 +13,10 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state
+package com.toasttab.pulseman.state.protocol.protobuf
 
-import androidx.compose.runtime.MutableState
-
-fun <T> MutableState<T>.onStateChange(newState: T) {
-    this.value = newState
-}
-
-fun MutableState<Boolean>.onChange() {
-    this.value = !this.value
-}
+data class ProtobufTabValues(
+    val code: String?,
+    val selectedClassSend: String?,
+    val selectedClassReceive: List<String>
+)

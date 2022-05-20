@@ -27,23 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.toasttab.pulseman.AppStrings.CLASS
-import com.toasttab.pulseman.AppStrings.RECEIVE
-import com.toasttab.pulseman.AppStrings.SEND
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.entities.SelectedView
 
 @Composable
-fun selectTabViewUI(
-    selectedView: SelectedView,
-    onSelectedViewChange: (SelectedView) -> Unit
+fun <T> selectTabViewUI(
+    tabList: List<Triple<String, T, () -> Unit>>,
+    selectedView: T
 ) {
     Row {
-        listOf(
-            Triple(SEND, SelectedView.SEND) { onSelectedViewChange(SelectedView.SEND) },
-            Triple(RECEIVE, SelectedView.RECEIVE) { onSelectedViewChange(SelectedView.RECEIVE) },
-            Triple(CLASS, SelectedView.PROTOBUF_CLASS) { onSelectedViewChange(SelectedView.PROTOBUF_CLASS) }
-        ).forEach { selectedViewTab ->
+        tabList.forEach { selectedViewTab ->
             Surface(color = if (selectedView == selectedViewTab.second) AppTheme.colors.backgroundLight else AppTheme.colors.backgroundMedium) {
                 Row(
                     modifier = Modifier.clickable(onClick = selectedViewTab.third),

@@ -13,15 +13,17 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar.handlers
+package com.toasttab.pulseman.pulsar.handlers.protobuf
 
 import com.toasttab.protokt.rt.KtDeserializer
 import com.toasttab.protokt.rt.KtMessage
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.TODO
+import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
 
-data class KTMessageHandler(override val cls: Class<out KtMessage>, override val file: File) : PulsarMessage {
+data class KTMessageHandler(override val cls: Class<out KtMessage>, override val file: File) : PulsarMessageClassInfo {
 
     override fun serialize(cls: Any): ByteArray {
         val ktMessage = cls as KtMessage

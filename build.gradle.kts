@@ -59,6 +59,7 @@ dependencies {
     implementation("com.google.api.grpc:proto-google-common-protos:$googleCommonProtos")
     implementation("com.google.protobuf:protobuf-java:$protobufUtils")
     implementation("com.google.protobuf:protobuf-java-util:$protobufUtils")
+    implementation("com.google.protobuf:protobuf-kotlin:$protobufUtils")
     implementation("com.toasttab.protokt:protokt-core:$protoktVersion")
     implementation("com.toasttab.protokt:protokt-extensions:$protoktVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")

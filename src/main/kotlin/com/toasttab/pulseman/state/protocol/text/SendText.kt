@@ -49,8 +49,9 @@ class SendText(
     private val textArea =
         RSyntaxTextArea.textArea(
             initialSettings?.textSettings?.text ?: "",
-            SyntaxConstants.SYNTAX_STYLE_JAVA
-        ) { } // TODO removing call to onChange as we lose focus on recomposition with RSyntaxTextArea. May be hard to fix
+            SyntaxConstants.SYNTAX_STYLE_JAVA,
+            onChange
+        )
 
     fun close() {
         scope.cancel(CANCEL_SCOPE_LOG)

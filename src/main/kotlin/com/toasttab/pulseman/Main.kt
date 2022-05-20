@@ -44,7 +44,11 @@ import com.toasttab.pulseman.AppStrings.LOAD_PROJECT
 import com.toasttab.pulseman.AppStrings.PULSEMAN
 import com.toasttab.pulseman.AppStrings.SAVE
 import com.toasttab.pulseman.AppStrings.SAVE_AS
+import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_MESSAGE
+import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_TITLE
 import com.toasttab.pulseman.view.tabHolderUI
+import javax.swing.JFrame
+import javax.swing.JOptionPane
 
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
@@ -63,8 +67,31 @@ fun main() = application {
     val tabs = appState.requestTabs.tabState
     val activeTab = appState.requestTabs.active
     val openTab = appState.requestTabs::open
+
+    val promptForUnsavedChanges: (() -> Unit) = {
+        if (appState.requestTabs.hasUnsavedChanges()) {
+            val result = JOptionPane.showConfirmDialog(
+                JFrame(),
+                UNSAVED_CHANGES_DIALOG_MESSAGE,
+                UNSAVED_CHANGES_DIALOG_TITLE,
+                JOptionPane.YES_NO_CANCEL_OPTION
+            )
+            when (result) {
+                JOptionPane.YES_OPTION -> {
+                    appState.save(true)
+                    exitApplication()
+                }
+                JOptionPane.NO_OPTION -> {
+                    exitApplication()
+                }
+            }
+        } else {
+            exitApplication()
+        }
+    }
+
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = promptForUnsavedChanges,
         title = PULSEMAN,
         icon = painterResource(PULSE_LOGO),
         state = rememberWindowState(width = 900.dp, height = 1200.dp)

@@ -16,16 +16,16 @@
 package com.toasttab.pulseman.files
 
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_DIRECTORY
-import com.toasttab.pulseman.AppStrings.SELECT_JAR_FILE
-import com.toasttab.pulseman.AppStrings.ZIP_FILE
+import com.toasttab.pulseman.AppStrings.JAR_FILE_DIALOG_TITLE
+import com.toasttab.pulseman.AppStrings.PROJECT_FILE_DIALOG_TITLE
+import com.toasttab.pulseman.AppStrings.SAVE_FILE_DIALOG_TITLE
+import com.toasttab.pulseman.util.FileDialog
+import com.toasttab.pulseman.util.FileDialogMode
 import java.io.File
 import java.io.FileWriter
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import javax.swing.JFileChooser
-import javax.swing.JFrame
-import javax.swing.filechooser.FileNameExtensionFilter
 
 /**
  * Handles all file operations
@@ -43,11 +43,12 @@ object FileManagement {
     private const val CONFIG_DIRECTORY = "pulseman_config/"
     private const val LAST_CONFIG_USED_FILENAME = "last_config_loaded"
     private const val PROJECTS_FOLDER_NAME = "projects/"
-    private const val ZIP_EXTENSION = "zip"
-    private const val JAR_EXTENSION = "jar"
+    private const val ZIP_EXTENSION = ".zip"
+    private const val JAR_EXTENSION = ".jar"
     private const val MAC_OS = "Mac"
     private const val OS_PROPERTY = "os.name"
     private const val HOME_PROPERTY = "user.home"
+    private const val DEFAULT_PROJECT_NAME = "pulseman-project$ZIP_EXTENSION"
 
     private val os = System.getProperty(OS_PROPERTY)
 
@@ -74,22 +75,20 @@ object FileManagement {
     }
 
     fun addFileDialog(jarFolder: File, action: (File) -> Unit) {
-        val file = JFileChooser().apply {
-            fileSelectionMode = JFileChooser.FILES_ONLY
-            fileFilter = FileNameExtensionFilter(SELECT_JAR_FILE, JAR_EXTENSION)
-        }
+        val fileDialog = FileDialog(
+            title = JAR_FILE_DIALOG_TITLE,
+            mode = FileDialogMode.LOAD,
+            extensionFilters = listOf(JAR_EXTENSION)
+        )
 
-        // Need to get a JFrame to use swing
-        val frame = JFrame()
+        fileDialog.show()
 
-        when (file.showOpenDialog(frame)) {
-            JFileChooser.APPROVE_OPTION -> {
-                val newFile = File(jarFolder, file.selectedFile.name)
-                file.selectedFile.copyTo(newFile, true)
-                action(newFile)
-            }
-            else -> return
-        }
+        val selectedFile = fileDialog.getSelectedFileOrNull() ?: return
+        val copiedFile = jarFolder.resolve(selectedFile.name)
+
+        selectedFile.copyTo(copiedFile, true)
+
+        action(copiedFile)
     }
 
     fun deleteFile(file: File) {
@@ -99,23 +98,22 @@ object FileManagement {
 
     fun saveProject(tabsJson: String, quickSave: Boolean, jarFolders: List<File>) {
         val filename = if (!quickSave) {
-            val fileChooser = JFileChooser().apply {
-                currentDirectory = projectFolder
-                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
-            }
+            val fileDialog = FileDialog(
+                title = SAVE_FILE_DIALOG_TITLE,
+                mode = FileDialogMode.SAVE,
+                extensionFilters = listOf(ZIP_EXTENSION),
+                directory = projectFolder.absolutePath,
+                file = DEFAULT_PROJECT_NAME
+            )
 
-            // Need to get a JFrame to use swing
-            val frame = JFrame()
+            fileDialog.show()
 
-            when (fileChooser.showSaveDialog(frame)) {
-                JFileChooser.APPROVE_OPTION -> {
-                    val fileName = fileChooser.selectedFile.toString()
-                    if (fileName.substringAfterLast(".") == ZIP_EXTENSION)
-                        fileName
-                    else
-                        "$fileName.$ZIP_EXTENSION"
+            fileDialog.getSelectedFileOrNull()?.let {
+                if (it.absolutePath.endsWith(ZIP_EXTENSION)) {
+                    it.absolutePath
+                } else {
+                    it.absolutePath + ZIP_EXTENSION
                 }
-                else -> null
             }
         } else {
             getLastLoadedFile()?.absolutePath
@@ -130,21 +128,16 @@ object FileManagement {
         return if (loadDefault) {
             getLastLoadedFile()
         } else {
-            val file = JFileChooser().apply {
-                currentDirectory = projectFolder
-                fileSelectionMode = JFileChooser.FILES_ONLY
-                fileFilter = FileNameExtensionFilter(ZIP_FILE, ZIP_EXTENSION)
-            }
+            val fileDialog = FileDialog(
+                title = PROJECT_FILE_DIALOG_TITLE,
+                mode = FileDialogMode.LOAD,
+                extensionFilters = listOf(ZIP_EXTENSION),
+                directory = projectFolder.absolutePath,
+            )
 
-            // Need to get a JFrame to use swing
-            val frame = JFrame()
+            fileDialog.show()
 
-            when (file.showOpenDialog(frame)) {
-                JFileChooser.APPROVE_OPTION -> {
-                    file.selectedFile
-                }
-                else -> null
-            }
+            return fileDialog.getSelectedFileOrNull()
         }
     }
 

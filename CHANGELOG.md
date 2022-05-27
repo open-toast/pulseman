@@ -1,12 +1,23 @@
 # Changelog
 
+## [1.2.0] - 2022-05-27
+
+NOTE: The project file format has been updated in this release. Any old format projects will be upgraded to the new
+format on opening but this new format will not work on older versions of pulseman.
+
+- Allow user feedback to be copied.
+- Fix code generation imports for protokt inner classes, replace '$' with '.'.
+- Use native file dialogs.
+- Add support for sending plain text messages with pulsar.
+- Add support for googles new kotlin protobuf dsl.
+
 ## [1.1.0] - 2022-02-07
 
 - Upgrade to 1.0.0 release of Jetpack Compose for Desktop, general refactor was required.
-  - Update AppManager to using Window.
-  - Use JFrame for swing components. 
-- Make all the views as stateless as possible using state hoisting. 
-- Use the correct home directory on Mac so the app has permissions and a signed version of the app can be used. 
+    - Update AppManager to using Window.
+    - Use JFrame for swing components.
+- Make all the views as stateless as possible using state hoisting.
+- Use the correct home directory on Mac so the app has permissions and a signed version of the app can be used.
 - Moved companion objects to the bottom of all classes.
 - Fix issue where a successful send message was logged even on fail.
 - Alphabetise imports and dependencies.

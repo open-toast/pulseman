@@ -58,7 +58,7 @@ object KotlinScripting {
             setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
             return classToGenerate.serialize(generatedClass)
         } catch (ex: Throwable) {
-            setUserFeedback("$EXCEPTION:\n$ex")
+            setUserFeedback(ex.message ?: "Unknown")
         }
         return null
     }

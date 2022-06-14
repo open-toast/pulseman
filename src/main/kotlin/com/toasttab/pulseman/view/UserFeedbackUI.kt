@@ -61,17 +61,11 @@ fun userFeedbackUI(
                     .fillMaxWidth(fraction = 0.95f)
             ) {
                 userFeedback.forEach {
-                    Text(
-                        text = it,
-                        overflow = TextOverflow.Ellipsis,
-                        softWrap = false,
-                        maxLines = 1
-                    )
+                    Text(text = it, softWrap = true)
                 }
             }
             Column(
-                modifier = Modifier
-                    .align(alignment = Alignment.CenterVertically)
+                modifier = Modifier.align(alignment = Alignment.CenterVertically)
             ) {
                 IconButton(
                     onClick = { onUserFeedbackClear() },

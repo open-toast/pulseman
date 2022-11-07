@@ -50,7 +50,7 @@ open class PulsarITestSupport {
     }
 
     companion object {
-        private const val pulsarVersion = "2.8.0"
+        private const val pulsarVersion = "2.10.2"
         private const val nameSpacePublic = "/admin/v2/namespaces/public"
 
         private lateinit var admin: PulsarAdmin

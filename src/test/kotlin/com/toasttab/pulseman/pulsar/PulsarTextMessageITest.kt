@@ -95,6 +95,7 @@ class PulsarTextMessageITest : PulsarITestSupport() {
             Arguments.of(CharacterSet.UTF_16, utf16Bytes, "Test input UTF_16, $ €"),
             Arguments.of(CharacterSet.UTF_16BE, utf16BEBytes, "Test input UTF_16BE, $ €"),
             Arguments.of(CharacterSet.UTF_16LE, utf16LEBytes, "Test input UTF_16LE, $ €"),
+            Arguments.of(CharacterSet.BASE64, base64Bytes, "Test input Base64, $"),
         )
     }
 
@@ -103,6 +104,12 @@ class PulsarTextMessageITest : PulsarITestSupport() {
         private val utf8Bytes = ubyteArrayOf(
             0x54U, 0x65U, 0x73U, 0x74U, 0x20U, 0x69U, 0x6eU, 0x70U, 0x75U, 0x74U, 0x20U, 0x55U, 0x54U, 0x46U, 0x5fU,
             0x38U, 0x2cU, 0x20U, 0x24U, 0x20U, 0xe2U, 0x82U, 0xacU
+        ).asByteArray()
+
+        @OptIn(ExperimentalUnsignedTypes::class)
+        private val base64Bytes = ubyteArrayOf(
+            0x54U, 0x65U, 0x73U, 0x74U, 0x20U, 0x69U, 0x6eU, 0x70U, 0x75U, 0x74U, 0x20U, 0x49U, 0x53U, 0x4fU, 0x5fU,
+            0x38U, 0x38U, 0x35U, 0x39U, 0x5fU, 0x31U, 0x2cU, 0x20U, 0x24U
         ).asByteArray()
 
         @OptIn(ExperimentalUnsignedTypes::class)

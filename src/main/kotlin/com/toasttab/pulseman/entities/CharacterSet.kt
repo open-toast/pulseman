@@ -22,7 +22,8 @@ enum class CharacterSet(val charSet: String) {
     UTF_8("UTF-8"),
     UTF_16BE("UTF-16BE"),
     UTF_16LE("UTF-16LE"),
-    UTF_16("UTF-16");
+    UTF_16("UTF-16"),
+    BASE64("Base64");
 
     companion object {
         private val charSetMapping = values().associateBy { it.charSet }

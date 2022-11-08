@@ -38,7 +38,7 @@ data class TextHandler(val characterSet: CharacterSet) : PulsarMessage {
             }
 
         } catch (ex: Throwable) {
-            "$EXCEPTION:$ex"
+            "$EXCEPTION: $ex"
         }
     }
 

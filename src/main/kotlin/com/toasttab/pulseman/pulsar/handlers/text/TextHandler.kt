@@ -19,19 +19,26 @@ import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.entities.CharacterSet
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 import java.nio.charset.Charset
+import java.util.Base64
 
 data class TextHandler(val characterSet: CharacterSet) : PulsarMessage {
-    private val convertedCharset = Charset.forName(characterSet.charSet)
     override fun serialize(cls: Any): ByteArray {
         val msg = cls as String
-        return msg.toByteArray(convertedCharset)
+        return when (characterSet) {
+            CharacterSet.BASE64 -> Base64.getDecoder().decode(msg)
+            else -> msg.toByteArray(Charset.forName(characterSet.charSet))
+        }
     }
 
     override fun deserialize(bytes: ByteArray): Any {
         return try {
-            String(bytes, convertedCharset)
+            when (characterSet) {
+                CharacterSet.BASE64 -> Base64.getEncoder().encodeToString(bytes)
+                else -> String(bytes, Charset.forName(characterSet.charSet))
+            }
+
         } catch (ex: Throwable) {
-            "$EXCEPTION:$ex"
+            "$EXCEPTION: $ex"
         }
     }
 

@@ -17,6 +17,7 @@ package com.toasttab.pulseman.entities
 
 // Taken from import java.nio.charset.Charset
 enum class CharacterSet(val charSet: String) {
+    BASE64("Base64"),
     US_ASCII("US-ASCII"),
     ISO_8859_1("ISO-8859-1"),
     UTF_8("UTF-8"),

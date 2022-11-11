@@ -21,7 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.FAILED_TO_SEND_MESSAGE
 import com.toasttab.pulseman.entities.ButtonState
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.onStateChange
@@ -41,7 +41,7 @@ class SendText(
     val setUserFeedback: (String) -> Unit,
     val pulsarSettings: PulsarSettings,
     onChange: () -> Unit,
-    initialSettings: TabValuesV2? = null,
+    initialSettings: TabValuesV3? = null
 ) {
     private val sendState = mutableStateOf(ButtonState.WAITING)
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -60,7 +60,7 @@ class SendText(
     private fun sendPulsarMessage() {
         val pulsar = Pulsar(pulsarSettings, setUserFeedback)
         try {
-            pulsar.sendMessage(serializationTypeSelector.selectedSendEncoding.selected?.serialize(textArea.text))
+            pulsar.sendMessage(serializationTypeSelector.selectedEncoding.selected?.serialize(textArea.text))
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_SEND_MESSAGE:$ex")
         } finally {

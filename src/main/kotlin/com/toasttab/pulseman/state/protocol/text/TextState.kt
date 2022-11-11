@@ -23,7 +23,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.ReceivedMessages
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.pulsar.MessageHandlingImpl
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.ReceiveMessage
@@ -33,7 +33,7 @@ import com.toasttab.pulseman.view.selectTabViewUI
 
 class TextState(
     appState: AppState,
-    initialSettings: TabValuesV2? = null,
+    initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit
@@ -62,7 +62,7 @@ class TextState(
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
 
     private val messageHandling = MessageHandlingImpl(
-        messageType = serializationTypeSelector.selectedReceiveEncoding,
+        messageType = serializationTypeSelector.selectedEncoding,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -74,10 +74,9 @@ class TextState(
         messageHandling = messageHandling
     )
 
-    fun toTextTabValues() = TextTabValues(
+    fun toTextTabValues() = TextTabValuesV3(
         text = sendMessage.currentText(),
-        selectedSendEncoding = serializationTypeSelector.selectedSendCharacterSet?.charSet,
-        selectedReceiveEncoding = serializationTypeSelector.selectedReceiveCharacterSet?.charSet
+        selectedEncoding = serializationTypeSelector.selectedCharacterSet?.charSet
     )
 
     private val selectedView = mutableStateOf(SelectedTextView.SEND)

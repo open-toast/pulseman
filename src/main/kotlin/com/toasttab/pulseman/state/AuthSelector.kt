@@ -22,7 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.AppStrings.ADD_CREDENTIAL_VALUES
 import com.toasttab.pulseman.AppStrings.SELECTED
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
@@ -36,7 +36,7 @@ class AuthSelector(
     val filter: MutableState<String> = mutableStateOf(""),
     private val setUserFeedback: (String) -> Unit,
     private val onChange: () -> Unit,
-    initialSettings: TabValuesV2?
+    initialSettings: TabValuesV3?
 ) {
     private val defaultJsonParameters = "// $ADD_CREDENTIAL_VALUES"
 

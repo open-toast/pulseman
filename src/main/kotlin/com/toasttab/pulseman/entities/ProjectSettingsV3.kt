@@ -15,6 +15,14 @@
 
 package com.toasttab.pulseman.entities
 
-interface ProjectSettings {
-    fun toV3(): List<TabValuesV3>
+data class ProjectSettingsV3(
+    val configVersion: String,
+    val tabs: List<TabValuesV3>
+) : ProjectSettings {
+
+    override fun toV3(): List<TabValuesV3> = tabs
+
+    companion object {
+        const val currentVersion = "3.0.0"
+    }
 }

@@ -17,13 +17,13 @@ package com.toasttab.pulseman.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 
 data class Tab(
     val tabName: String,
     val close: () -> Unit,
     val unsavedChanges: Boolean,
-    val initialSettings: TabValuesV2?,
+    val initialSettings: TabValuesV3?,
     val isActive: Boolean,
     val onFocusedUpdate: (Boolean) -> Unit,
     val activate: () -> Unit,

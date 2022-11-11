@@ -29,7 +29,7 @@ import com.toasttab.pulseman.AppStrings.SELECTED
 import com.toasttab.pulseman.AppStrings.SERIALIZATION_FORMAT
 import com.toasttab.pulseman.entities.SerializationFormat
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.tabUI
 
 class TabState(
@@ -38,10 +38,10 @@ class TabState(
     val selection: SingleSelection<TabState>,
     val close: ((TabState) -> Unit),
     val unsavedChanges: MutableState<Boolean> = mutableStateOf(false),
-    val initialSettings: TabValuesV2? = null,
+    val initialSettings: TabValuesV3? = null,
     initialMessage: String? = null
 ) {
-    private var lastSavedTabValues: TabValuesV2? = initialSettings
+    private var lastSavedTabValues: TabValuesV3? = initialSettings
 
     private val userFeedback = UserFeedback()
 
@@ -90,8 +90,8 @@ class TabState(
         pulsarSettings.close()
     }
 
-    fun tabValues(save: Boolean = false): TabValuesV2 {
-        val tabValues = TabValuesV2(
+    fun tabValues(save: Boolean = false): TabValuesV3 {
+        val tabValues = TabValuesV3(
             tabName = tabName.value,
             topic = pulsarSettings.topic.value,
             serviceUrl = pulsarSettings.serviceUrl.value,

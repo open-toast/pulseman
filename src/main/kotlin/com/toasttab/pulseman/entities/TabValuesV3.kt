@@ -13,24 +13,15 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package com.toasttab.pulseman.entities
 
-import com.toasttab.pulseman.state.protocol.protobuf.ProtobufTabValuesV2
-import com.toasttab.pulseman.state.protocol.text.TextTabValuesV2
+import com.toasttab.pulseman.state.protocol.protobuf.ProtobufTabValuesV3
+import com.toasttab.pulseman.state.protocol.text.TextTabValuesV3
 
 /**
  * Stores the settings for each tab, will be serialized to a json string and saved in the project zip.
- *
- * This is deprecated, keeping it for backwards compatibility with old config format, will eventually delete altogether.
  */
-@Deprecated(
-    "This is an old save format use TabValuesV3",
-    replaceWith = ReplaceWith("TabValuesV3"),
-    level = DeprecationLevel.WARNING
-)
-data class TabValuesV2(
+data class TabValuesV3(
     val tabName: String?,
     val topic: String?,
     val serviceUrl: String?,
@@ -38,6 +29,6 @@ data class TabValuesV2(
     val authJsonParameters: String?,
     val propertyMap: String?,
     val serializationFormat: SerializationFormat?,
-    val protobufSettings: ProtobufTabValuesV2?,
-    val textSettings: TextTabValuesV2?
+    val protobufSettings: ProtobufTabValuesV3?,
+    val textSettings: TextTabValuesV3?
 )

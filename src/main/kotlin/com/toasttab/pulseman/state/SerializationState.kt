@@ -19,7 +19,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.entities.SerializationFormat
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.state.protocol.protobuf.ProtobufState
 import com.toasttab.pulseman.state.protocol.text.TextState
 
@@ -29,7 +29,7 @@ import com.toasttab.pulseman.state.protocol.text.TextState
  */
 class SerializationState(
     appState: AppState,
-    initialSettings: TabValuesV2? = null,
+    initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit

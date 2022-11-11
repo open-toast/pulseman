@@ -21,44 +21,30 @@ import androidx.compose.runtime.Composable
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.CharacterSet
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 import com.toasttab.pulseman.pulsar.handlers.text.TextHandler
 import com.toasttab.pulseman.view.serializationSelectorUI
 
 class SerializationTypeSelector(
-    val selectedSendEncoding: SingleSelection<PulsarMessage> = SingleSelection(),
-    val selectedReceiveEncoding: SingleSelection<PulsarMessage> = SingleSelection(),
+    val selectedEncoding: SingleSelection<PulsarMessage> = SingleSelection(),
     private val listState: LazyListState = LazyListState(),
     val setUserFeedback: (String) -> Unit,
     val onChange: () -> Unit,
-    initialSettings: TabValuesV2?
+    initialSettings: TabValuesV3?
 ) {
     init {
-        selectedSendEncoding.selected = initialSettings?.textSettings?.selectedSendEncoding?.let { charset ->
-            TextHandler(characterSet = CharacterSet.fromCharSet(charset))
-        } ?: TextHandler(characterSet = CharacterSet.UTF_8)
-
-        selectedReceiveEncoding.selected = initialSettings?.textSettings?.selectedReceiveEncoding?.let { charset ->
+        selectedEncoding.selected = initialSettings?.textSettings?.selectedEncoding?.let { charset ->
             TextHandler(characterSet = CharacterSet.fromCharSet(charset))
         } ?: TextHandler(characterSet = CharacterSet.UTF_8)
     }
 
-    val selectedSendCharacterSet: CharacterSet?
-        get() = (selectedSendEncoding.selected as TextHandler?)?.characterSet
+    val selectedCharacterSet: CharacterSet?
+        get() = (selectedEncoding.selected as TextHandler?)?.characterSet
 
-    val selectedReceiveCharacterSet: CharacterSet?
-        get() = (selectedReceiveEncoding.selected as TextHandler?)?.characterSet
-
-    private fun onSelectedSendEncoding(newValue: CharacterSet) {
-        selectedSendEncoding.selected = TextHandler(characterSet = newValue)
+    private fun onSelectedEncoding(newValue: CharacterSet) {
+        selectedEncoding.selected = TextHandler(characterSet = newValue)
         setUserFeedback("${AppStrings.SELECTED_SEND_CHARSET} ${newValue.charSet}")
-        onChange()
-    }
-
-    private fun onSelectedReceiveEncoding(newValue: CharacterSet) {
-        selectedReceiveEncoding.selected = TextHandler(characterSet = newValue)
-        setUserFeedback("${AppStrings.SELECTED_RECEIVE_CHARSET} ${newValue.charSet}")
         onChange()
     }
 
@@ -67,10 +53,8 @@ class SerializationTypeSelector(
         return {
             serializationSelectorUI(
                 listState = listState,
-                selectedSendCharacterSet = (selectedSendEncoding.selected as TextHandler?)?.characterSet,
-                selectedReceiveCharacterSet = (selectedReceiveEncoding.selected as TextHandler?)?.characterSet,
-                onSelectedSendCharacterSet = ::onSelectedSendEncoding,
-                onSelectedReceiveCharacterSet = ::onSelectedReceiveEncoding
+                selectedCharacterSet = (selectedEncoding.selected as TextHandler?)?.characterSet,
+                onSelectedCharacterSet = ::onSelectedEncoding
             )
         }
     }

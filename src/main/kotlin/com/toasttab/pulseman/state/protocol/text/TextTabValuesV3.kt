@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.entities
+package com.toasttab.pulseman.state.protocol.text
 
-interface ProjectSettings {
-    fun toV3(): List<TabValuesV3>
-}
+data class TextTabValuesV3(
+    val text: String?,
+    val selectedEncoding: String?
+)

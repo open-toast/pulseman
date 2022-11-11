@@ -18,11 +18,12 @@ package com.toasttab.pulseman
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.toasttab.pulseman.entities.ClassInfo
-import com.toasttab.pulseman.entities.ProjectSettings
+import com.toasttab.pulseman.entities.ProjectSettingsV1
 import com.toasttab.pulseman.entities.ProjectSettingsV2
+import com.toasttab.pulseman.entities.ProjectSettingsV3
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.jars.LoadedClasses
@@ -69,16 +70,9 @@ class AppState {
     fun loadFile(loadDefault: Boolean) {
         FileManagement.getProjectFile(loadDefault)?.let { projectFile ->
             jarManagers.forEach { it.deleteAllJars() }
-
             val newTabs =
                 FileManagement.loadProject(projectFile)?.let { loadedProject ->
-                    try {
-                        mapper.readValue(loadedProject, ProjectSettingsV2::class.java).tabs
-                    } catch (ex: ValueInstantiationException) {
-                        throw ex
-                    } catch (ex: Exception) {
-                        mapper.readValue(loadedProject, ProjectSettings::class.java).toV2()
-                    }
+                    loadConfig(loadedProject)
                 }
             if (newTabs != null) {
                 jarManagers.forEach { it.refresh() }
@@ -86,6 +80,27 @@ class AppState {
                 requestTabs.load(newTabs)
             }
         }
+    }
+
+    private fun loadConfig(project: String): List<TabValuesV3> {
+        val error = StringBuilder()
+        try {
+            return mapper.readValue(project, ProjectSettingsV3::class.java).toV3()
+        } catch (ex: Exception) {
+            error.appendLine("V3 project load:$ex")
+        }
+        try {
+            return mapper.readValue(project, ProjectSettingsV2::class.java).toV3()
+        } catch (ex: Exception) {
+            error.appendLine("V2 project load:$ex")
+        }
+        try {
+            return mapper.readValue(project, ProjectSettingsV1::class.java).toV3()
+        } catch (ex: Exception) {
+            error.append("V1 project load:$ex")
+        }
+
+        throw Exception(error.toString())
     }
 
     fun loadDefault(initialMessage: String?) {
@@ -96,8 +111,8 @@ class AppState {
         FileManagement.saveProject(
             mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(
-                    ProjectSettingsV2(
-                        configVersion = ProjectSettingsV2.V1,
+                    ProjectSettingsV3(
+                        configVersion = ProjectSettingsV3.currentVersion,
                         tabs = requestTabs.allTabValues()
                     )
                 ),

@@ -23,7 +23,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.ReceivedMessages
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.pulsar.MessageHandlingClassImpl
 import com.toasttab.pulseman.state.JarManagement
 import com.toasttab.pulseman.state.JarManagementTabs
@@ -35,7 +35,7 @@ import com.toasttab.pulseman.view.selectTabViewUI
 
 class ProtobufState(
     appState: AppState,
-    initialSettings: TabValuesV2? = null,
+    initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit
@@ -56,7 +56,7 @@ class ProtobufState(
     private val protobufJarManagement =
         JarManagement(
             appState.pulsarMessageJars,
-            protobufSelector.selectedSendClass,
+            protobufSelector.selectedClass,
             setUserFeedback,
             onChange
         )
@@ -70,7 +70,7 @@ class ProtobufState(
     private val sendMessage = SendProtobufMessage(
         appState = appState,
         setUserFeedback = setUserFeedback,
-        selectedClass = protobufSelector.selectedSendClass,
+        selectedClass = protobufSelector.selectedClass,
         pulsarSettings = pulsarSettings,
         initialSettings = initialSettings,
         onChange = onChange
@@ -78,7 +78,7 @@ class ProtobufState(
 
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
     private val messageHandling = MessageHandlingClassImpl(
-        selectedReceiveClasses = protobufSelector.selectedReceiveClasses,
+        selectedProtoClass = protobufSelector.selectedClass,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -91,11 +91,9 @@ class ProtobufState(
     )
 
     fun toProtobufTabValues() =
-        ProtobufTabValues(
+        ProtobufTabValuesV3(
             code = sendMessage.currentCode(),
-            selectedClassSend = protobufSelector.selectedSendClass.selected?.cls?.name,
-            selectedClassReceive = protobufSelector.selectedReceiveClasses
-                .mapNotNull { if (it.value) it.key.cls.name else null }
+            selectedClass = protobufSelector.selectedClass.selected?.cls?.name
         )
 
     private val selectedView = mutableStateOf(SelectedProtobufView.SEND)

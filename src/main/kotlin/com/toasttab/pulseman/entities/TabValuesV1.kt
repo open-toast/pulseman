@@ -21,11 +21,11 @@ package com.toasttab.pulseman.entities
  * This is deprecated, keeping it for backwards compatibility with old config format, will eventually delete altogether.
  */
 @Deprecated(
-    "This is an old save format use TabValuesV2",
-    replaceWith = ReplaceWith("TabValuesV2"),
+    "This is an old save format use TabValuesV3",
+    replaceWith = ReplaceWith("TabValuesV3"),
     level = DeprecationLevel.WARNING
 )
-data class TabValues(
+data class TabValuesV1(
     val tabName: String?,
     val topic: String?,
     val serviceUrl: String?,

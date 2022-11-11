@@ -39,8 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,16 +74,11 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                                 }
                             }
                         }
-                    }.pointerMoveFilter(
-                        onEnter = {
-                            tab.onFocusedUpdate(true)
-                            false
-                        },
-                        onExit = {
-                            tab.onFocusedUpdate(false)
-                            false
-                        }
-                    )
+                    }.onPointerEvent(PointerEventType.Enter) {
+                        tab.onFocusedUpdate(true)
+                    }.onPointerEvent(PointerEventType.Exit) {
+                        tab.onFocusedUpdate(false)
+                    }
                 ) {
                     Row(
                         modifier = Modifier.clickable(onClick = { tab.activate() }).padding(4.dp),
@@ -107,19 +103,15 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                                     .size(24.dp)
                                     .padding(4.dp)
                                     .clickable { tab.close() }
-                                    .pointerMoveFilter(
-                                        onEnter = {
-                                            tab.onEnterIconUnsavedChanges()
-                                            false
-                                        },
-                                        onExit = {
-                                            tab.onExitIconUnsavedChanges()
-                                            false
-                                        }
-                                    ).then(
+                                    .onPointerEvent(PointerEventType.Enter) {
+                                        tab.onEnterIconUnsavedChanges()
+                                    }.onPointerEvent(PointerEventType.Exit) {
+                                        tab.onExitIconUnsavedChanges()
+                                    }
+                                    .then(
                                         if (tab.drawBackground)
                                             Modifier.background(
-                                                AppTheme.colors.backgroundLight,
+                                                color = AppTheme.colors.backgroundLight,
                                                 shape = RoundedCornerShape(4.dp)
                                             )
                                         else
@@ -135,19 +127,16 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                                     .padding(4.dp)
                                     .clickable { tab.close() }
                                     .alpha(if (tab.focused) 1f else 0f)
-                                    .pointerMoveFilter(
-                                        onEnter = {
-                                            tab.onEnterIcon()
-                                            false
-                                        },
-                                        onExit = {
-                                            tab.onExitIcon()
-                                            false
-                                        }
-                                    ).then(
+                                    .onPointerEvent(PointerEventType.Enter) {
+                                        tab.onEnterIcon()
+                                    }
+                                    .onPointerEvent(PointerEventType.Exit) {
+                                        tab.onExitIcon()
+                                    }
+                                    .then(
                                         if (tab.drawBackground)
                                             Modifier.background(
-                                                AppTheme.colors.backgroundLight,
+                                                color = AppTheme.colors.backgroundLight,
                                                 shape = RoundedCornerShape(4.dp)
                                             )
                                         else

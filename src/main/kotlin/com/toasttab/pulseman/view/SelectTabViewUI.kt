@@ -23,10 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,18 +38,9 @@ fun <T> selectTabViewUI(
         tabList.forEachIndexed { index, selectedViewTab ->
             Surface(color = if (selectedView == selectedViewTab.second) AppTheme.colors.backgroundLight else AppTheme.colors.backgroundMedium) {
                 Row(
-                    modifier = Modifier.clickable(onClick = selectedViewTab.third).drawBehind {
-                        val strokeWidth = Stroke.DefaultMiter / 2
-                        if (index != 0) {
-                            val oneQuarter = size.height / 4
-                            drawLine(
-                                color = Color.LightGray,
-                                start = Offset(0f, oneQuarter),
-                                end = Offset(0f, size.height - oneQuarter),
-                                strokeWidth = strokeWidth
-                            )
-                        }
-                    },
+                    modifier = Modifier
+                        .clickable(onClick = selectedViewTab.third)
+                        .addSeparator(index),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(

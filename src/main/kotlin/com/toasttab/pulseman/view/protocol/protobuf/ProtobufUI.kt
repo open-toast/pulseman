@@ -26,9 +26,10 @@ import com.toasttab.pulseman.AppTheme
 import com.toasttab.pulseman.state.protocol.protobuf.SelectedProtobufView
 
 /**
- * Groups all the tabs for sending and receiving a protobuf message. It contaings the following tabs.
+ * Groups all the tabs for sending and receiving a protobuf message. It contains the following tabs.
  * - Send message tab
  * - Receive message tab
+ * - Convert text to protobuf class tab
  * - Select protobuf jars tab
  * - Select protobuf serialization and deserialization class tab
  */
@@ -39,7 +40,8 @@ fun protobufUI(
     receiveMessageUI: @Composable () -> Unit,
     sendMessageUI: @Composable () -> Unit,
     selectTabViewUI: @Composable () -> Unit,
-    protobufJarManagementUI: @Composable () -> Unit
+    protobufJarManagementUI: @Composable () -> Unit,
+    byteConversionUI: @Composable () -> Unit
 ) {
     Column {
         selectTabViewUI()
@@ -54,6 +56,9 @@ fun protobufUI(
                 }
                 SelectedProtobufView.RECEIVE -> {
                     receiveMessageUI()
+                }
+                SelectedProtobufView.BYTE_CONVERT -> {
+                    byteConversionUI()
                 }
                 SelectedProtobufView.JAR_MANAGEMENT -> {
                     protobufJarManagementUI()

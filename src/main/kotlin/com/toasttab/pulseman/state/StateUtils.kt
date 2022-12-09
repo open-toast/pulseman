@@ -21,6 +21,11 @@ fun <T> MutableState<T>.onStateChange(newState: T) {
     this.value = newState
 }
 
+fun <T> MutableState<T>.onStateChange(newState: T, action: () -> Unit) {
+    this.value = newState
+    action()
+}
+
 fun MutableState<Boolean>.onChange() {
     this.value = !this.value
 }

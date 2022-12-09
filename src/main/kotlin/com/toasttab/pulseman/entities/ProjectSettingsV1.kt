@@ -15,6 +15,7 @@
 
 package com.toasttab.pulseman.entities
 
+import com.toasttab.pulseman.state.protocol.protobuf.ConvertType
 import com.toasttab.pulseman.state.protocol.protobuf.ProtobufTabValuesV3
 import com.toasttab.pulseman.state.protocol.text.TextTabValuesV3
 
@@ -39,7 +40,9 @@ data class ProjectSettingsV1(@Suppress("DEPRECATION") val tabs: List<TabValuesV1
                 serializationFormat = SerializationFormat.PROTOBUF,
                 protobufSettings = ProtobufTabValuesV3(
                     code = tab.code,
-                    selectedClass = tab.selectedClassSend
+                    selectedClass = tab.selectedClassSend,
+                    convertValue = null,
+                    convertType = ConvertType.BASE64
                 ),
                 textSettings = TextTabValuesV3(
                     text = null,

@@ -17,5 +17,7 @@ package com.toasttab.pulseman.state.protocol.protobuf
 
 data class ProtobufTabValuesV3(
     val code: String?,
-    val selectedClass: String?
+    val selectedClass: String?,
+    val convertValue: String?,
+    val convertType: ConvertType?
 )

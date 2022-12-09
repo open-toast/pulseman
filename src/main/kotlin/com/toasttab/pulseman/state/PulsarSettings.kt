@@ -23,7 +23,7 @@ import androidx.compose.ui.window.DialogState
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.AUTH
 import com.toasttab.pulseman.AppStrings.OTHER
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.propertyConfigurationUI
 import com.toasttab.pulseman.view.pulsarSettingsUI
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +39,7 @@ class PulsarSettings(
     val propertySettings: PropertyConfiguration,
     setUserFeedback: (String) -> Unit,
     val onChange: () -> Unit,
-    initialSettings: TabValuesV2? = null
+    initialSettings: TabValuesV3? = null
 ) {
     init {
         topic.value = initialSettings?.topic ?: ""

@@ -15,14 +15,14 @@
 
 package com.toasttab.pulseman.state
 
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class PropertyConfiguration(
     onChange: () -> Unit,
-    initialSettings: TabValuesV2?
+    initialSettings: TabValuesV3?
 ) {
     // TODO allow comments in json dialogs
     private val defaultJsonParameters = "{\n}"

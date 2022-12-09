@@ -13,10 +13,18 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state.protocol.protobuf
+package com.toasttab.pulseman.state.protocol.text
 
-data class ProtobufTabValues(
-    val code: String?,
-    val selectedClassSend: String?,
-    val selectedClassReceive: List<String>
+/**
+ * This is deprecated, keeping it for backwards compatibility with old config format, will eventually delete altogether.
+ */
+@Deprecated(
+    "This is an old save format, use TextTabValuesV3 instead",
+    replaceWith = ReplaceWith("TextTabValuesV3"),
+    level = DeprecationLevel.WARNING
+)
+data class TextTabValuesV2(
+    val text: String?,
+    val selectedSendEncoding: String?,
+    val selectedReceiveEncoding: String?
 )

@@ -35,8 +35,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckBox
-import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.runtime.Composable
@@ -49,9 +47,7 @@ import com.toasttab.pulseman.AppStrings.CLICK_TO_SELECT
 import com.toasttab.pulseman.AppStrings.FILTER
 import com.toasttab.pulseman.AppStrings.NAME
 import com.toasttab.pulseman.AppStrings.NO_VALID_CLASSES_LOADED
-import com.toasttab.pulseman.AppStrings.RECEIVE
 import com.toasttab.pulseman.AppStrings.SELECTED_CLASS
-import com.toasttab.pulseman.AppStrings.SEND
 import com.toasttab.pulseman.AppTheme
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 
@@ -66,10 +62,8 @@ fun messageClassSelectorUI(
     filter: String,
     onFilterChange: (String) -> Unit,
     filteredClasses: List<PulsarMessageClassInfo>,
-    selectedSendClass: PulsarMessageClassInfo?,
-    onSelectedSendClass: (PulsarMessageClassInfo) -> Unit,
-    selectedReceiveClasses: Map<PulsarMessageClassInfo, Boolean>,
-    onSelectedReceiveClass: (PulsarMessageClassInfo) -> (Unit),
+    selectedClass: PulsarMessageClassInfo?,
+    onSelectedClass: (PulsarMessageClassInfo) -> Unit,
     listState: LazyListState
 ) {
     Column {
@@ -106,34 +100,6 @@ fun messageClassSelectorUI(
                                     text = AnnotatedString(NAME),
                                     modifier = Modifier.weight(0.8F).align(Alignment.CenterVertically)
                                 )
-
-                                Divider(
-                                    color = AppTheme.colors.backgroundDark,
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(1.dp)
-                                )
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                Text(
-                                    text = AnnotatedString(SEND),
-                                    modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
-                                )
-
-                                Divider(
-                                    color = AppTheme.colors.backgroundDark,
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(1.dp)
-                                )
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                Text(
-                                    text = AnnotatedString(RECEIVE),
-                                    modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
-                                )
                             }
                         }
                     }
@@ -164,30 +130,12 @@ fun messageClassSelectorUI(
 
                                 IconButton(
                                     modifier = Modifier.weight(0.1F),
-                                    onClick = { onSelectedSendClass(classInfo) }
+                                    onClick = { onSelectedClass(classInfo) }
                                 ) {
-                                    if (selectedSendClass === classInfo)
+                                    if (selectedClass === classInfo)
                                         Icon(Icons.Default.RadioButtonChecked, SELECTED_CLASS)
                                     else
                                         Icon(Icons.Default.RadioButtonUnchecked, CLICK_TO_SELECT)
-                                }
-
-                                Divider(
-                                    color = AppTheme.colors.backgroundDark,
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(1.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                IconButton(
-                                    modifier = Modifier.weight(0.1F),
-                                    onClick = { onSelectedReceiveClass(classInfo) }
-                                ) {
-                                    if (selectedReceiveClasses[classInfo] == true)
-                                        Icon(Icons.Default.CheckBox, SELECTED_CLASS)
-                                    else
-                                        Icon(Icons.Default.CheckBoxOutlineBlank, CLICK_TO_SELECT)
                                 }
                             }
                         }

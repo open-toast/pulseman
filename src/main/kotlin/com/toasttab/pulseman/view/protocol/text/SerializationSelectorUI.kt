@@ -42,9 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppStrings.CHARACTER_SET
 import com.toasttab.pulseman.AppStrings.CLICK_TO_SELECT
-import com.toasttab.pulseman.AppStrings.RECEIVE
 import com.toasttab.pulseman.AppStrings.SELECTED_CHARSET
-import com.toasttab.pulseman.AppStrings.SEND
 import com.toasttab.pulseman.AppTheme
 import com.toasttab.pulseman.entities.CharacterSet
 
@@ -54,10 +52,8 @@ import com.toasttab.pulseman.entities.CharacterSet
 @ExperimentalFoundationApi
 @Composable
 fun serializationSelectorUI(
-    selectedSendCharacterSet: CharacterSet?,
-    selectedReceiveCharacterSet: CharacterSet?,
-    onSelectedSendCharacterSet: (CharacterSet) -> Unit,
-    onSelectedReceiveCharacterSet: (CharacterSet) -> Unit,
+    selectedCharacterSet: CharacterSet?,
+    onSelectedCharacterSet: (CharacterSet) -> Unit,
     listState: LazyListState
 ) {
     Column {
@@ -85,25 +81,6 @@ fun serializationSelectorUI(
                             )
 
                             Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = AnnotatedString(SEND),
-                                modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
-                            )
-
-                            Divider(
-                                color = AppTheme.colors.backgroundDark,
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(1.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = AnnotatedString(RECEIVE),
-                                modifier = Modifier.weight(0.1F).align(Alignment.CenterVertically)
-                            )
                         }
                     }
                 }
@@ -134,27 +111,9 @@ fun serializationSelectorUI(
 
                             IconButton(
                                 modifier = Modifier.weight(0.1F),
-                                onClick = { onSelectedSendCharacterSet(characterSet) }
+                                onClick = { onSelectedCharacterSet(characterSet) }
                             ) {
-                                if (selectedSendCharacterSet == characterSet)
-                                    Icon(Icons.Default.RadioButtonChecked, SELECTED_CHARSET)
-                                else
-                                    Icon(Icons.Default.RadioButtonUnchecked, CLICK_TO_SELECT)
-                            }
-
-                            Divider(
-                                color = AppTheme.colors.backgroundDark,
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(1.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            IconButton(
-                                modifier = Modifier.weight(0.1F),
-                                onClick = { onSelectedReceiveCharacterSet(characterSet) }
-                            ) {
-                                if (selectedReceiveCharacterSet == characterSet)
+                                if (selectedCharacterSet == characterSet)
                                     Icon(Icons.Default.RadioButtonChecked, SELECTED_CHARSET)
                                 else
                                     Icon(Icons.Default.RadioButtonUnchecked, CLICK_TO_SELECT)

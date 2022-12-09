@@ -17,11 +17,11 @@ package com.toasttab.pulseman.pulsar
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.toasttab.pulseman.AppStrings.FAILED_TO_DESERIALIZE_PULSAR
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED_DESERIALIZE
 import com.toasttab.pulseman.AppStrings.PROPERTIES
 import com.toasttab.pulseman.entities.ReceivedMessages
+import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import org.apache.pulsar.client.api.Message
 import java.time.Instant
@@ -30,31 +30,27 @@ import java.time.Instant
  * This class handles printing received pulsar messages and logs the related class info
  */
 class MessageHandlingClassImpl(
-    private val selectedReceiveClasses: SnapshotStateMap<PulsarMessageClassInfo, Boolean>,
+    private val selectedProtoClass: SingleSelection<PulsarMessageClassInfo>,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val setUserFeedback: (String) -> Unit
 ) : MessageHandling {
 
     override fun parseMessage(message: Message<ByteArray>) {
         try {
-            val classes = selectedReceiveClasses.filter { it.value }.map { it.key }
-            if (classes.isEmpty()) {
+            val proto = selectedProtoClass.selected ?: run {
                 setUserFeedback(NO_CLASS_SELECTED_DESERIALIZE)
                 return
             }
 
-            classes.forEachIndexed { index, it ->
-                val indexString = if (classes.size > 1) " - $index" else ""
-                val messageString = it.prettyPrint(it.deserialize(message.data))
-                val publishTime = Instant.ofEpochMilli(message.publishTime)
-                receivedMessages.add(
-                    ReceivedMessages(
-                        "$messageString\n$PROPERTIES:\n${message.properties}",
-                        "$publishTime - ${it.cls.simpleName}$indexString",
-                        mutableStateOf(false)
-                    )
+            val messageString = proto.prettyPrint(proto.deserialize(message.data))
+            val publishTime = Instant.ofEpochMilli(message.publishTime)
+            receivedMessages.add(
+                ReceivedMessages(
+                    "$messageString\n$PROPERTIES:\n${message.properties}",
+                    "$publishTime - ${proto.cls.simpleName}",
+                    mutableStateOf(false)
                 )
-            }
+            )
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_DESERIALIZE_PULSAR:$ex.")
         }

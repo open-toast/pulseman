@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state.protocol.text
+package com.toasttab.pulseman.state.protocol.protobuf
 
-data class TextTabValues(
-    val text: String?,
-    val selectedSendEncoding: String?,
-    val selectedReceiveEncoding: String?
+data class ProtobufTabValuesV3(
+    val code: String?,
+    val selectedClass: String?
 )

@@ -26,10 +26,7 @@ import com.toasttab.pulseman.state.protocol.text.TextTabValuesV3
     replaceWith = ReplaceWith("ProjectSettingsV3"),
     level = DeprecationLevel.WARNING
 )
-data class ProjectSettingsV2(
-    val configVersion: String,
-    @Suppress("DEPRECATION") val tabs: List<TabValuesV2>
-) : ProjectSettings {
+data class ProjectSettingsV1(@Suppress("DEPRECATION") val tabs: List<TabValuesV1>) : ProjectSettings {
     override fun toV3(): List<TabValuesV3> {
         return tabs.map { tab ->
             TabValuesV3(
@@ -39,14 +36,14 @@ data class ProjectSettingsV2(
                 selectedAuthClass = tab.selectedAuthClass,
                 authJsonParameters = tab.authJsonParameters,
                 propertyMap = tab.propertyMap,
-                serializationFormat = tab.serializationFormat,
+                serializationFormat = SerializationFormat.PROTOBUF,
                 protobufSettings = ProtobufTabValuesV3(
-                    code = tab.protobufSettings?.code,
-                    selectedClass = tab.protobufSettings?.selectedClassSend
+                    code = tab.code,
+                    selectedClass = tab.selectedClassSend
                 ),
                 textSettings = TextTabValuesV3(
-                    text = tab.textSettings?.text,
-                    selectedEncoding = tab.textSettings?.selectedSendEncoding
+                    text = null,
+                    selectedEncoding = null
                 )
             )
         }

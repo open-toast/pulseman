@@ -23,7 +23,7 @@ import com.toasttab.pulseman.AppStrings.GENERATED_CODE_TEMPLATE
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.entities.TabValuesV2
+import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.scripting.KotlinScripting
@@ -44,7 +44,7 @@ class SendProtobufMessage(
     val selectedClass: SingleSelection<PulsarMessageClassInfo>,
     val pulsarSettings: PulsarSettings,
     onChange: () -> Unit,
-    initialSettings: TabValuesV2? = null,
+    initialSettings: TabValuesV3? = null
 ) {
     private val generateState = mutableStateOf(ButtonState.WAITING)
     private val sendState = mutableStateOf(ButtonState.WAITING)

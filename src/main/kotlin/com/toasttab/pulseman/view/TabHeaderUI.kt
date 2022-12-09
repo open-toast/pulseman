@@ -61,24 +61,26 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
     val stateHorizontal = rememberScrollState(0)
     Row {
         Row(modifier = Modifier.horizontalScroll(stateHorizontal).weight(0.95f)) {
-            tabs.forEach { tab ->
+            tabs.forEachIndexed { index, tab ->
                 Surface(
                     color = if (tab.isActive) AppTheme.colors.backgroundDark else Color.Transparent,
-                    modifier = Modifier.pointerInput(tab) {
-                        forEachGesture {
-                            awaitPointerEventScope {
-                                awaitPointerEvent().awtEventOrNull?.let { mouseEvent ->
-                                    if (mouseEvent.button == MouseEvent.BUTTON2 && mouseEvent.id == MouseEvent.MOUSE_PRESSED) {
-                                        tab.close()
+                    modifier = Modifier
+                        .addSeparator(index)
+                        .pointerInput(tab) {
+                            forEachGesture {
+                                awaitPointerEventScope {
+                                    awaitPointerEvent().awtEventOrNull?.let { mouseEvent ->
+                                        if (mouseEvent.button == MouseEvent.BUTTON2 && mouseEvent.id == MouseEvent.MOUSE_PRESSED) {
+                                            tab.close()
+                                        }
                                     }
                                 }
                             }
+                        }.onPointerEvent(PointerEventType.Enter) {
+                            tab.onFocusedUpdate(true)
+                        }.onPointerEvent(PointerEventType.Exit) {
+                            tab.onFocusedUpdate(false)
                         }
-                    }.onPointerEvent(PointerEventType.Enter) {
-                        tab.onFocusedUpdate(true)
-                    }.onPointerEvent(PointerEventType.Exit) {
-                        tab.onFocusedUpdate(false)
-                    }
                 ) {
                     Row(
                         modifier = Modifier.clickable(onClick = { tab.activate() }).padding(4.dp),

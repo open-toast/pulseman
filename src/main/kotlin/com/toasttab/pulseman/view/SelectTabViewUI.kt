@@ -35,10 +35,12 @@ fun <T> selectTabViewUI(
     selectedView: T
 ) {
     Row {
-        tabList.forEach { selectedViewTab ->
+        tabList.forEachIndexed { index, selectedViewTab ->
             Surface(color = if (selectedView == selectedViewTab.second) AppTheme.colors.backgroundLight else AppTheme.colors.backgroundMedium) {
                 Row(
-                    modifier = Modifier.clickable(onClick = selectedViewTab.third),
+                    modifier = Modifier
+                        .clickable(onClick = selectedViewTab.third)
+                        .addSeparator(index),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(

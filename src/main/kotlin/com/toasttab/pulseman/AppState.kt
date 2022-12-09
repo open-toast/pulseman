@@ -19,6 +19,7 @@ package com.toasttab.pulseman
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.toasttab.pulseman.AppStrings.PROJECT_LOAD
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.entities.ProjectSettingsV1
 import com.toasttab.pulseman.entities.ProjectSettingsV2
@@ -87,17 +88,17 @@ class AppState {
         try {
             return mapper.readValue(project, ProjectSettingsV3::class.java).toV3()
         } catch (ex: Exception) {
-            error.appendLine("V3 project load:$ex")
+            error.appendLine("V3 $PROJECT_LOAD:$ex")
         }
         try {
             return mapper.readValue(project, ProjectSettingsV2::class.java).toV3()
         } catch (ex: Exception) {
-            error.appendLine("V2 project load:$ex")
+            error.appendLine("V2 $PROJECT_LOAD:$ex")
         }
         try {
             return mapper.readValue(project, ProjectSettingsV1::class.java).toV3()
         } catch (ex: Exception) {
-            error.append("V1 project load:$ex")
+            error.append("V1 $PROJECT_LOAD:$ex")
         }
 
         throw Exception(error.toString())

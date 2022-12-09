@@ -18,6 +18,7 @@ package com.toasttab.pulseman.state.protocol.protobuf
 enum class SelectedProtobufView {
     SEND,
     RECEIVE,
+    BYTE_CONVERT,
     JAR_MANAGEMENT,
     PROTOBUF_CLASS
 }

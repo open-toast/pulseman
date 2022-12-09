@@ -15,6 +15,7 @@
 
 package com.toasttab.pulseman.entities
 
+import com.toasttab.pulseman.state.protocol.protobuf.ConvertType
 import com.toasttab.pulseman.state.protocol.protobuf.ProtobufTabValuesV3
 import com.toasttab.pulseman.state.protocol.text.TextTabValuesV3
 
@@ -42,7 +43,9 @@ data class ProjectSettingsV2(
                 serializationFormat = tab.serializationFormat,
                 protobufSettings = ProtobufTabValuesV3(
                     code = tab.protobufSettings?.code,
-                    selectedClass = tab.protobufSettings?.selectedClassSend
+                    selectedClass = tab.protobufSettings?.selectedClassSend,
+                    convertValue = null,
+                    convertType = ConvertType.BASE64
                 ),
                 textSettings = TextTabValuesV3(
                     text = tab.textSettings?.text,

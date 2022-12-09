@@ -36,7 +36,6 @@ data class TextHandler(val characterSet: CharacterSet) : PulsarMessage {
                 CharacterSet.BASE64 -> Base64.getEncoder().encodeToString(bytes)
                 else -> String(bytes, Charset.forName(characterSet.charSet))
             }
-
         } catch (ex: Throwable) {
             "$EXCEPTION: $ex"
         }

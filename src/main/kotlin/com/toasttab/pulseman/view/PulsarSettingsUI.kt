@@ -41,6 +41,7 @@ import com.toasttab.pulseman.AppStrings.SELECT_TOPIC_UNSECURED
 import com.toasttab.pulseman.AppStrings.SERVICE_URL
 import com.toasttab.pulseman.AppStrings.SET_AUTHORIZATION_VALUES
 import com.toasttab.pulseman.AppStrings.SET_MESSAGE_PROPERTY_VALUES
+import com.toasttab.pulseman.AppStrings.TOPIC
 import com.toasttab.pulseman.view.ViewUtils.styledTextField
 
 /**
@@ -70,7 +71,7 @@ fun pulsarSettingsUI(
     Column {
         Row {
             styledTextField(
-                "Topic",
+                TOPIC,
                 topic,
                 modifier = Modifier.weight(1F).padding(padding),
                 onValueChange = onTopicChange

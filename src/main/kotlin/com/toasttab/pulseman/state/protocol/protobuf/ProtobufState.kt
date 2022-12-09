@@ -90,10 +90,20 @@ class ProtobufState(
         messageHandling = messageHandling
     )
 
+    private val convertProtoBufMessage = ConvertProtobufMessage(
+        setUserFeedback = setUserFeedback,
+        selectedClass = protobufSelector.selectedClass,
+        convertValue = initialSettings?.protobufSettings?.convertValue,
+        convertType = initialSettings?.protobufSettings?.convertType,
+        onChange = onChange
+    )
+
     fun toProtobufTabValues() =
         ProtobufTabValuesV3(
             code = sendMessage.currentCode(),
-            selectedClass = protobufSelector.selectedClass.selected?.cls?.name
+            selectedClass = protobufSelector.selectedClass.selected?.cls?.name,
+            convertValue = convertProtoBufMessage.currentConvertValue(),
+            convertType = convertProtoBufMessage.currentConvertType()
         )
 
     private val selectedView = mutableStateOf(SelectedProtobufView.SEND)
@@ -115,6 +125,9 @@ class ProtobufState(
                             Triple(AppStrings.RECEIVE, SelectedProtobufView.RECEIVE) {
                                 selectedView.onStateChange(SelectedProtobufView.RECEIVE)
                             },
+                            Triple(AppStrings.CONVERT, SelectedProtobufView.BYTE_CONVERT) {
+                                selectedView.onStateChange(SelectedProtobufView.BYTE_CONVERT)
+                            },
                             Triple(AppStrings.JARS, SelectedProtobufView.JAR_MANAGEMENT) {
                                 selectedView.onStateChange(SelectedProtobufView.JAR_MANAGEMENT)
                             },
@@ -125,7 +138,8 @@ class ProtobufState(
                         selectedView.value
                     )
                 },
-                protobufJarManagementUI = protobufJarManagementTab.getUI()
+                protobufJarManagementUI = protobufJarManagementTab.getUI(),
+                byteConversionUI = convertProtoBufMessage.getUI()
             )
         }
     }

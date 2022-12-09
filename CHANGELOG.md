@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0] - 2022-12-09
+
+NOTE: The project file format has been updated in this release. Any old format projects will be upgraded to the new
+format on opening but this new format will not work on older versions of pulseman.
+
+- Fix multi-line log messages getting cut off.
+- Add base64 support for sending text over pulsar, text will be converted to and from base64.
+- Update all library dependencies to their latest versions.
+- Add UI dividers between tabs.
+- Replace send and receive protobuf class selection with a single column.
+- Add a Convert tab for protobuf, this will convert HEX/base64 byte array logs to a selected pulsar class.
+
 ## [1.2.0] - 2022-05-27
 
 NOTE: The project file format has been updated in this release. Any old format projects will be upgraded to the new

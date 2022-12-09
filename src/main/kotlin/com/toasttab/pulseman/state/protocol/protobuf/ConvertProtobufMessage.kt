@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.AppStrings
+import com.toasttab.pulseman.AppStrings.FAILED_TO_CONVERT_BYTES
+import com.toasttab.pulseman.AppStrings.PROTO_CLASS_NOT_SELECTED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
@@ -58,10 +60,10 @@ class ConvertProtobufMessage(
             selectedClass.selected?.let { proto ->
                 convertedMessage.value = proto.prettyPrint(proto.deserialize(bytes))
             } ?: run {
-                setUserFeedback("Proto class not selected")
+                setUserFeedback(PROTO_CLASS_NOT_SELECTED)
             }
         } catch (ex: Exception) {
-            setUserFeedback("Failed to convert bytes ex:$ex")
+            setUserFeedback("$FAILED_TO_CONVERT_BYTES ex:$ex")
         }
     }
 

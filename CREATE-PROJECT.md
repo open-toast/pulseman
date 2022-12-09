@@ -9,7 +9,8 @@ e.g `pulsar+ssl://pulsar.eng.com:6651`
 
 ## Adding jars to a project
 
-Two types of Jars can be added in the **Auth** or **Other** jars tabs in the top pane.  
+The **Jars** button in the top pane allows two types of Jars to be added to the project in the **Auth** or **Other**
+tab.  
 If the **Protobuf** serialization option is selected you can add the messaging jars in the **Jars** tab on the bottom
 pane.  
 These are described below. If a jar is added to any tab it is available to the whole project.
@@ -26,7 +27,7 @@ You will then need to provide your auth settings as a string, these will be pass
 
 ### Steps
 
-1. Import your jar in the **Auth Jars** tab.
+1. Import your jar in the **Auth** tab.
 2. In the **Auth Settings** tab select the authentication class you want to use, if it doesn't show up it doesn't
    implement the correct interfaces.  
    If you want to disable auth unselect any classes here.
@@ -81,6 +82,8 @@ More messaging formats will be added in the future.
 
 ## Send a message to a topic
 
+### Protobuf
+
 1. Import your message jar
 2. Select your message class to send in the **Class** Tab.
 3. In the **Send** tab select **Generate** to give a template for the message you want to send.
@@ -89,10 +92,35 @@ More messaging formats will be added in the future.
 5. Hit the **Send** button, and you're done, hitting **Send** multiple times will send the same message unless you
    recompile.
 
+### Text
+
+1. Define the text format in the **Serialization** tab.  
+   Note: Selecting Base64 will convert your text to base64, the other selections only encode to a specific character
+   set.
+2. Enter the text you want to send in the **Send** tab and press the **Send** button.
+
 ## Monitor a topic.
 
-1. Import the message jar you wish to deserialize messages with.
-2. In the **Class** tab select 1 or more classes to decode messages with in the **Receive** column.
-3. In the **Receive** tab every message on the topic will be decoded with the classes selected.
+Each message decoded will show the pulsar properties of the message also.
 
-Note: Each message decoded will show the properties of the message also.
+### Protobuf
+
+1. Import the message jar you wish to deserialize messages with.
+2. In the **Class** tab select a class to decode messages with.
+3. In the **Receive** tab every message on the topic will be decoded with the class selected.
+
+### Text
+
+1. Define the text format in the **Serialization** tab.  
+   Note: Selecting Base64 will convert your text from base64, the other selections only decode a specific character set.
+2. In the **Receive** tab every message on the topic will be decoded with the serialization method selected in step one.
+
+## Convert logs
+
+### Protobuf
+
+Currently only protobuf log conversion is supported. Both base64 and HEX byte array representation can be converted.
+
+1. In the **Class** tab select a class to decode messages with.
+2. In the **Convert** tab select the format you wish to convert from.
+3. Paste the text you wish to convert in the **Convert** tab and select **Convert**

@@ -11,19 +11,26 @@ Pulseman (Pulsar manager) is an [Apache Pulsar](https://pulsar.apache.org/) test
 
 Currently, this has only been tested and targeted to work on macOS.
 
-## Supported formats
+## Supported pulsar formats
 
 Current formats supported for serialization and deserialization of messages:
 
-- [Protobuf messages](https://github.com/open-toast/protokt/blob/main/protokt-runtime/src/main/kotlin/com/toasttab/protokt/rt/KtMessage.kt) compiled with [protokt](https://github.com/open-toast/protokt)
-- [Protobuf messages](https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html) compiled with [protoc](https://developers.google.com/protocol-buffers)
-- Text format. Standard character sets are supported.
+- [Protobuf messages](https://github.com/open-toast/protokt/blob/main/protokt-runtime/src/main/kotlin/com/toasttab/protokt/rt/KtMessage.kt)
+  compiled with [protokt](https://github.com/open-toast/protokt)
+- [Protobuf messages](https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html)
+  compiled with [protoc](https://developers.google.com/protocol-buffers)
+- Text format. Standard character sets are supported, and base64 encoding and decoding of text.
+
+## Log conversion
+
+Both HEX and base64 byte array representations can be converted to a selected protobuf class.
 
 ## Getting Started
 
 ### Local development
 
-Development of Pulseman is done using Java 15. In order for IntelliJ to work correctly and be able to run and debug the application you'll need to set the correct Java version.
+Development of Pulseman is done using Java 15. In order for IntelliJ to work correctly and be able to run and debug the
+application you'll need to set the correct Java version.
 
 Open IntelliJ and go to `File -> Project Structure` and set the `SDK` and `Language Level` to be Java 15.
 
@@ -32,6 +39,7 @@ Open IntelliJ and go to `File -> Project Structure` and set the `SDK` and `Langu
 ### Create an unsigned distributable (macOS)
 
 To create an unsigned distributable run this Gradle command:
+
 ```
 ./gradlew createDistributable
 ```
@@ -40,14 +48,18 @@ The resulting distributable can be found in `build/compose/binaries/main/app/`.
 
 You can install it on your computer by dragging it into your `~/Applications` folder.
 
-As macOS need applications to be signed to be run, you can't run it the usual way.
-To run the application you'll need to run this command:
+As macOS need applications to be signed to be run, you can't run it the usual way. To run the application you'll need to
+run this command:
+
 ```
 ~/Applications/Pulseman.app/Contents/MacOS/Pulseman
 ```
-If run from the Applications folder, configuration files for the application, by default, will be stored in `~/pulseman_config`.
+
+If run from the Applications folder, configuration files for the application, by default, will be stored
+in `~/pulseman_config`.
 
 #### Note
+
 Editing these configuration files manually may corrupt your saved configurations and application functionnality.
 
 ### Create a signed distributable (macOS)

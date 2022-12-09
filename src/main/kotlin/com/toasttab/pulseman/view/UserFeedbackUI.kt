@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppStrings.CLEAR_LOG
 import com.toasttab.pulseman.AppTheme

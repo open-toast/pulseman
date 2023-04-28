@@ -54,15 +54,15 @@ jobs:
       - run:
           name: "Create Package deb"
           command: ./gradlew packageDeb --info
-      - write_cache_linux
-      - store_test_results:
-          path: ~/repo/build/test-results/iTest/
-      - run:
-          name: "Store deb to workspace"
-          command: mkdir -p artifacts; cp ~/repo/build/compose/binaries/main/deb/* artifacts/
       - run:
           name: "Store compose logs"
-          command: cp ~/repo/build/compose/logs/* artifacts/
+          command: mkdir -p artifacts; cp ~/repo/build/compose/logs/* artifacts/
+      - run:
+           name: "Store deb to workspace"
+           command: cp ~/repo/build/compose/binaries/main/deb/* artifacts/
+      - write_cache_linux
+      - store_test_results:
+          path: ~/repo/build/test-results/test/
       - persist_to_workspace:
           root: artifacts
           paths:

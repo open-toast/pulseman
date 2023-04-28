@@ -29,10 +29,10 @@ Both HEX and base64 byte array representations can be converted to a selected pr
 
 ### Local development
 
-Development of Pulseman is done using Java 17. In order for IntelliJ to work correctly and be able to run and debug the
+Development of Pulseman is done using Java 15. In order for IntelliJ to work correctly and be able to run and debug the
 application you'll need to set the correct Java version.
 
-Open IntelliJ and go to `File -> Project Structure` and set the `SDK` and `Language Level` to be Java 17.
+Open IntelliJ and go to `File -> Project Structure` and set the `SDK` and `Language Level` to be Java 15.
 
 ![Sample project structure settings](./docs/media/sdkversion.png)
 

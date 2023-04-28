@@ -4,7 +4,7 @@ executors:
   linux:
     working_directory: ~/repo
     docker:
-      - image: cimg/openjdk:17.0.7
+      - image: cimg/openjdk:15.0.2
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -96,11 +96,11 @@ jobs:
           name: "Check current java version"
           command: java -version
       - run:
-          name: "Install java 17"
+          name: "Install java 15"
           command: |
             brew tap adoptopenjdk/openjdk
-            brew install adoptopenjdk17
-            export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-17.jdk/Contents/Home
+            brew install adoptopenjdk15
+            export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-15.jdk/Contents/Home
       - run:
           name: "Check current java version"
           command: java -version

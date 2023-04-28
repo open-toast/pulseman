@@ -49,6 +49,10 @@ jobs:
       - checkout
       - read_cache_linux
       - run:
+          name: "Install fakeroot"
+          command: |
+            apt-get install fakeroot
+      - run:
           name: "Run tests"
           command: ./gradlew test
       - run:

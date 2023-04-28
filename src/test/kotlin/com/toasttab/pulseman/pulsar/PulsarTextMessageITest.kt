@@ -31,7 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
 /**
- * Tests text serialization and deserialization
+ * Tests text serialization and deserialization - fake change
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PulsarTextMessageITest : PulsarITestSupport() {

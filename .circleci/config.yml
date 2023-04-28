@@ -107,9 +107,8 @@ jobs:
       - run:
           name: "Install java 17"
           command: |
-            brew tap adoptopenjdk/openjdk
-            brew install adoptopenjdk17
-            export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-17.jdk/Contents/Home
+            brew install openjdk@17
+            export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home
       - run:
           name: "Check current java version"
           command: java -version

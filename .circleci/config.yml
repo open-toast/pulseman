@@ -53,7 +53,7 @@ jobs:
           command: ./gradlew test
       - run:
           name: "Create Package deb"
-          command: ./gradlew packageDeb
+          command: ./gradlew packageDeb --info
       - write_cache_linux
       - store_test_results:
           path: ~/repo/build/test-results/iTest/

@@ -57,6 +57,7 @@ jobs:
       - run:
           name: "Store compose logs"
           command: mkdir -p artifacts; cp ~/repo/build/compose/logs/* artifacts/
+          when: always
       - run:
            name: "Store deb to workspace"
            command: cp ~/repo/build/compose/binaries/main/deb/* artifacts/

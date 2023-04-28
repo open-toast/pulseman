@@ -59,6 +59,10 @@ jobs:
       - run:
           name: "Run iTest"
           command: ./gradlew iTest
+      - store_test_results:
+          path: ~/repo/build/test-results/test/
+      - store_test_results:
+          path: ~/repo/build/test-results/iTest/
       - run:
           name: "Create Package deb"
           command: ./gradlew packageDeb --info
@@ -70,10 +74,6 @@ jobs:
            name: "Store deb to workspace"
            command: cp ~/repo/build/compose/binaries/main/deb/* artifacts/
       - write_cache_linux
-      - store_test_results:
-          path: ~/repo/build/test-results/test/
-      - store_test_results:
-         path: ~/repo/build/test-results/iTest/
       - persist_to_workspace:
           root: artifacts
           paths:

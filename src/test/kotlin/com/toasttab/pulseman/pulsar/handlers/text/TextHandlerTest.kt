@@ -13,17 +13,10 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar
+package com.toasttab.pulseman.pulsar.handlers.text
 
-import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.entities.CharacterSet
-import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.pulsar.handlers.text.TextHandler
-import com.toasttab.pulseman.state.PulsarSettings
-import io.mockk.every
-import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -32,25 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource
  * Tests text serialization and deserialization
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PulsarTextMessageITest : PulsarITestSupport() {
-    private lateinit var testTopic: String
-    private lateinit var pulsarSettings: PulsarSettings
-
-    @BeforeAll
-    fun init() {
-        setUp()
-        testTopic = initialTopicList.first()
-        pulsarSettings = mockk(relaxed = true) {
-            every { authSelector } returns mockk(relaxed = true) {
-                every { selectedAuthClass } returns SingleSelection()
-            }
-            every { serviceUrl } returns mutableStateOf(pulsarContainer.pulsarBrokerUrl)
-            every { topic } returns mutableStateOf(testTopic)
-            every { propertySettings } returns mockk(relaxed = true) {
-                every { propertyMap() } returns testPropertyString
-            }
-        }
-    }
+class TextHandlerTest {
 
     @ParameterizedTest(name = "characterSet:{0} input:{2} expectedOutput:{1}")
     @MethodSource("com.toasttab.pulseman.TestByteArrays#characterSetTestProvider")
@@ -59,12 +34,9 @@ class PulsarTextMessageITest : PulsarITestSupport() {
         expectedOutput: ByteArray,
         input: String
     ) {
-        val response = responseFuture(testTopic)
         val textHandler = TextHandler(characterSet = characterSet)
-
-        Pulsar(pulsarSettings) {}.sendMessage(textHandler.serialize(input))
-
-        assertThat(response.get().data).isEqualTo(expectedOutput)
+        val serializedBytes = textHandler.serialize(input)
+        assertThat(serializedBytes).isEqualTo(expectedOutput)
     }
 
     @ParameterizedTest(name = "characterSet:{0} input:{1} expectedOutput:{2}")
@@ -74,23 +46,8 @@ class PulsarTextMessageITest : PulsarITestSupport() {
         input: ByteArray,
         expectedOutput: String
     ) {
-        val response = responseFuture(testTopic)
         val textHandler = TextHandler(characterSet = characterSet)
-
-        Pulsar(pulsarSettings) {}.sendMessage(input)
-
-        val message = response.get()
-        val messageReceived = textHandler.deserialize(message.data)
-
-        assertThat(messageReceived).isEqualTo(expectedOutput)
-    }
-
-    companion object {
-        private val testPropertyString =
-            """{
-             "key1": "value1",
-             "key2": "value2"
-            }
-            """.trimIndent()
+        val deserializedString = textHandler.deserialize(input)
+        assertThat(deserializedString).isEqualTo(expectedOutput)
     }
 }

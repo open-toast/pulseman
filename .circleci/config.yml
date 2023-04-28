@@ -56,7 +56,7 @@ jobs:
           command: ./gradlew packageDeb --info
       - run:
           name: "Store compose logs"
-          command: mkdir -p artifacts; cp ~/repo/build/compose/logs/* artifacts/
+          command: mkdir -p artifacts; cp -r ~/repo/build/compose/logs/* artifacts/
           when: always
       - run:
            name: "Store deb to workspace"

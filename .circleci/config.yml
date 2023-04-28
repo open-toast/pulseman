@@ -54,8 +54,11 @@ jobs:
             sudo apt-get update
             sudo apt-get install fakeroot
       - run:
-          name: "Run tests"
+          name: "Run test"
           command: ./gradlew test
+      - run:
+          name: "Run iTest"
+          command: ./gradlew iTest
       - run:
           name: "Create Package deb"
           command: ./gradlew packageDeb --info
@@ -69,6 +72,8 @@ jobs:
       - write_cache_linux
       - store_test_results:
           path: ~/repo/build/test-results/test/
+      - store_test_results:
+         path: ~/repo/build/test-results/iTest/
       - persist_to_workspace:
           root: artifacts
           paths:

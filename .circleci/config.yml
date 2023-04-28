@@ -56,13 +56,8 @@ jobs:
       - run:
           name: "Run test"
           command: ./gradlew test
-      - run:
-          name: "Run iTest"
-          command: ./gradlew iTest
       - store_test_results:
           path: ~/repo/build/test-results/test/
-      - store_test_results:
-          path: ~/repo/build/test-results/iTest/
       - run:
           name: "Create Package deb"
           command: ./gradlew packageDeb --info

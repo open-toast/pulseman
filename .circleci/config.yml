@@ -107,8 +107,9 @@ jobs:
       - run:
           name: "Install java 17"
           command: |
-            brew install openjdk@17
-            export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home
+            sudo apt-get update && sudo apt-get install openjdk-17-jdk
+            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
       - run:
           name: "Check current java version"
           command: java -version

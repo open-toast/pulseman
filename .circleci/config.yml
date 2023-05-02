@@ -117,6 +117,13 @@ jobs:
           name: "Create DMG"
           command: ./gradlew packageDmg --stacktrace
       - run:
+          name: "temp delete Store compose logs"
+          command: mkdir -p artifacts;
+          when: always
+      - run:
+          name: "Copy dmg create logs to workspace"
+          command: cp -r ~/project/build/compose/logs/* artifacts/
+      - run:
           name: "Store dmg to workspace"
           command: cp ~/project/build/compose/binaries/main/dmg/* artifacts/
       - run:

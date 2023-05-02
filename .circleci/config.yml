@@ -108,7 +108,8 @@ jobs:
           name: "Install java 17"
           command: |
             brew install openjdk@17
-            export JAVA_HOME=/usr/local/opt/openjdk@17/bin/java
+            sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+            export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home
       - run:
           name: "Check current java version"
           command: java -version

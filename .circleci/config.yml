@@ -123,6 +123,7 @@ jobs:
       - run:
           name: "Copy dmg create logs to workspace"
           command: cp -r ~/project/build/compose/logs/* artifacts/
+          when: always
       - run:
           name: "Store dmg to workspace"
           command: cp ~/project/build/compose/binaries/main/dmg/* artifacts/

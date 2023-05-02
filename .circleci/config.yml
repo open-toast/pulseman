@@ -107,9 +107,8 @@ jobs:
       - run:
           name: "Install java 17"
           command: |
-            sudo apt-get update && sudo apt-get install openjdk-17-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+            brew install openjdk@17
+            export JAVA_HOME=/usr/local/opt/openjdk@17/bin/java
       - run:
           name: "Check current java version"
           command: java -version
@@ -145,19 +144,12 @@ workflows:
   version: 2.1
   all-os-build:
     jobs:
-      - linux-build:
-          filters:
-            tags:
-              only: /.*/ # Runs on every branch and tag
       - mac-build:
-          requires:
-            - linux-build
           filters:
             tags:
               only: /.*/
       - publish-github-release:
           requires:
-            - linux-build
             - mac-build
           filters:
             branches:

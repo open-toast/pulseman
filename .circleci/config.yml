@@ -117,10 +117,6 @@ jobs:
           name: "Create DMG"
           command: ./gradlew packageDmg --stacktrace
       - run:
-          name: "temp delete Store compose logs"
-          command: mkdir -p artifacts;
-          when: always
-      - run:
           name: "Copy dmg create logs to workspace"
           command: cp -r ~/project/build/compose/logs/* artifacts/
           when: always
@@ -153,12 +149,19 @@ workflows:
   version: 2.1
   all-os-build:
     jobs:
+      - linux-build:
+          filters:
+            tags:
+              only: /.*/ # Runs on every branch and tag
       - mac-build:
+          requires:
+            - linux-build
           filters:
             tags:
               only: /.*/
       - publish-github-release:
           requires:
+            - linux-build
             - mac-build
           filters:
             branches:

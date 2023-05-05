@@ -86,13 +86,13 @@ jobs:
             at: artifacts
       - run:
           name: "Decode signing cert"
-          command: base64 -D -o cert.p12 \<<< $SIGNING_CERT
+          command: base64 -D -o cert.p12 \<<< $SIGNING_CERT_TEMP
       - run:
           name: "Create new keychain"
           command: security create-keychain -p keychain-pass compose.keychain
       - run:
           name: "Import signing cert"
-          command: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS -A
+          command: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
       - run:
           name: "Make chain accessible"
           command: |

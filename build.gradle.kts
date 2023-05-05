@@ -134,15 +134,15 @@ compose.desktop {
 
             macOS {
                 iconFile.set(project.file("pulse.icns"))
-                bundleID = "com.toasttab.pulseman"
+                bundleID = "com.tempaccount.pulseman"
                 signing {
                     sign.set(System.getenv("SIGN_APP")?.toString()?.toBoolean() ?: false)
-                    identity.set(System.getenv("IDENTITY") ?: "")
+                    identity.set(System.getenv("IDENTITY_TEMP") ?: "")
                 }
                 notarization {
-                    appleID.set(System.getenv("APPLE_ID") ?: "")
-                    password.set(System.getenv("NOTARIZATION_PASSWORD") ?: "")
-                    ascProvider.set(System.getenv("PROVIDER") ?: "")
+                    appleID.set(System.getenv("APPLE_ID_TEMP") ?: "")
+                    password.set(System.getenv("NOTARIZATION_PASSWORD_TEMP") ?: "")
+                    ascProvider.set(System.getenv("PROVIDER_TEMP") ?: "")
                 }
             }
         }

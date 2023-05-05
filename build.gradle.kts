@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.7.20"
-    id("org.jetbrains.compose") version "1.2.0"
-    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
+    kotlin("jvm") version "1.8.20"
+    id("org.jetbrains.compose") version "1.4.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
 val appVersion = "1.3.0"
@@ -29,7 +28,6 @@ group = "com.toasttab.pulseman"
 version = appVersion
 
 repositories {
-    jcenter()
     mavenCentral()
     maven { url = uri("https://maven.google.com") }
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
@@ -72,7 +70,7 @@ dependencies {
      * This happened with multiple versions of the import.
      */
     // implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
-    implementation(files("pulsar-client-2.9.0.jar"))
+    implementation(files("pulsar-client-2.11.1.jar"))
 
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
@@ -114,7 +112,7 @@ ktlint {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_15.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
         allWarningsAsErrors = true
     }
 }
@@ -136,15 +134,15 @@ compose.desktop {
 
             macOS {
                 iconFile.set(project.file("pulse.icns"))
-                bundleID = "com.toasttab.pulseman"
+                bundleID = "com.tempaccount.pulseman"
                 signing {
                     sign.set(System.getenv("SIGN_APP")?.toString()?.toBoolean() ?: false)
-                    identity.set(System.getenv("IDENTITY") ?: "")
+                    identity.set(System.getenv("IDENTITY_TEMP") ?: "")
                 }
                 notarization {
-                    appleID.set(System.getenv("APPLE_ID") ?: "")
-                    password.set(System.getenv("NOTARIZATION_PASSWORD") ?: "")
-                    ascProvider.set(System.getenv("PROVIDER") ?: "")
+                    appleID.set(System.getenv("APPLE_ID_TEMP") ?: "")
+                    password.set(System.getenv("NOTARIZATION_PASSWORD_TEMP") ?: "")
+                    ascProvider.set(System.getenv("PROVIDER_TEMP") ?: "")
                 }
             }
         }

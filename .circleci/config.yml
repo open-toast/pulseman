@@ -4,7 +4,7 @@ executors:
   linux:
     working_directory: ~/repo
     docker:
-      - image: cimg/openjdk:15.0.2
+      - image: cimg/openjdk:17.0.7
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -49,17 +49,26 @@ jobs:
       - checkout
       - read_cache_linux
       - run:
-          name: "Run tests"
+          name: "Install fakeroot"
+          command: |
+            sudo apt-get update
+            sudo apt-get install fakeroot
+      - run:
+          name: "Run test"
           command: ./gradlew test
+      - store_test_results:
+          path: ~/repo/build/test-results/test/
       - run:
           name: "Create Package deb"
-          command: ./gradlew packageDeb
-      - write_cache_linux
-      - store_test_results:
-          path: ~/repo/build/test-results/iTest/
+          command: ./gradlew packageDeb --info
       - run:
-          name: "Store deb to workspace"
-          command: mkdir -p artifacts; cp ~/repo/build/compose/binaries/main/deb/* artifacts/
+          name: "Store compose logs"
+          command: mkdir -p artifacts; cp -r ~/repo/build/compose/logs/* artifacts/
+          when: always
+      - run:
+           name: "Store deb to workspace"
+           command: cp ~/repo/build/compose/binaries/main/deb/* artifacts/
+      - write_cache_linux
       - persist_to_workspace:
           root: artifacts
           paths:
@@ -77,13 +86,13 @@ jobs:
             at: artifacts
       - run:
           name: "Decode signing cert"
-          command: base64 -D -o cert.p12 \<<< $SIGNING_CERT
+          command: base64 -D -o cert.p12 \<<< $SIGNING_CERT_TEMP
       - run:
           name: "Create new keychain"
           command: security create-keychain -p keychain-pass compose.keychain
       - run:
           name: "Import signing cert"
-          command: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS -A
+          command: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
       - run:
           name: "Make chain accessible"
           command: |
@@ -96,17 +105,21 @@ jobs:
           name: "Check current java version"
           command: java -version
       - run:
-          name: "Install java 15"
+          name: "Install java 17"
           command: |
-            brew tap adoptopenjdk/openjdk
-            brew install adoptopenjdk15
-            export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-15.jdk/Contents/Home
+            brew install openjdk@17
+            sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+            export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-17.jdk/Contents/Home
       - run:
           name: "Check current java version"
           command: java -version
       - run:
           name: "Create DMG"
           command: ./gradlew packageDmg --stacktrace
+      - run:
+          name: "Copy dmg create logs to workspace"
+          command: cp -r ~/project/build/compose/logs/* artifacts/
+          when: always
       - run:
           name: "Store dmg to workspace"
           command: cp ~/project/build/compose/binaries/main/dmg/* artifacts/

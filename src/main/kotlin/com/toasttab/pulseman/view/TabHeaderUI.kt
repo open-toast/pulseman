@@ -18,7 +18,7 @@ package com.toasttab.pulseman.view
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -67,12 +67,10 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                     modifier = Modifier
                         .addSeparator(index)
                         .pointerInput(tab) {
-                            forEachGesture {
-                                awaitPointerEventScope {
-                                    awaitPointerEvent().awtEventOrNull?.let { mouseEvent ->
-                                        if (mouseEvent.button == MouseEvent.BUTTON2 && mouseEvent.id == MouseEvent.MOUSE_PRESSED) {
-                                            tab.close()
-                                        }
+                            awaitEachGesture {
+                                awaitPointerEvent().awtEventOrNull?.let { mouseEvent ->
+                                    if (mouseEvent.button == MouseEvent.BUTTON2 && mouseEvent.id == MouseEvent.MOUSE_PRESSED) {
+                                        tab.close()
                                     }
                                 }
                             }

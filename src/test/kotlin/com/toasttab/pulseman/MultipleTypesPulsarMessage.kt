@@ -15,6 +15,7 @@
 
 package com.toasttab.pulseman
 
+import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
@@ -29,4 +30,8 @@ class MultipleTypesPulsarMessage(override val cls: Class<out MultipleTypes>, ove
         DefaultMapper.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(cls)
 
     override fun generateClassTemplate(): String = "MultipleTypes()"
+
+    override fun getJarLoader(): JarLoader {
+        return JarLoader(arrayOfNulls(0))
+    }
 }

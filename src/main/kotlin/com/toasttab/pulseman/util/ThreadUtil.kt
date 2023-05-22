@@ -15,7 +15,18 @@
 
 package com.toasttab.pulseman.util
 
-enum class FileDialogMode {
-    LOAD,
-    SAVE
+import com.toasttab.pulseman.jars.JarLoader
+import java.util.concurrent.CompletableFuture
+
+/***
+ * This is to isolate any modifications of the contextClassLoader to a single thread and
+ * prevent any risk of multiple operations interfering with each-other.
+ */
+object ThreadUtil {
+    fun <T> run(jarLoader: JarLoader, block: () -> T): T {
+        return CompletableFuture.supplyAsync {
+            Thread.currentThread().contextClassLoader = jarLoader
+            block()
+        }.get()
+    }
 }

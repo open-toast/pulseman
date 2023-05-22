@@ -19,8 +19,11 @@ import com.toasttab.protokt.rt.KtDeserializer
 import com.toasttab.protokt.rt.KtMessage
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.TODO
+import com.toasttab.pulseman.jars.JarLoader
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.util.ThreadUtil
 import java.io.File
 
 data class KTMessageHandler(override val cls: Class<out KtMessage>, override val file: File) : PulsarMessageClassInfo {
@@ -32,12 +35,14 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
 
     override fun deserialize(bytes: ByteArray): Any {
         return try {
-            cls.declaredClasses
-                .first { it.name.contains(DESERIALIZER_CLASS) }
-                .let {
-                    val deserializer = (it.kotlin.objectInstance as KtDeserializer<*>)
-                    deserializer.deserialize(bytes)
-                }
+            ThreadUtil.run(RunTimeJarLoader.protoKTJarLoader) {
+                cls.declaredClasses
+                    .first { it.name.contains(DESERIALIZER_CLASS) }
+                    .let {
+                        val deserializer = (it.kotlin.objectInstance as KtDeserializer<*>)
+                        deserializer.deserialize(bytes)
+                    }
+            }
         } catch (ex: Throwable) {
             "$EXCEPTION:$ex"
         }
@@ -65,6 +70,10 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
         importSet.sorted().forEach { imports.appendLine("$IMPORT $it") }
 
         return "$imports\n$className {\n$variables}"
+    }
+
+    override fun getJarLoader(): JarLoader {
+        return RunTimeJarLoader.protoKTJarLoader
     }
 
     companion object {

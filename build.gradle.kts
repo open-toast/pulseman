@@ -48,30 +48,27 @@ val rsyntaxVersion: String by rootProject
 val sl4jNoop: String by rootProject
 val testContainerPulsar: String by rootProject
 
+configurations {
+    compileOnly {
+        isCanBeResolved = true
+    }
+}
+
+val tempBuildDir = "$buildDir/temp/"
+val pulsarClientJar = "pulsar-client-$pulsarVersion.jar"
+
 dependencies {
     implementation(compose.desktop.currentOs)
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fifesoft:rsyntaxtextarea:$rsyntaxVersion")
-    implementation("com.google.api.grpc:proto-google-common-protos:$googleCommonProtos")
     implementation("com.google.protobuf:protobuf-java:$protobufUtils")
     implementation("com.google.protobuf:protobuf-java-util:$protobufUtils")
     implementation("com.google.protobuf:protobuf-kotlin:$protobufUtils")
     implementation("com.toasttab.protokt:protokt-core:$protoktVersion")
     implementation("com.toasttab.protokt:protokt-extensions:$protoktVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")
-    /**
-     * Directly importing the pulsar-client jar as it is causing an issue with signing mac apps, something to do with
-     * the compressed size being mismatched. They must be somehow modifying the jar before publishing.
-     *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
-     * Directly adding the jar to the project as a workaround for now. I stripped all the meta info manually to make it
-     * work. Stripping all META-INF from the import may resolve it.
-     * This happened with multiple versions of the import.
-     */
-    // implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
-    implementation(files("pulsar-client-2.11.1.jar"))
-
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")
@@ -84,6 +81,23 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     implementation("org.slf4j:slf4j-nop:$sl4jNoop")
+
+    /**
+     * Directly importing the pulsar-client jar as it is causing an issue with signing Mac apps, something to do with
+     * the compressed size being mismatched. They must be somehow modifying the jar before publishing.
+     *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
+     * Stripping all META-INF from the import via gradle task for now to make it work.
+     * This happened with multiple versions of the import.
+     */
+    compileOnly("org.apache.pulsar:pulsar-client:$pulsarVersion")
+
+    /**
+     * The protokt version of proto-google-common-protos uses the same package and class names.
+     * They are only being downloaded and packaged with the release they will not be automatically loaded into the classloader.
+     * They will be added to separate classloaders one for protoKT protos and one for standard protos.
+     */
+    compileOnly("com.google.api.grpc:proto-google-common-protos:$googleCommonProtos")
+    compileOnly("com.toasttab.protokt.thirdparty:proto-google-common-protos:$protoktVersion")
 
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.apache.pulsar:pulsar-client-admin-original:$pulsarVersion")
@@ -119,6 +133,61 @@ tasks.withType<KotlinCompile> {
 
 kotlin.sourceSets.all {
     languageSettings.optIn("kotlin.RequiresOptIn")
+}
+
+/**
+ * This will copy and rename the downloaded common protos to the resource folder, so they can be loaded to custom
+ * Jar Loaders at runtime
+ */
+val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
+    into("src/main/resources")
+    val filteredFiles = configurations.compileOnly
+        .get()
+        .filter { it.name.startsWith("proto-google-common-protos") }
+    from(filteredFiles)
+    filteredFiles.forEach { file ->
+        val originalFileName = file.name
+        val newFileName = if (originalFileName.endsWith("$googleCommonProtos.jar")) {
+            originalFileName.replace("$googleCommonProtos", "original")
+        } else {
+            originalFileName.replace("$protoktVersion", "protoKT")
+        }
+        rename(originalFileName, newFileName)
+    }
+}
+
+val copyPulsarClientTask by tasks.creating(Copy::class) {
+    into("$buildDir/temp")
+    from(configurations.compileOnly.get().find { it.name.equals(pulsarClientJar) })
+}
+
+val stripMetaInfTask: TaskProvider<Task> = tasks.register("stripMetaInf") {
+    dependsOn(copyPulsarClientTask)
+
+    doLast {
+        val jarFile = file("$tempBuildDir$pulsarClientJar")
+        exec {
+            commandLine("zip", "-d", jarFile.absolutePath, "META-INF/*")
+        }
+    }
+}
+
+val configurePulsarClientTask: TaskProvider<Task> = tasks.register("configurePulsarClientTask") {
+    dependsOn(stripMetaInfTask)
+
+    doLast {
+        dependencies {
+            implementation(files("$tempBuildDir$pulsarClientJar"))
+        }
+    }
+}
+
+tasks.named("processResources") {
+    dependsOn(copyCommonProtoJarToResources)
+}
+
+tasks.named("assemble") {
+    dependsOn(configurePulsarClientTask)
 }
 
 compose.desktop {

@@ -22,6 +22,7 @@ import java.net.URL
  * separate classloaders to prevent conflicts with these Jars
  */
 object SeperatedJars {
+    // Gradle task copies and names these jars to the resource folder
     private const val googleCommon = "proto-google-common-protos-original.jar"
     private const val protoKTCommon = "proto-google-common-protos-protoKT.jar"
     private const val protoKTCommonLite = "proto-google-common-protos-lite-protoKT.jar"

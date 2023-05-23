@@ -181,7 +181,7 @@ val stripMetaInfTask: TaskProvider<Task> = tasks.register("stripMetaInf") {
 }
 
 /**
- * STRIP META-INF Part 3: Make the stripped jar an implementation dependency on the app.
+ * STRIP META-INF Part 4: Make the stripped jar an implementation dependency on the app.
  */
 val importPulsarClientTask: TaskProvider<Task> = tasks.register("importPulsarClientTask") {
     dependsOn(stripMetaInfTask)
@@ -198,7 +198,7 @@ tasks.named("processResources") {
 }
 
 /**
- * STRIP META-INF Part 0: Kick off flow based
+ * STRIP META-INF Part 0: Kick off flow
  */
 tasks.named("assemble") {
     dependsOn(importPulsarClientTask)

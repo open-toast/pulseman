@@ -88,6 +88,8 @@ dependencies {
      *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
      * Stripping all META-INF from the import via gradle task for now to make it work.
      * This happened with multiple versions of the import.
+     *
+     * STRIP META-INF Part 1: Download the jar but don't include it in the final app.
      */
     compileOnly("org.apache.pulsar:pulsar-client:$pulsarVersion")
 
@@ -156,11 +158,17 @@ val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
     }
 }
 
+/**
+ * STRIP META-INF Part 2: Copy the jar to a temp directory
+ */
 val copyPulsarClientTask by tasks.creating(Copy::class) {
     into("$buildDir/temp")
     from(configurations.compileOnly.get().find { it.name.equals(pulsarClientJar) })
 }
 
+/**
+ * STRIP META-INF Part 3: Strip the META-INF from the pulsar client jar.
+ */
 val stripMetaInfTask: TaskProvider<Task> = tasks.register("stripMetaInf") {
     dependsOn(copyPulsarClientTask)
 
@@ -172,7 +180,10 @@ val stripMetaInfTask: TaskProvider<Task> = tasks.register("stripMetaInf") {
     }
 }
 
-val configurePulsarClientTask: TaskProvider<Task> = tasks.register("configurePulsarClientTask") {
+/**
+ * STRIP META-INF Part 3: Make the stripped jar an implementation dependency on the app.
+ */
+val importPulsarClientTask: TaskProvider<Task> = tasks.register("importPulsarClientTask") {
     dependsOn(stripMetaInfTask)
 
     doLast {
@@ -186,8 +197,11 @@ tasks.named("processResources") {
     dependsOn(copyCommonProtoJarToResources)
 }
 
+/**
+ * STRIP META-INF Part 0: Kick off flow based
+ */
 tasks.named("assemble") {
-    dependsOn(configurePulsarClientTask)
+    dependsOn(importPulsarClientTask)
 }
 
 compose.desktop {

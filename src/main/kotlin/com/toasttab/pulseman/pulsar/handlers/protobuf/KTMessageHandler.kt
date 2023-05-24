@@ -35,11 +35,12 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
 
     override fun deserialize(bytes: ByteArray): Any {
         return try {
-            ThreadUtil.run(RunTimeJarLoader.protoKTJarLoader) {
+            val jarLoader = RunTimeJarLoader.protoKTJarLoader
+            ThreadUtil.run(jarLoader) {
                 cls.declaredClasses
                     .first { it.name.contains(DESERIALIZER_CLASS) }
                     .let {
-                        val deserializer = (it.kotlin.objectInstance as KtDeserializer<*>)
+                        val deserializer = jarLoader.loadClass(it.name).kotlin.objectInstance as KtDeserializer<*>
                         deserializer.deserialize(bytes)
                     }
             }

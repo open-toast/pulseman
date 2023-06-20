@@ -83,8 +83,8 @@ dependencies {
     implementation("org.slf4j:slf4j-nop:$sl4jNoop")
 
     /**
-     * Directly importing the pulsar-client jar as it is causing an issue with signing Mac apps, something to do with
-     * the compressed size being mismatched. They must be somehow modifying the jar before publishing.
+     * The pulsar-client jar is causing an issue with signing Mac apps, something to do with
+     * the compressed size being mismatched.
      *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
      * Stripping all META-INF from the import via gradle task for now to make it work.
      * This happened with multiple versions of the import.

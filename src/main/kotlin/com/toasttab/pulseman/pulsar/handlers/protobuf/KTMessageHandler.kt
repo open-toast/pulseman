@@ -23,7 +23,6 @@ import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import com.toasttab.pulseman.util.ThreadUtil
 import java.io.File
 
 data class KTMessageHandler(override val cls: Class<out KtMessage>, override val file: File) : PulsarMessageClassInfo {
@@ -35,15 +34,12 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
 
     override fun deserialize(bytes: ByteArray): Any {
         return try {
-            val jarLoader = RunTimeJarLoader.protoKTJarLoader
-            ThreadUtil.run(jarLoader) {
-                cls.declaredClasses
-                    .first { it.name.contains(DESERIALIZER_CLASS) }
-                    .let {
-                        val deserializer = jarLoader.loadClass(it.name).kotlin.objectInstance as KtDeserializer<*>
-                        deserializer.deserialize(bytes)
-                    }
-            }
+            cls.declaredClasses
+                .first { it.name.contains(DESERIALIZER_CLASS) }
+                .let {
+                    val deserializer = getJarLoader().loadClass(it.name).kotlin.objectInstance as KtDeserializer<*>
+                    deserializer.deserialize(bytes)
+                }
         } catch (ex: Throwable) {
             "$EXCEPTION:$ex"
         }
@@ -58,7 +54,9 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
         importSet.add(cls.name)
 
         val variables = StringBuilder()
-        cls.declaredFields
+        getJarLoader()
+            .loadClass(cls.name)
+            .declaredFields
             .filter {
                 it.name !in IGNORE_FIELDS
             }

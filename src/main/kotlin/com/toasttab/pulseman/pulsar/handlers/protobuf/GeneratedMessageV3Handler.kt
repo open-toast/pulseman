@@ -33,8 +33,7 @@ data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessag
 
     override fun deserialize(bytes: ByteArray): Any {
         return try {
-            RunTimeJarLoader
-                .googleJarLoader
+            getJarLoader()
                 .loadClass(cls.name)
                 .getDeclaredMethod(PARSE_METHOD, ByteArray::class.java)
                 .invoke(null, bytes)

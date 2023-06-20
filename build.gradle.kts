@@ -95,7 +95,8 @@ dependencies {
 
     /**
      * The protokt version of proto-google-common-protos uses the same package and class names.
-     * They are only being downloaded and packaged with the release they will not be automatically loaded into the classloader.
+     * They are only being downloaded and packaged with the release they will not be automatically loaded into the
+     * classloader.
      * They will be added to separate classloaders one for protoKT protos and one for standard protos.
      */
     compileOnly("com.google.api.grpc:proto-google-common-protos:$googleCommonProtos")

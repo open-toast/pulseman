@@ -115,6 +115,7 @@ jobs:
           command: java -version
       - run:
           name: "Create DMG"
+          no_output_timeout: 30m
           command: ./gradlew packageDmg --stacktrace
       - run:
           name: "Copy dmg create logs to workspace"
@@ -125,6 +126,7 @@ jobs:
           command: cp ~/project/build/compose/binaries/main/dmg/* artifacts/
       - run:
           name: "Notarize DMG"
+          no_output_timeout: 30m
           command: ./gradlew notarizeDmg
       - write_cache_mac
       - persist_to_workspace:

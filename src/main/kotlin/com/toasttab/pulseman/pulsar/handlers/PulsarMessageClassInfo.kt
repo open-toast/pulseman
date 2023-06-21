@@ -16,6 +16,7 @@
 package com.toasttab.pulseman.pulsar.handlers
 
 import com.toasttab.pulseman.entities.ClassInfo
+import com.toasttab.pulseman.jars.JarLoader
 import java.io.File
 
 /**
@@ -34,4 +35,14 @@ interface PulsarMessageClassInfo : PulsarMessage, ClassInfo {
      * @return A string template for the class.
      */
     fun generateClassTemplate(): String
+
+    /**
+     * protoKT has overridden the package path for types like google.type.Money we need
+     * separate classloaders to prevent conflicts between these imports
+     *     com.google.api.grpc:proto-google-common-protos
+     *     com.toasttab.protokt.thirdparty:proto-google-common-protos
+     *
+     * @return JarLoader containing the jar needed to generate a class using kotlin scripting
+     */
+    fun getJarLoader(): JarLoader
 }

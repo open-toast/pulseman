@@ -20,9 +20,8 @@ import com.toasttab.pulseman.AppStrings.GENERATED_CLASS_NOT_SAME_AS_SELECTED
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
 import com.toasttab.pulseman.AppStrings.SUCCESSFULLY_COMPILED_CLASS
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.jars.RunTimeJarLoader
-import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.util.ThreadUtil
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -47,16 +46,18 @@ object KotlinScripting {
         }
 
         try {
-            addJarsToClassLoader()
-            val engine: ScriptEngine = ScriptEngineManager(RunTimeJarLoader.loader).getEngineByExtension(KTS_EXTENSION)
-
-            val generatedClass = engine.eval(code)
-            if (generatedClass.javaClass.name != classToGenerate.cls.name) {
-                setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
-                return null
+            val jarLoader = classToGenerate.getJarLoader()
+            return ThreadUtil.run(jarLoader) {
+                val engine: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
+                val generatedClass = engine.eval(code)
+                if (generatedClass.javaClass.name != classToGenerate.cls.name) {
+                    setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
+                    null
+                } else {
+                    setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
+                    classToGenerate.serialize(generatedClass)
+                }
             }
-            setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
-            return classToGenerate.serialize(generatedClass)
         } catch (ex: Throwable) {
             setUserFeedback("$EXCEPTION:\n$ex")
         }

@@ -43,9 +43,20 @@ object RunTimeJarLoader {
         Thread.currentThread().contextClassLoader = jarLoader
     }
 
-    private fun newJarLoader() = JarLoader(arrayOfNulls(0), JarLoader::class.java.classLoader)
+    private fun newJarLoader() = JarLoader(arrayOfNulls(0))
+
     private var jarLoader = newJarLoader()
 
     val loader: JarLoader
         get() = jarLoader
+
+    val googleJarLoader: JarLoader
+        get() = jarLoader.copy().also {
+            SeperatedJars.addGoogleJars(it)
+        }
+
+    val protoKTJarLoader: JarLoader
+        get() = jarLoader.copy().also {
+            SeperatedJars.addProtoKTJars(it)
+        }
 }

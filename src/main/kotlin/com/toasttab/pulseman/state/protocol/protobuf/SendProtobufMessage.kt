@@ -17,7 +17,6 @@ package com.toasttab.pulseman.state.protocol.protobuf
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.FAILED_TO_SEND_MESSAGE
 import com.toasttab.pulseman.AppStrings.GENERATED_CODE_TEMPLATE
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
@@ -39,7 +38,6 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class SendProtobufMessage(
-    val appState: AppState,
     val setUserFeedback: (String) -> Unit,
     val selectedClass: SingleSelection<PulsarMessageClassInfo>,
     val pulsarSettings: PulsarSettings,

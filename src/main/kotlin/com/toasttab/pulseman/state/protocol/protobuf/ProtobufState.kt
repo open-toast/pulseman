@@ -68,7 +68,6 @@ class ProtobufState(
     )
 
     private val sendMessage = SendProtobufMessage(
-        appState = appState,
         setUserFeedback = setUserFeedback,
         selectedClass = protobufSelector.selectedClass,
         pulsarSettings = pulsarSettings,

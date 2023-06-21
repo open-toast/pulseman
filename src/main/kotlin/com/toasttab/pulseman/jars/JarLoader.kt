@@ -25,8 +25,12 @@ import java.net.URLClassLoader
  * TODO there may be a better way to do this with ModuleLayer
  * https://docs.oracle.com/javase/9/docs/api/java/lang/ModuleLayer.html
  */
-class JarLoader(urls: Array<URL?>, parent: ClassLoader) : URLClassLoader(urls, parent) {
+class JarLoader(urls: Array<URL?>) : URLClassLoader(urls, JarLoader::class.java.classLoader) {
     fun addJar(url: URL) {
         super.addURL(url)
+    }
+
+    fun copy(): JarLoader {
+        return JarLoader(this.urLs)
     }
 }

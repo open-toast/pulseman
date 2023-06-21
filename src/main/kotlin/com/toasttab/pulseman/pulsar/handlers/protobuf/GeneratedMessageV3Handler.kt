@@ -18,6 +18,7 @@ package com.toasttab.pulseman.pulsar.handlers.protobuf
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.util.JsonFormat
 import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
@@ -32,8 +33,7 @@ data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessag
 
     override fun deserialize(bytes: ByteArray): Any {
         return try {
-            RunTimeJarLoader
-                .loader
+            getJarLoader()
                 .loadClass(cls.name)
                 .getDeclaredMethod(PARSE_METHOD, ByteArray::class.java)
                 .invoke(null, bytes)
@@ -51,6 +51,10 @@ data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessag
         val import = "import $fullName"
 
         return "$import\n\n$className\n\t.newBuilder()\n\t//TODO set values\n\t.build()"
+    }
+
+    override fun getJarLoader(): JarLoader {
+        return RunTimeJarLoader.googleJarLoader
     }
 
     companion object {

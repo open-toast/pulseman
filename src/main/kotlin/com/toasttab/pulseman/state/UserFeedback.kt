@@ -34,7 +34,7 @@ class UserFeedback(
         )
     }
 
-    override fun close() {
+    fun close() {
         globalFeedback.closeCallback(this)
     }
 

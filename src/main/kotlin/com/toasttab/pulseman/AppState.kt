@@ -83,7 +83,9 @@ class AppState {
                     loadConfig(loadedProject)
                 }
             if (newTabs != null) {
-                jarManagers.forEach { it.refresh() }
+                jarManagers.forEach {
+                    it.refresh(printError = true)
+                }
                 requestTabs.closeAll()
                 requestTabs.load(newTabs)
             }

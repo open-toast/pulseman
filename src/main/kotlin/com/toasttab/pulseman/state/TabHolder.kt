@@ -33,7 +33,8 @@ class TabHolder(private val appState: AppState) {
             appState = appState,
             selection = selection,
             close = ::close,
-            initialMessage = initialMessage
+            initialMessage = initialMessage,
+            newTab = true
         )
         tabState.add(tab)
         tab.activate()
@@ -53,7 +54,8 @@ class TabHolder(private val appState: AppState) {
                 appState = appState,
                 selection = selection,
                 close = ::close,
-                initialSettings = it
+                initialSettings = it,
+                newTab = false
             )
             tabState.add(tab)
         }
@@ -70,7 +72,8 @@ class TabHolder(private val appState: AppState) {
                     currentTabValues.copy(
                         tabName = currentTabValues.tabName + " - $COPY"
                     )
-                }
+                },
+                newTab = true
             )
             tabState.add(copiedTab)
             copiedTab.activate()

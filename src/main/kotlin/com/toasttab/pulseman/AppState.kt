@@ -33,9 +33,12 @@ import com.toasttab.pulseman.pulsar.filters.protobuf.GeneratedMessageV3Filter
 import com.toasttab.pulseman.pulsar.filters.protobuf.KTMessageFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.state.GlobalFeedback
 import com.toasttab.pulseman.state.TabHolder
 
 class AppState {
+    val globalFeedback = GlobalFeedback()
+
     val pulsarMessageJars: JarManager<PulsarMessageClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
             classFilters = listOf(
@@ -44,7 +47,8 @@ class AppState {
                 GeneratedMessageV3Filter()
             )
         ),
-        jarFolderName = MESSAGE_JAR_FOLDER
+        jarFolderName = MESSAGE_JAR_FOLDER,
+        globalFeedback = globalFeedback
     )
 
     val authJars: JarManager<PulsarAuthHandler> = JarManager(
@@ -54,14 +58,16 @@ class AppState {
                 AuthClassFilter()
             )
         ),
-        jarFolderName = AUTH_JAR_FOLDER
+        jarFolderName = AUTH_JAR_FOLDER,
+        globalFeedback = globalFeedback
     )
 
     val dependencyJars: JarManager<ClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
             classFilters = emptyList()
         ),
-        jarFolderName = DEPENDENCY_JAR_FOLDER
+        jarFolderName = DEPENDENCY_JAR_FOLDER,
+        globalFeedback = globalFeedback
     )
 
     private val jarManagers = listOf(pulsarMessageJars, authJars, dependencyJars)
@@ -69,6 +75,7 @@ class AppState {
     val requestTabs = TabHolder(this)
 
     fun loadFile(loadDefault: Boolean) {
+        globalFeedback.reset()
         FileManagement.getProjectFile(loadDefault)?.let { projectFile ->
             jarManagers.forEach { it.deleteAllJars() }
             val newTabs =

@@ -39,11 +39,12 @@ class TabState(
     val close: ((TabState) -> Unit),
     val unsavedChanges: MutableState<Boolean> = mutableStateOf(false),
     val initialSettings: TabValuesV3? = null,
+    newTab: Boolean,
     initialMessage: String? = null
 ) {
     private var lastSavedTabValues: TabValuesV3? = initialSettings
 
-    private val userFeedback = UserFeedback()
+    private val userFeedback = UserFeedback(globalFeedback = appState.globalFeedback, newTab = newTab)
 
     private val serializationFormat =
         mutableStateOf((initialSettings?.serializationFormat ?: SerializationFormat.PROTOBUF))
@@ -52,7 +53,7 @@ class TabState(
         options = SerializationFormat.values().map { it.format },
         onSelected = {
             serializationFormat.value = SerializationFormat.fromFormat(it)
-            userFeedback.setUserFeedback("$SELECTED $it $SERIALIZATION_FORMAT")
+            userFeedback.set("$SELECTED $it $SERIALIZATION_FORMAT")
             onChange()
         }
     )
@@ -60,7 +61,7 @@ class TabState(
     private val authSelector =
         AuthSelector(
             authJars = appState.authJars,
-            setUserFeedback = userFeedback::setUserFeedback,
+            setUserFeedback = userFeedback::set,
             initialSettings = initialSettings,
             onChange = ::onChange
         )
@@ -70,7 +71,7 @@ class TabState(
     private val pulsarSettings =
         PulsarSettings(
             appState = appState,
-            setUserFeedback = userFeedback::setUserFeedback,
+            setUserFeedback = userFeedback::set,
             initialSettings = initialSettings,
             authSelector = authSelector,
             propertySettings = propertySettings,
@@ -81,13 +82,14 @@ class TabState(
         appState = appState,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
-        setUserFeedback = userFeedback::setUserFeedback,
+        setUserFeedback = userFeedback::set,
         onChange = ::onChange
     )
 
     fun cleanUp() {
         serializationState.cleanUp()
         pulsarSettings.close()
+        userFeedback.close()
     }
 
     fun tabValues(save: Boolean = false): TabValuesV3 {
@@ -115,7 +117,7 @@ class TabState(
             tabName.value = it
         }
         initialMessage?.let {
-            userFeedback.setUserFeedback(it)
+            userFeedback.set(it)
         }
     }
 

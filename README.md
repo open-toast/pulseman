@@ -4,7 +4,7 @@ Pulseman (Pulsar manager) is an [Apache Pulsar](https://pulsar.apache.org/) test
 
 - Generate and publish messages to a pulsar topic using Kotlin Scripting
 - Subscribe to a Pulsar topic and receive messages
-- Query all topics (non-authenticated connections only at the moment)
+- Query all topics
 - Import JAR files for serialization and deserialization of messages
 - Import custom authentication JAR files
 - Store and share test collections
@@ -60,7 +60,7 @@ in `~/pulseman_config`.
 
 #### Note
 
-Editing these configuration files manually may corrupt your saved configurations and application functionnality.
+Editing these configuration files manually may corrupt your saved configurations and application functionality.
 
 ### Create a signed distributable (macOS)
 

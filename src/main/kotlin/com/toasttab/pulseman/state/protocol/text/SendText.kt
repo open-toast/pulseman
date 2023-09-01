@@ -18,7 +18,6 @@ package com.toasttab.pulseman.state.protocol.text
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.FAILED_TO_SEND_MESSAGE
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.TabValuesV3
@@ -37,7 +36,6 @@ import org.fife.ui.rtextarea.RTextScrollPane
 @Suppress("UNUSED_PARAMETER")
 class SendText(
     private val serializationTypeSelector: SerializationTypeSelector,
-    val appState: AppState,
     val setUserFeedback: (String) -> Unit,
     val pulsarSettings: PulsarSettings,
     onChange: () -> Unit,

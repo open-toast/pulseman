@@ -98,7 +98,7 @@ object AppStrings {
     const val SAVE_FILE_DIALOG_TITLE = "Save Project"
     const val SEARCH_FOR_TOPIC = "Search for topic"
     const val SELECT = "Select"
-    const val SELECT_TOPIC_UNSECURED = "Select topic - unsecured"
+    const val SELECT_TOPIC = "Select topic"
     const val SELECTED = "Selected"
     const val SELECTED_CHARSET = "Selected charset"
     const val SELECTED_SEND_CHARSET = "Selected send charset"

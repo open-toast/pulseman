@@ -100,7 +100,8 @@ class TabState(
             propertyMap = propertySettings.propertyMap(),
             serializationFormat = serializationFormat.value,
             protobufSettings = serializationState.protobufState.toProtobufTabValues(),
-            textSettings = serializationState.textState.toTextTabValues()
+            textSettings = serializationState.textState.toTextTabValues(),
+            pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value
         )
 
         if (save) {
@@ -153,11 +154,6 @@ class TabState(
         focused.value = newValue
     }
 
-    private fun onTabNameChange(newValue: String) {
-        tabName.value = newValue
-        onChange()
-    }
-
     private fun onChange() {
         unsavedChanges.value = lastSavedTabValues != tabValues()
     }
@@ -183,7 +179,7 @@ class TabState(
             ui = {
                 tabUI(
                     tabName = tabName.value,
-                    onTabNameChange = ::onTabNameChange,
+                    onTabNameChange = { tabName.onStateChange(it, ::onChange) },
                     userFeedbackUI = userFeedback.ui(),
                     pulsarSettingsUI = pulsarSettings.getUI(
                         popupState = popupState

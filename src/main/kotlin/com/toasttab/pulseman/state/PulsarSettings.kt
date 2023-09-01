@@ -34,6 +34,7 @@ import kotlinx.coroutines.cancel
 class PulsarSettings(
     val appState: AppState,
     val topic: MutableState<String> = mutableStateOf(""),
+    val pulsarAdminUrl: MutableState<String> = mutableStateOf(""),
     val serviceUrl: MutableState<String> = mutableStateOf(""),
     val authSelector: AuthSelector,
     val propertySettings: PropertyConfiguration,
@@ -44,6 +45,7 @@ class PulsarSettings(
     init {
         topic.value = initialSettings?.topic ?: ""
         serviceUrl.value = initialSettings?.serviceUrl ?: DEFAULT_SERVICE_URL
+        pulsarAdminUrl.value = initialSettings?.pulsarAdminURL ?: DEFAULT_PULSAR_URL
     }
 
     fun close() {
@@ -53,8 +55,11 @@ class PulsarSettings(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val topicSelector = TopicSelector(
+        pulsarSettings = this,
         settingsTopic = topic,
-        setUserFeedback = setUserFeedback
+        pulsarAdminUrl = pulsarAdminUrl,
+        setUserFeedback = setUserFeedback,
+        onChange = onChange
     )
 
     private val authJarManagement =
@@ -66,16 +71,6 @@ class PulsarSettings(
     private val showJarManagement = mutableStateOf(false)
     private val showAuthSettings = mutableStateOf(false)
     private val showPropertySettings = mutableStateOf(false)
-
-    private fun onTopicChange(newValue: String) {
-        topic.value = newValue
-        onChange()
-    }
-
-    private fun onServiceUrlChange(newValue: String) {
-        serviceUrl.value = newValue
-        onChange()
-    }
 
     private val jarManagementTabs = JarManagementTabs(
         listOf(
@@ -91,11 +86,11 @@ class PulsarSettings(
             pulsarSettingsUI(
                 popupState = popupState,
                 topic = topic.value,
-                onTopicChange = ::onTopicChange,
+                onTopicChange = { topic.onStateChange(it, onChange) },
                 showDiscover = showDiscover.value,
                 onShowDiscoverChange = showDiscover::onStateChange,
                 serviceUrl = serviceUrl.value,
-                onServiceUrlChange = ::onServiceUrlChange,
+                onServiceUrlChange = { serviceUrl.onStateChange(it, onChange) },
                 showJarManagement = showJarManagement.value,
                 onShowJarManagementChange = showJarManagement::onStateChange,
                 showAuthSettings = showAuthSettings.value,
@@ -114,5 +109,6 @@ class PulsarSettings(
 
     companion object {
         private const val DEFAULT_SERVICE_URL = "pulsar://localhost:6650"
+        private const val DEFAULT_PULSAR_URL = "http://localhost:8079"
     }
 }

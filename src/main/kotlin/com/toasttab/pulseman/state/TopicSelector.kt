@@ -29,14 +29,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 class TopicSelector(
+    private val pulsarSettings: PulsarSettings,
     private val settingsTopic: MutableState<String>,
+    private val pulsarAdminUrl: MutableState<String>,
     private val showDiscover: MutableState<Boolean> = mutableStateOf(false),
     val setUserFeedback: (String) -> Unit,
+    val onChange: () -> Unit
 ) {
     private val pulsarConfig = PulsarConfig(setUserFeedback)
     private val topics: SnapshotStateList<String> = mutableStateListOf()
     private val topicRetrievalState = mutableStateOf(ButtonState.WAITING)
-    private val pulsarUrl = mutableStateOf(DEFAULT_PULSAR_URL)
 
     val filter: MutableState<String> = mutableStateOf("")
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -44,7 +46,7 @@ class TopicSelector(
     private fun filteredTopics() = topics.filter { it.contains(filter.value) }.sortedBy { it }
 
     private fun onLoadTopics() {
-        val newTopicList = pulsarConfig.getTopics(pulsarUrl.value).toMutableList()
+        val newTopicList = pulsarConfig.getTopics(pulsarAdminUrl.value, pulsarSettings).toMutableList()
         topics.removeAll { true }
         topics.addAll(newTopicList)
     }
@@ -61,8 +63,8 @@ class TopicSelector(
                 scope = scope,
                 filter = filter.value,
                 onFilterChange = filter::onStateChange,
-                pulsarUrl = pulsarUrl.value,
-                onPulsarUrlChange = pulsarUrl::onStateChange,
+                pulsarUrl = pulsarAdminUrl.value,
+                onPulsarUrlChange = { pulsarAdminUrl.onStateChange(it, onChange) },
                 onLoadTopics = ::onLoadTopics,
                 topicRetrievalState = topicRetrievalState.value,
                 onTopicRetrievalStateChange = topicRetrievalState::onStateChange,
@@ -70,9 +72,5 @@ class TopicSelector(
                 onSelectSettingsTopic = ::onSelectSettingsTopic
             )
         }
-    }
-
-    companion object {
-        private const val DEFAULT_PULSAR_URL = "http://localhost:8079"
     }
 }

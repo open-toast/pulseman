@@ -23,17 +23,26 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class UserFeedback(
-    private val userFeedback: SnapshotStateList<String> = mutableStateListOf()
+    private val globalFeedback: GlobalFeedback,
+    private val userFeedback: SnapshotStateList<String> = mutableStateListOf(),
+    newTab: Boolean
 ) {
-    companion object {
-        private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    init {
+        globalFeedback.registerCallback(
+            userFeedback = this,
+            newTab = newTab
+        )
     }
 
-    fun setUserFeedback(text: String) {
+    fun close() {
+        globalFeedback.closeCallback(this)
+    }
+
+    fun set(text: String) {
         userFeedback.add("${timeNow()}: $text")
     }
 
-    private fun onUserFeedbackClear() {
+    private fun clear() {
         userFeedback.clear()
     }
 
@@ -42,7 +51,11 @@ class UserFeedback(
     fun ui(): @Composable () -> Unit = {
         userFeedbackUI(
             userFeedback = userFeedback,
-            onUserFeedbackClear = ::onUserFeedbackClear
+            onUserFeedbackClear = this::clear
         )
+    }
+
+    companion object {
+        private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
     }
 }

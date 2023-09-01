@@ -18,6 +18,7 @@ package com.toasttab.pulseman.jars
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings.ADDED
+import com.toasttab.pulseman.AppStrings.CONFLICT_WARNING
 import com.toasttab.pulseman.AppStrings.DELETED_CLASS_FEEDBACK
 import com.toasttab.pulseman.AppStrings.REMOVED
 import com.toasttab.pulseman.entities.ClassInfo
@@ -27,6 +28,7 @@ import com.toasttab.pulseman.files.FileManagement.appFolder
 import com.toasttab.pulseman.files.FileManagement.deleteFile
 import com.toasttab.pulseman.files.FileManagement.loadedJars
 import com.toasttab.pulseman.files.FileManagement.makeFolder
+import com.toasttab.pulseman.state.GlobalFeedback
 import java.io.File
 
 /**
@@ -44,6 +46,7 @@ import java.io.File
 data class JarManager<T : ClassInfo>(
     val loadedJars: SnapshotStateList<File> = mutableStateListOf(),
     val loadedClasses: LoadedClasses<T>,
+    private val globalFeedback: GlobalFeedback,
     private val jarFolderName: String
 ) {
     private val jarFolderPath = "$jarFolderName/"
@@ -55,7 +58,8 @@ data class JarManager<T : ClassInfo>(
         makeFolder(jarFolder)
     }
 
-    private fun addJar(jarFile: File) {
+    private fun addJar(jarFile: File, printError: Boolean) {
+        checkForConflicts(file = jarFile, printError = printError)
         loadedJars.add(jarFile)
         loadedClasses.addFile(jarFile)
         RunTimeJarLoader.addJar(jarFile.toURI().toURL())
@@ -75,10 +79,10 @@ data class JarManager<T : ClassInfo>(
         loadedClasses.clear()
     }
 
-    fun refresh() {
+    fun refresh(printError: Boolean) {
         clearAllJars()
         loadedJars(jarFolder).forEach {
-            addJar(it)
+            addJar(jarFile = it, printError = printError)
         }
         sortLists()
     }
@@ -87,9 +91,15 @@ data class JarManager<T : ClassInfo>(
         loadedJars.sortWith(compareBy { it.name })
     }
 
+    private fun checkForConflicts(file: File, printError: Boolean) {
+        if (printError && file.name.contains(CONFLICT_FILE_NAME)) {
+            globalFeedback.set("$CONFLICT_WARNING: ${file.name}")
+        }
+    }
+
     fun addJar(file: File, setUserFeedback: (String) -> Unit, onChange: () -> Unit) {
         if (!loadedJars.contains(file)) {
-            addJar(file)
+            addJar(jarFile = file, printError = true)
             sortLists()
             setUserFeedback("$ADDED ${file.path}")
             onChange()
@@ -113,10 +123,14 @@ data class JarManager<T : ClassInfo>(
     }
 
     fun deleteAllJars() {
-        refresh()
+        refresh(printError = false)
         loadedJars.forEach {
             deleteFile(it)
         }
         clearAllJars()
+    }
+
+    companion object {
+        private const val CONFLICT_FILE_NAME = "proto-google-common-protos"
     }
 }

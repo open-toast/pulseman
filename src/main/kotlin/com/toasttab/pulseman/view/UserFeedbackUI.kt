@@ -39,7 +39,7 @@ import com.toasttab.pulseman.AppTheme
 
 /**
  * This views shows a scrollable history of events in the current tab.
- * It is used by passing the setUserFeedback function to all views that need it.
+ * It is used by passing the set function to all views that need it.
  */
 @Composable
 fun userFeedbackUI(

@@ -38,6 +38,7 @@ object AppStrings {
     const val COLLAPSE = "Collapse"
     const val COMPILE = "Compile"
     const val COMPILING = "Compiling..."
+    const val CONFLICT_WARNING = "WARNING file may cause conflicts"
     const val CONNECTION_CLOSED = "Connection closed"
     const val CONVERT = "Convert"
     const val CONVERTING = "Converting"

@@ -48,7 +48,6 @@ class SerializationState(
     )
 
     val textState = TextState(
-        appState = appState,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
         setUserFeedback = setUserFeedback,
@@ -61,6 +60,7 @@ class SerializationState(
             SerializationFormat.PROTOBUF -> {
                 protobufState.getUI()
             }
+
             SerializationFormat.TEXT -> {
                 textState.getUI()
             }

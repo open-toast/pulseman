@@ -30,13 +30,13 @@ import com.toasttab.pulseman.AppStrings.NO_CLASS_GENERATED_TO_SEND
 import com.toasttab.pulseman.AppStrings.ON_TOPIC
 import com.toasttab.pulseman.AppStrings.SERVICE_URL_NOT_SET
 import com.toasttab.pulseman.AppStrings.TOPIC_NOT_SET
-import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
-import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
 import com.toasttab.pulseman.state.PulsarSettings
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import org.apache.pulsar.client.api.Authentication
 import org.apache.pulsar.client.api.Consumer
-import org.apache.pulsar.client.api.EncodedAuthenticationParameterSupport
 import org.apache.pulsar.client.api.Message
 import org.apache.pulsar.client.api.MessageRoutingMode
 import org.apache.pulsar.client.api.Producer
@@ -44,9 +44,6 @@ import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
 import org.apache.pulsar.client.api.SubscriptionMode
 import org.apache.pulsar.client.api.SubscriptionType
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 
 /**
  * Handles
@@ -57,6 +54,8 @@ class Pulsar(
     private val pulsarSettings: PulsarSettings,
     private val setUserFeedback: (String) -> Unit
 ) {
+    private val pulsarAuth = PulsarAuth(pulsarSettings)
+
     fun close() {
         try {
             pulsarClient?.shutdown()
@@ -65,16 +64,7 @@ class Pulsar(
         }
     }
 
-    private fun authenticatedPulsarClient(pulsarAuthClass: PulsarAuthHandler): PulsarClient {
-        val authHandler = RunTimeJarLoader
-            .loader
-            .loadClass(pulsarAuthClass.cls.canonicalName)
-            .getDeclaredConstructor()
-            .newInstance() as Authentication
-
-        (authHandler as EncodedAuthenticationParameterSupport)
-            .configure(pulsarSettings.authSelector.authJsonParameters())
-
+    private fun authenticatedPulsarClient(authHandler: Authentication): PulsarClient {
         return PulsarClient.builder()
             .serviceUrl(pulsarSettings.serviceUrl.value)
             .operationTimeout(15, TimeUnit.SECONDS)
@@ -92,8 +82,8 @@ class Pulsar(
     private val pulsarClient by lazy {
         try {
             addJarsToClassLoader()
-            pulsarSettings.authSelector.selectedAuthClass.selected?.let { pulsarAuthClass ->
-                authenticatedPulsarClient(pulsarAuthClass)
+            pulsarAuth.getAuthHandler()?.let { authHandler ->
+                authenticatedPulsarClient(authHandler)
             } ?: unAuthenticatedPulsarClient()
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_SETUP_PULSAR:$ex")

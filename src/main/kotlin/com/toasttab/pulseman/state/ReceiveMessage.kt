@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings.CLEARED_HISTORY
 import com.toasttab.pulseman.AppStrings.CONNECTION_CLOSED
+import com.toasttab.pulseman.AppStrings.FAILED_TO_CLOSE_PULSAR
 import com.toasttab.pulseman.AppStrings.FAIL_TO_SUBSCRIBE
 import com.toasttab.pulseman.AppStrings.SUBSCRIBED
 import com.toasttab.pulseman.entities.ButtonState
@@ -30,12 +31,13 @@ import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
 import com.toasttab.pulseman.pulsar.MessageHandling
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.view.receiveMessageUI
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.apache.pulsar.client.api.Consumer
-import java.util.concurrent.TimeUnit
 
 class ReceiveMessage(
     private val setUserFeedback: (String) -> Unit,
@@ -53,6 +55,7 @@ class ReceiveMessage(
     private var consumer: Consumer<ByteArray>? = null
 
     private val stateVertical = ScrollState(0)
+    private var subscribeFuture: CompletableFuture<Consumer<ByteArray>>? = null
 
     private fun onSubscribe() {
         consumer?.close()
@@ -60,10 +63,12 @@ class ReceiveMessage(
         pulsar.value = Pulsar(pulsarSettings, setUserFeedback)
         try {
             addJarsToClassLoader()
-            val subscribeFuture = pulsar.value?.createNewConsumer(messageHandling::parseMessage)
+            subscribeFuture = pulsar.value?.createNewConsumer(messageHandling::parseMessage)
             subscribeFuture?.get(90, TimeUnit.SECONDS)?.let {
                 consumer = it
-                setUserFeedback(SUBSCRIBED)
+                consumer?.let {
+                    setUserFeedback(SUBSCRIBED)
+                }
             }
         } catch (ex: Throwable) {
             pulsar.value?.close()
@@ -77,9 +82,14 @@ class ReceiveMessage(
     }
 
     private fun onCloseConnection() {
-        consumer?.close()
-        pulsar.value?.close()
-        setUserFeedback(CONNECTION_CLOSED)
+        try {
+            consumer?.close()
+            pulsar.value?.close()
+            subscribeFuture?.complete(null)
+            setUserFeedback(CONNECTION_CLOSED)
+        } catch (ex: Throwable) {
+            setUserFeedback("$FAILED_TO_CLOSE_PULSAR:$ex")
+        }
     }
 
     fun close() {

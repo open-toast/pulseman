@@ -37,7 +37,7 @@ import com.toasttab.pulseman.AppStrings.JARS
 import com.toasttab.pulseman.AppStrings.MANAGE_JARS
 import com.toasttab.pulseman.AppStrings.PROPERTIES
 import com.toasttab.pulseman.AppStrings.SEARCH_FOR_TOPIC
-import com.toasttab.pulseman.AppStrings.SELECT_TOPIC_UNSECURED
+import com.toasttab.pulseman.AppStrings.SELECT_TOPIC
 import com.toasttab.pulseman.AppStrings.SERVICE_URL
 import com.toasttab.pulseman.AppStrings.SET_AUTHORIZATION_VALUES
 import com.toasttab.pulseman.AppStrings.SET_MESSAGE_PROPERTY_VALUES
@@ -86,7 +86,7 @@ fun pulsarSettingsUI(
             if (showDiscover) {
                 DialogWindow(
                     onCloseRequest = { onShowDiscoverChange(false) },
-                    title = SELECT_TOPIC_UNSECURED,
+                    title = SELECT_TOPIC,
                     state = popupState
                 ) {
                     topicSelectorUI()

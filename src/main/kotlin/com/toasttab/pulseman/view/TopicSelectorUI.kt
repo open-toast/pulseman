@@ -43,17 +43,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.AppStrings.CLICK_TO_SELECT
 import com.toasttab.pulseman.AppStrings.FILTER
-import com.toasttab.pulseman.AppStrings.LOADING
-import com.toasttab.pulseman.AppStrings.LOAD_TOPICS
 import com.toasttab.pulseman.AppStrings.NO_TOPICS_FOUND
 import com.toasttab.pulseman.AppStrings.PULSAR_URL
 import com.toasttab.pulseman.AppStrings.SELECT
 import com.toasttab.pulseman.AppStrings.TOPIC
 import com.toasttab.pulseman.AppTheme
 import com.toasttab.pulseman.entities.ButtonState
-import com.toasttab.pulseman.view.ViewUtils.threadedButton
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -82,6 +80,17 @@ fun topicSelectorUI(
                 Column(Modifier.fillMaxSize().padding(padding)) {
                     // Filter, Pulsar URL, Load Topics row
                     Row {
+                        ViewUtils.threadedButton(
+                            scope,
+                            AppStrings.LOADING,
+                            AppStrings.LOAD_TOPICS,
+                            topicRetrievalState,
+                            onTopicRetrievalStateChange
+                        ) {
+                            onLoadTopics()
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+
                         TextField(
                             label = { Text(FILTER) },
                             value = filter,
@@ -97,20 +106,6 @@ fun topicSelectorUI(
                             onValueChange = onPulsarUrlChange,
                             singleLine = true
                         )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Row(modifier = Modifier.align(alignment = Alignment.CenterVertically)) {
-                            threadedButton(
-                                scope,
-                                LOADING,
-                                LOAD_TOPICS,
-                                topicRetrievalState,
-                                onTopicRetrievalStateChange
-                            ) {
-                                onLoadTopics()
-                            }
-                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
 

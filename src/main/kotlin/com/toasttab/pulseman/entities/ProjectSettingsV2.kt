@@ -50,7 +50,8 @@ data class ProjectSettingsV2(
                 textSettings = TextTabValuesV3(
                     text = tab.textSettings?.text,
                     selectedEncoding = tab.textSettings?.selectedSendEncoding
-                )
+                ),
+                pulsarAdminURL = null
             )
         }
     }

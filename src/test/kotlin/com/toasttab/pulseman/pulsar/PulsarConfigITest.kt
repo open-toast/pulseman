@@ -15,6 +15,9 @@
 
 package com.toasttab.pulseman.pulsar
 
+import com.toasttab.pulseman.entities.SingleSelection
+import io.mockk.every
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -29,7 +32,14 @@ class PulsarConfigITest : PulsarITestSupport() {
 
     @Test
     fun `PulsarSettings retrieves a list of topics correctly`() {
-        val topicList = PulsarConfig {}.getTopics(pulsarContainer.httpServiceUrl)
+        val topicList = PulsarConfig {}.getTopics(
+            pulsarUrl = pulsarContainer.httpServiceUrl,
+            pulsarSettings = mockk {
+                every { authSelector } returns mockk {
+                    every { selectedAuthClass } returns SingleSelection()
+                }
+            }
+        )
         assertThat(topicList).hasSameElementsAs(initialTopicList)
     }
 }

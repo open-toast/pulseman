@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
@@ -32,7 +31,6 @@ import com.toasttab.pulseman.view.protocol.text.textUI
 import com.toasttab.pulseman.view.selectTabViewUI
 
 class TextState(
-    appState: AppState,
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
@@ -52,7 +50,6 @@ class TextState(
 
     private val sendMessage = SendText(
         serializationTypeSelector = serializationTypeSelector,
-        appState = appState,
         setUserFeedback = setUserFeedback,
         pulsarSettings = pulsarSettings,
         initialSettings = initialSettings,

@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.4.0"
+    id("org.jetbrains.compose") version "1.5.10"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
@@ -226,7 +226,7 @@ compose.desktop {
                 notarization {
                     appleID.set(System.getenv("APPLE_ID_TEMP") ?: "")
                     password.set(System.getenv("NOTARIZATION_PASSWORD_TEMP") ?: "")
-                    ascProvider.set(System.getenv("PROVIDER_TEMP") ?: "")
+                    teamID.set(System.getenv("PROVIDER_TEMP") ?: "")
                 }
             }
         }

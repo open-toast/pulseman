@@ -30,8 +30,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogState
+import androidx.compose.ui.window.DialogWindow
 import com.toasttab.pulseman.AppStrings.AUTH_SETTINGS
 import com.toasttab.pulseman.AppStrings.JARS
 import com.toasttab.pulseman.AppStrings.MANAGE_JARS
@@ -84,7 +84,7 @@ fun pulsarSettingsUI(
                 Icon(Icons.Default.Search, contentDescription = SEARCH_FOR_TOPIC)
             }
             if (showDiscover) {
-                Dialog(
+                DialogWindow(
                     onCloseRequest = { onShowDiscoverChange(false) },
                     title = SELECT_TOPIC,
                     state = popupState
@@ -109,7 +109,7 @@ fun pulsarSettingsUI(
                 Text(JARS)
             }
             if (showJarManagement) {
-                Dialog(
+                DialogWindow(
                     onCloseRequest = { onShowJarManagementChange(false) },
                     title = MANAGE_JARS,
                     state = popupState
@@ -127,7 +127,7 @@ fun pulsarSettingsUI(
                 Text(AUTH_SETTINGS)
             }
             if (showAuthSettings) {
-                Dialog(
+                DialogWindow(
                     onCloseRequest = { onShowAuthSettingsChange(false) },
                     title = SET_AUTHORIZATION_VALUES,
                     state = popupState
@@ -145,7 +145,7 @@ fun pulsarSettingsUI(
                 Text(PROPERTIES)
             }
             if (showPropertySettings) {
-                Dialog(
+                DialogWindow(
                     onCloseRequest = { onShowPropertySettingsChange(false) },
                     title = SET_MESSAGE_PROPERTY_VALUES,
                     state = popupState

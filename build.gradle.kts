@@ -143,7 +143,7 @@ kotlin.sourceSets.all {
  * Jar Loaders at runtime
  */
 val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
-    into("src/main/resources")
+    into("src/main/resources/common")
     val filteredFiles = configurations.compileOnly
         .get()
         .filter { it.name.startsWith("proto-google-common-protos") }
@@ -215,6 +215,7 @@ compose.desktop {
             description = "Send and receive messages with pulsar"
             copyright = "Copyright (c) 2021 Toast Inc"
             includeAllModules = true
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
 
             macOS {
                 iconFile.set(project.file("pulse.icns"))

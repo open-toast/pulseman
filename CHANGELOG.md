@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2023-11-08
+
+- Add auth support for querying available pulsar topics.
+- Update project to support new required mac signing tool.
+- Update build pipeline to replace deprecated circle ci mac images.
+- Alert the user when they have conflicting common protos loaded.
+- Support ProtoKT common protos by default and allow them to work side by side with standard google common protos.
+
 ## [1.3.0] - 2022-12-09
 
 NOTE: The project file format has been updated in this release. Any old format projects will be upgraded to the new

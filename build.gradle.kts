@@ -22,7 +22,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
-val appVersion = "1.3.0"
+val appVersion = "1.4.0"
 
 group = "com.toasttab.pulseman"
 version = appVersion

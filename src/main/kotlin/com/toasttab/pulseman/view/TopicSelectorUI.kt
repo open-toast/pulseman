@@ -52,6 +52,7 @@ import com.toasttab.pulseman.AppStrings.SELECT
 import com.toasttab.pulseman.AppStrings.TOPIC
 import com.toasttab.pulseman.AppTheme
 import com.toasttab.pulseman.entities.ButtonState
+import com.toasttab.pulseman.view.ViewUtils.threadedButton
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -80,12 +81,12 @@ fun topicSelectorUI(
                 Column(Modifier.fillMaxSize().padding(padding)) {
                     // Filter, Pulsar URL, Load Topics row
                     Row {
-                        ViewUtils.threadedButton(
-                            scope,
-                            AppStrings.LOADING,
-                            AppStrings.LOAD_TOPICS,
-                            topicRetrievalState,
-                            onTopicRetrievalStateChange
+                        threadedButton(
+                            scope = scope,
+                            activeText = AppStrings.LOADING,
+                            waitingText = AppStrings.LOAD_TOPICS,
+                            buttonState = topicRetrievalState,
+                            onButtonStateChange = onTopicRetrievalStateChange
                         ) {
                             onLoadTopics()
                         }

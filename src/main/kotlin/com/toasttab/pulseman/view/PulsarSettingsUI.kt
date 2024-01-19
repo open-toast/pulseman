@@ -71,8 +71,8 @@ fun pulsarSettingsUI(
     Column {
         Row {
             styledTextField(
-                TOPIC,
-                topic,
+                label = TOPIC,
+                field = topic,
                 modifier = Modifier.weight(1F).padding(padding),
                 onValueChange = onTopicChange
             )
@@ -95,8 +95,8 @@ fun pulsarSettingsUI(
         }
         Row {
             styledTextField(
-                SERVICE_URL,
-                serviceUrl,
+                label = SERVICE_URL,
+                field = serviceUrl,
                 modifier = Modifier.weight(1F).padding(padding),
                 onValueChange = onServiceUrlChange
             )

@@ -88,7 +88,6 @@ class TabState(
 
     fun cleanUp() {
         serializationState.cleanUp()
-        pulsarSettings.close()
         userFeedback.close()
     }
 

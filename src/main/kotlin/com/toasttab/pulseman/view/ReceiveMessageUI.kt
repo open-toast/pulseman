@@ -80,15 +80,33 @@ fun receiveMessageUI(
 ) {
     Column {
         Row {
-            threadedButton(scope, SUBSCRIBING, SUBSCRIBE, subscribeState, onSubscribeStateChange) {
+            threadedButton(
+                scope = scope,
+                activeText = SUBSCRIBING,
+                waitingText = SUBSCRIBE,
+                buttonState = subscribeState,
+                onButtonStateChange = onSubscribeStateChange
+            ) {
                 onSubscribe()
             }
 
-            threadedButton(scope, CLEARING, CLEAR, clearState, onClearStateChange) {
+            threadedButton(
+                scope = scope,
+                activeText = CLEARING,
+                waitingText = CLEAR,
+                buttonState = clearState,
+                onButtonStateChange = onClearStateChange
+            ) {
                 onClear()
             }
 
-            threadedButton(scope, CLOSING, CLOSE_CONNECTION, closeState, onCloseStateChange) {
+            threadedButton(
+                scope = scope,
+                activeText = CLOSING,
+                waitingText = CLOSE_CONNECTION,
+                buttonState = closeState,
+                onButtonStateChange = onCloseStateChange
+            ) {
                 onCloseConnection()
             }
         }

@@ -29,3 +29,7 @@ fun <T> MutableState<T>.onStateChange(newState: T, action: () -> Unit) {
 fun MutableState<Boolean>.onChange() {
     this.value = !this.value
 }
+
+fun MutableState<String>.onChangeDigits(newState: String) {
+    this.value = newState.filter { it.isDigit() }
+}

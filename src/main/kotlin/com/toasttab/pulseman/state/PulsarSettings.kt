@@ -26,10 +26,6 @@ import com.toasttab.pulseman.AppStrings.OTHER
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.propertyConfigurationUI
 import com.toasttab.pulseman.view.pulsarSettingsUI
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 class PulsarSettings(
     val appState: AppState,
@@ -47,12 +43,6 @@ class PulsarSettings(
         serviceUrl.value = initialSettings?.serviceUrl ?: DEFAULT_SERVICE_URL
         pulsarAdminUrl.value = initialSettings?.pulsarAdminURL ?: DEFAULT_PULSAR_URL
     }
-
-    fun close() {
-        scope.cancel()
-    }
-
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val topicSelector = TopicSelector(
         pulsarSettings = this,

@@ -28,10 +28,10 @@ import com.toasttab.pulseman.AppStrings.SEND
 import com.toasttab.pulseman.AppStrings.SENDING
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.view.ViewUtils.threadedButton
-import kotlinx.coroutines.CoroutineScope
-import org.fife.ui.rtextarea.RTextScrollPane
 import javax.swing.BoxLayout
 import javax.swing.JPanel
+import kotlinx.coroutines.CoroutineScope
+import org.fife.ui.rtextarea.RTextScrollPane
 
 /**
  * This view allows the user to
@@ -49,7 +49,13 @@ fun sendTextUI(
 ) {
     Column {
         Row {
-            threadedButton(scope, SENDING, SEND, sendState, onSendStateChange) {
+            threadedButton(
+                scope = scope,
+                activeText = SENDING,
+                waitingText = SEND,
+                buttonState = sendState,
+                onButtonStateChange = onSendStateChange
+            ) {
                 sendPulsarMessage()
             }
         }

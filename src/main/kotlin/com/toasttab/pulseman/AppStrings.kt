@@ -136,6 +136,7 @@ object AppStrings {
     const val TOPIC = "Topic"
     const val TOPIC_NOT_SET = "Topic is not set"
     const val WAIT_SEND_TO_FINISH = "Waiting for last send to finish"
+    const val WAIT_SEND_TO_FINISH_ERROR = "Waiting to finish errored out"
     const val UNSAVED_CHANGES_DIALOG_MESSAGE = "Do you want to save your changes?"
     const val UNSAVED_CHANGES_DIALOG_TITLE = "Unsaved changes"
 }

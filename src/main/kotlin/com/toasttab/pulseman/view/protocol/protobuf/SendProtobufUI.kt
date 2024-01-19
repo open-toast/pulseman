@@ -74,6 +74,7 @@ fun sendProtobufUI(
     onRecompileSelected: (Boolean) -> Unit,
     delay: String,
     onDelayChanged: (String) -> Unit,
+    isRepeatSectionActive: Boolean
 ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -113,6 +114,7 @@ fun sendProtobufUI(
             Switch(
                 checked = isRepeatSelected,
                 onCheckedChange = onRepeatSelected,
+                enabled = isRepeatSectionActive,
                 colors = SwitchDefaults.colors(checkedThumbColor = AppTheme.colors.backgroundDark)
             )
 

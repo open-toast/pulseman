@@ -33,6 +33,7 @@ import com.toasttab.pulseman.AppStrings.SEND_TIME
 import com.toasttab.pulseman.AppStrings.SLEPT
 import com.toasttab.pulseman.AppStrings.STOP
 import com.toasttab.pulseman.AppStrings.WAIT_SEND_TO_FINISH
+import com.toasttab.pulseman.AppStrings.WAIT_SEND_TO_FINISH_ERROR
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.CompileResult
 import com.toasttab.pulseman.entities.SingleSelection
@@ -52,6 +53,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 
@@ -71,7 +73,7 @@ class SendProtobufMessage(
     private val isRecompileSelected = mutableStateOf(false)
     private val delayString = mutableStateOf("0")
     private var sendRepeatMessages = false
-    private var repeatingMessageJob: CompletableJob? = null
+    private var sendingMessageJob: CompletableJob? = null
 
     private var compileResult: CompileResult? = null
 
@@ -114,8 +116,8 @@ class SendProtobufMessage(
     }
 
     private fun sendPulsarMessage() {
-        repeatingMessageJob?.let {
-            cancelRepeatJob()
+        sendingMessageJob?.let {
+            cancelSendingMessageJob()
             return
         }
 
@@ -138,7 +140,7 @@ class SendProtobufMessage(
     }
 
     private fun sendRepeatingPulsarMessages() {
-        val job = createRepeatJob()
+        val job = createSendingMessageJob()
         pulsar = Pulsar(pulsarSettings, setUserFeedback)
         var runs = 0
         var fails = 0
@@ -183,24 +185,32 @@ class SendProtobufMessage(
             sendRepeatMessages = false
             runBlocking {
                 job.complete()
-                repeatingMessageJob = null
+                sendingMessageJob = null
             }
         }
     }
 
-    private fun createRepeatJob(): CompletableJob {
+    private fun createSendingMessageJob(): CompletableJob {
         sendRepeatMessages = true
-        return Job().also { repeatingMessageJob = it }
+        return Job().also { sendingMessageJob = it }
     }
 
-    private fun cancelRepeatJob() {
+    private fun cancelSendingMessageJob() {
         runBlocking {
-            sendRepeatMessages = false
-            repeatingMessageJob?.let { job ->
-                setUserFeedback(WAIT_SEND_TO_FINISH)
-                job.join()
-                setUserFeedback(CANCELLED_REPEAT_MESSAGES)
-                repeatingMessageJob = null
+            try {
+                withTimeout(CANCEL_SEND_TIMEOUT) {
+                    sendRepeatMessages = false
+                    sendingMessageJob?.let { job ->
+                        setUserFeedback(WAIT_SEND_TO_FINISH)
+                        job.join()
+                        setUserFeedback(CANCELLED_REPEAT_MESSAGES)
+                        sendingMessageJob = null
+                    }
+                }
+            } catch (ex: Exception) {
+                sendingMessageJob?.cancel()
+                sendingMessageJob = null
+                setUserFeedback("$WAIT_SEND_TO_FINISH_ERROR. $ex")
             }
         }
     }
@@ -240,7 +250,8 @@ class SendProtobufMessage(
                 isRecompileSelected = isRecompileSelected.value,
                 onRecompileSelected = isRecompileSelected::onStateChange,
                 delay = delayString.value,
-                onDelayChanged = delayString::onChangeDigits
+                onDelayChanged = delayString::onChangeDigits,
+                isRepeatSectionActive = sendState.value == ButtonState.WAITING
             )
         }
     }
@@ -250,5 +261,6 @@ class SendProtobufMessage(
         private const val MAX_FAILS = 5
         private const val FAIL_SLEEP_TIME = 1000L
         private const val MIN_SLEEP_TIME = 1L
+        private const val CANCEL_SEND_TIMEOUT = 10000L
     }
 }

@@ -19,9 +19,9 @@ import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.MultipleTypesPulsarMessage
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class KotlinScriptingTest {
 
@@ -32,7 +32,7 @@ class KotlinScriptingTest {
             selected = pulsarMessage
         }
 
-        val generatedBytes = KotlinScripting.compileMessage(
+        val compileResult = KotlinScripting.compileMessage(
             code = """
                 import com.toasttab.pulseman.MultipleTypes
                 
@@ -42,7 +42,36 @@ class KotlinScriptingTest {
             setUserFeedback = { }
         )
 
-        val generatedClass = MultipleTypes.fromBytes(generatedBytes!!)
+        val generatedClass = MultipleTypes.fromBytes(compileResult?.bytes!!)
         assertThat(generatedClass).isEqualTo(MultipleTypes())
+    }
+
+    @Test
+    fun `Recompiling a kotlin class works`() {
+        val pulsarMessage = MultipleTypesPulsarMessage(MultipleTypes::class.java, File("test"))
+        val selectedClass = SingleSelection<PulsarMessageClassInfo>().apply {
+            selected = pulsarMessage
+        }
+
+        val compileResult = KotlinScripting.compileMessage(
+            code = """
+                import com.toasttab.pulseman.MultipleTypes
+                
+                MultipleTypes()
+            """.trimIndent(),
+            selectedClass = selectedClass,
+            setUserFeedback = { }
+        )
+
+        val generatedClass = MultipleTypes.fromBytes(compileResult?.bytes!!)
+        assertThat(generatedClass).isEqualTo(MultipleTypes())
+
+        val recompiledBytes = KotlinScripting.recompile(
+            compileInfo = compileResult,
+            setUserFeedback = { }
+        )
+
+        val recompiledClass = MultipleTypes.fromBytes(recompiledBytes?.bytes!!)
+        assertThat(recompiledClass).isEqualTo(MultipleTypes())
     }
 }

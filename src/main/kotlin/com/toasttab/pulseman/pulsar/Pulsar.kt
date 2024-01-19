@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.toasttab.pulseman.AppStrings.COULD_NOT_TRANSMIT_TOPIC
+import com.toasttab.pulseman.AppStrings.CREATING_NEW_PRODUCER
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CLOSE_PULSAR
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_CONSUMER
@@ -54,6 +55,7 @@ class Pulsar(
     private val pulsarSettings: PulsarSettings,
     private val setUserFeedback: (String) -> Unit
 ) {
+    private var producer: Producer<ByteArray>? = null
     private val pulsarAuth = PulsarAuth(pulsarSettings)
 
     fun close() {
@@ -93,12 +95,15 @@ class Pulsar(
 
     private fun createNewProducer(topic: String): Producer<ByteArray>? {
         return try {
+            setUserFeedback(CREATING_NEW_PRODUCER)
             pulsarClient?.newProducer(Schema.BYTES)
                 ?.messageRoutingMode(MessageRoutingMode.SinglePartition)
                 ?.topic(topic)
                 ?.enableBatching(false)
-                ?.sendTimeout(500, TimeUnit.MILLISECONDS)
-                ?.create()
+                ?.sendTimeout(SEND_TIMEOUT, TimeUnit.MILLISECONDS)
+                ?.create().also {
+                    producer = it
+                }
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_CREATE_PRODUCER:$ex")
             null
@@ -136,23 +141,26 @@ class Pulsar(
         return emptyMap()
     }
 
-    fun sendMessage(message: ByteArray?) {
+    fun sendMessage(message: ByteArray?): Boolean {
+        var wrongSettings = false
         if (pulsarSettings.serviceUrl.value.isBlank()) {
             setUserFeedback(SERVICE_URL_NOT_SET)
-            return
+            wrongSettings = true
         }
         val topic = pulsarSettings.topic.value
         if (topic.isBlank()) {
             setUserFeedback(TOPIC_NOT_SET)
-            return
+            wrongSettings = true
         }
         if (message == null) {
             setUserFeedback(NO_CLASS_GENERATED_TO_SEND)
-            return
+            wrongSettings = true
         }
+        if (wrongSettings)
+            return false
 
         try {
-            createNewProducer(topic)
+            (producer ?: createNewProducer(topic))
                 ?.newMessage()
                 ?.value(message)
                 ?.eventTime(System.currentTimeMillis())
@@ -160,9 +168,11 @@ class Pulsar(
                 ?.send()
                 ?.let { messageId ->
                     setUserFeedback("$MESSAGE_SENT_ID $messageId $ON_TOPIC $topic")
-                }
+                } ?: return false
+            return true
         } catch (ex: Throwable) {
             setUserFeedback("$COULD_NOT_TRANSMIT_TOPIC $topic.\n$EXCEPTION:$ex")
+            return false
         }
     }
 
@@ -170,5 +180,6 @@ class Pulsar(
         private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
         private val mapTypeRef = object : TypeReference<Map<String, String>>() {}
         private const val SUBSCRIPTION_NAME = "pulseman-subscription-"
+        private const val SEND_TIMEOUT = 5000
     }
 }

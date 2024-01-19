@@ -27,6 +27,8 @@ class UserFeedback(
     private val userFeedback: SnapshotStateList<String> = mutableStateListOf(),
     newTab: Boolean
 ) {
+    private val lock = Any()
+
     init {
         globalFeedback.registerCallback(
             userFeedback = this,
@@ -39,11 +41,18 @@ class UserFeedback(
     }
 
     fun set(text: String) {
-        userFeedback.add("${timeNow()}: $text")
+        synchronized(lock) {
+            if (userFeedback.size > MAX_LOG_SIZE) {
+                userFeedback.removeFirst()
+            }
+            userFeedback.add("${timeNow()}: $text")
+        }
     }
 
     private fun clear() {
-        userFeedback.clear()
+        synchronized(lock) {
+            userFeedback.clear()
+        }
     }
 
     private fun timeNow(): String = LocalDateTime.now().format(formatter)
@@ -57,5 +66,6 @@ class UserFeedback(
 
     companion object {
         private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+        private const val MAX_LOG_SIZE = 1000
     }
 }

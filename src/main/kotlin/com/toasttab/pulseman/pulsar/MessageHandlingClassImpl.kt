@@ -23,8 +23,8 @@ import com.toasttab.pulseman.AppStrings.PROPERTIES
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import org.apache.pulsar.client.api.Message
 import java.time.Instant
+import org.apache.pulsar.client.api.Message
 
 /**
  * This class handles printing received pulsar messages and logs the related class info
@@ -44,6 +44,9 @@ class MessageHandlingClassImpl(
 
             val messageString = proto.prettyPrint(proto.deserialize(message.data))
             val publishTime = Instant.ofEpochMilli(message.publishTime)
+            if (receivedMessages.size > MAX_MESSAGES_STORED) {
+                receivedMessages.removeFirst()
+            }
             receivedMessages.add(
                 ReceivedMessages(
                     "$messageString\n$PROPERTIES:\n${message.properties}",
@@ -54,5 +57,9 @@ class MessageHandlingClassImpl(
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_DESERIALIZE_PULSAR:$ex.")
         }
+    }
+
+    companion object {
+        private const val MAX_MESSAGES_STORED = 500
     }
 }

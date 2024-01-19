@@ -61,7 +61,13 @@ fun convertProtobufUI(
 ) {
     Column {
         Row {
-            threadedButton(scope, CONVERTING, CONVERT, convertState, onConvertStateChange) {
+            threadedButton(
+                scope = scope,
+                activeText = CONVERTING,
+                waitingText = CONVERT,
+                buttonState = convertState,
+                onButtonStateChange = onConvertStateChange
+            ) {
                 convert()
             }
             Spacer(modifier = Modifier.width(8.dp))

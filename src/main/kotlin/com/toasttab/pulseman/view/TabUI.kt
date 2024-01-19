@@ -59,8 +59,8 @@ fun tabUI(
                 Column {
                     Row {
                         styledTextField(
-                            TAB_NAME,
-                            tabName,
+                            label = TAB_NAME,
+                            field = tabName,
                             modifier = Modifier.padding(padding).fillMaxWidth(0.25F),
                             onValueChange = onTabNameChange
                         )

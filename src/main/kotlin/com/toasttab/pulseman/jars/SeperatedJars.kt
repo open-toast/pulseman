@@ -15,6 +15,7 @@
 
 package com.toasttab.pulseman.jars
 
+import java.io.File
 import java.net.URL
 
 /**
@@ -26,13 +27,21 @@ object SeperatedJars {
     private const val googleCommon = "proto-google-common-protos-original.jar"
     private const val protoKTCommon = "proto-google-common-protos-protoKT.jar"
     private const val protoKTCommonLite = "proto-google-common-protos-lite-protoKT.jar"
+    private const val commonResourceRoot = "common/"
 
     private val googleJars = listOf(getJarURL(googleCommon))
     private val protoKTJars = listOf(getJarURL(protoKTCommon), getJarURL(protoKTCommonLite))
 
     private fun getJarURL(resourcePath: String): URL {
-        val contextClassLoader = Thread.currentThread().contextClassLoader!!
-        return contextClassLoader.getResource(resourcePath)!!
+        return try {
+            // This throws an error in debug mode, the catch block will instead point at the common folder where these
+            // Jars are loaded.
+            val resourcesDir = File(System.getProperty("compose.application.resources.dir"))
+            resourcesDir.resolve(resourcePath).toURI().toURL()
+        } catch (ex: Exception) {
+            val contextClassLoader = Thread.currentThread().contextClassLoader!!
+            contextClassLoader.getResource("$commonResourceRoot$resourcePath")!!
+        }
     }
 
     fun addGoogleJars(jarLoader: JarLoader) {

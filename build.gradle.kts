@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.5.10"
+    id("org.jetbrains.compose") version "1.6.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
@@ -30,7 +30,6 @@ version = appVersion
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.google.com") }
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 
 val assertJVersion: String by rootProject

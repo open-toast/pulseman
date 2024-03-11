@@ -18,11 +18,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.5.10"
+    id("org.jetbrains.compose") version "1.6.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
-val appVersion = "1.4.0"
+val appVersion = "1.4.1"
 
 group = "com.toasttab.pulseman"
 version = appVersion
@@ -30,7 +30,6 @@ version = appVersion
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.google.com") }
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 
 val assertJVersion: String by rootProject
@@ -143,7 +142,8 @@ kotlin.sourceSets.all {
  * Jar Loaders at runtime
  */
 val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
-    into("src/main/resources")
+    // Files have to be in the common folder to be included with the release package for all OS variations, e.g. Mac/Windows/Linux
+    into("src/main/resources/common")
     val filteredFiles = configurations.compileOnly
         .get()
         .filter { it.name.startsWith("proto-google-common-protos") }
@@ -205,6 +205,15 @@ tasks.named("assemble") {
     dependsOn(importPulsarClientTask)
 }
 
+/**
+ * Make sure package creation doesn't start until common proto jars copied, package creation fails without this dependency.
+ */
+gradle.projectsEvaluated {
+    tasks.named("prepareAppResources") {
+        dependsOn(copyCommonProtoJarToResources)
+    }
+}
+
 compose.desktop {
     application {
         mainClass = "com.toasttab.pulseman.MainKt"
@@ -229,6 +238,9 @@ compose.desktop {
                     teamID.set(System.getenv("PROVIDER_TEMP") ?: "")
                 }
             }
+            // This sets the resource folder location and will include the folders contents in the packaged release
+            // https://github.com/JetBrains/compose-multiplatform/tree/master/tutorials/Native_distributions_and_local_execution#jvm-resource-loading
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("src/main/resources"))
         }
     }
 }

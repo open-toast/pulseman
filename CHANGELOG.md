@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.4.0] - 2023-11-08
+## [1.4.1] - 2024-03-08
 
 - Add auth support for querying available pulsar topics.
 - Update project to support new required mac signing tool.

@@ -55,6 +55,9 @@ jobs:
             sudo apt-get install fakeroot
       - run:
           name: "Run test"
+          command: ./gradlew ktlintCheck
+      - run:
+          name: "Run test"
           command: ./gradlew test
       - store_test_results:
           path: ~/repo/build/test-results/test/
@@ -66,8 +69,8 @@ jobs:
           command: mkdir -p artifacts; cp -r ~/repo/build/compose/logs/* artifacts/
           when: always
       - run:
-           name: "Store deb to workspace"
-           command: cp ~/repo/build/compose/binaries/main/deb/* artifacts/
+          name: "Store deb to workspace"
+          command: cp ~/repo/build/compose/binaries/main/deb/* artifacts/
       - write_cache_linux
       - persist_to_workspace:
           root: artifacts
@@ -83,7 +86,7 @@ jobs:
       - checkout
       - read_cache_mac
       - attach_workspace:
-            at: artifacts
+          at: artifacts
       - run:
           name: "Decode signing cert"
           command: base64 -D -o cert.p12 \<<< $SIGNING_CERT_TEMP

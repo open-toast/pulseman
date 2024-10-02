@@ -18,8 +18,8 @@ package com.toasttab.pulseman.pulsar
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.FAILED_TO_RETRIEVE_TOPICS
 import com.toasttab.pulseman.state.PulsarSettings
-import java.util.concurrent.TimeUnit
 import org.apache.pulsar.client.admin.PulsarAdmin
+import java.util.concurrent.TimeUnit
 
 /**
  * Handles connecting to pulsar admin and retrieving a list of topics, this is currently limited to unauthenticated
@@ -28,7 +28,6 @@ import org.apache.pulsar.client.admin.PulsarAdmin
 class PulsarConfig(private val setUserFeedback: (String) -> Unit) {
     fun getTopics(pulsarUrl: String, pulsarSettings: PulsarSettings): List<String> {
         try {
-
             val builder = PulsarAdmin.builder()
 
             PulsarAuth(pulsarSettings).getAuthHandler()?.let { authHandler ->

@@ -132,10 +132,11 @@ fun messageClassSelectorUI(
                                     modifier = Modifier.weight(0.1F),
                                     onClick = { onSelectedClass(classInfo) }
                                 ) {
-                                    if (selectedClass === classInfo)
+                                    if (selectedClass === classInfo) {
                                         Icon(Icons.Default.RadioButtonChecked, SELECTED_CLASS)
-                                    else
+                                    } else {
                                         Icon(Icons.Default.RadioButtonUnchecked, CLICK_TO_SELECT)
+                                    }
                                 }
                             }
                         }

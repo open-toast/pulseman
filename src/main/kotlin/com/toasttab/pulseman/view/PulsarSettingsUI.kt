@@ -104,7 +104,7 @@ fun pulsarSettingsUI(
         Row {
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = { onShowJarManagementChange(true) },
+                onClick = { onShowJarManagementChange(true) }
             ) {
                 Text(JARS)
             }
@@ -122,7 +122,7 @@ fun pulsarSettingsUI(
 
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = { onShowAuthSettingsChange(true) },
+                onClick = { onShowAuthSettingsChange(true) }
             ) {
                 Text(AUTH_SETTINGS)
             }
@@ -140,7 +140,7 @@ fun pulsarSettingsUI(
 
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = { onShowPropertySettingsChange(true) },
+                onClick = { onShowPropertySettingsChange(true) }
             ) {
                 Text(PROPERTIES)
             }

@@ -17,8 +17,9 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.20"
-    id("org.jetbrains.compose") version "1.6.0"
+    kotlin("jvm") version "2.0.20"
+    id("org.jetbrains.compose") version "1.6.11"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.20"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
@@ -71,7 +72,6 @@ dependencies {
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-script-util:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion")
@@ -127,9 +127,9 @@ ktlint {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-        allWarningsAsErrors = true
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        allWarningsAsErrors.set(true)
     }
 }
 
@@ -151,9 +151,9 @@ val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
     filteredFiles.forEach { file ->
         val originalFileName = file.name
         val newFileName = if (originalFileName.endsWith("$googleCommonProtos.jar")) {
-            originalFileName.replace("$googleCommonProtos", "original")
+            originalFileName.replace(googleCommonProtos, "original")
         } else {
-            originalFileName.replace("$protoktVersion", "protoKT")
+            originalFileName.replace(protoktVersion, "protoKT")
         }
         rename(originalFileName, newFileName)
     }

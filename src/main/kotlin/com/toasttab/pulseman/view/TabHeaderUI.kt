@@ -109,15 +109,16 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                                         tab.onExitIconUnsavedChanges()
                                     }
                                     .then(
-                                        if (tab.drawBackground)
+                                        if (tab.drawBackground) {
                                             Modifier.background(
                                                 color = AppTheme.colors.backgroundLight,
                                                 shape = RoundedCornerShape(4.dp)
                                             )
-                                        else
+                                        } else {
                                             Modifier
+                                        }
                                     ),
-                                contentDescription = CLOSE_TAB,
+                                contentDescription = CLOSE_TAB
                             )
                         } else {
                             Icon(
@@ -134,15 +135,16 @@ fun tabHeaderUI(tabs: List<Tab>, openTab: (String?) -> Unit) {
                                         tab.onExitIcon()
                                     }
                                     .then(
-                                        if (tab.drawBackground)
+                                        if (tab.drawBackground) {
                                             Modifier.background(
                                                 color = AppTheme.colors.backgroundLight,
                                                 shape = RoundedCornerShape(4.dp)
                                             )
-                                        else
+                                        } else {
                                             Modifier
+                                        }
                                     ),
-                                contentDescription = CLOSE_TAB,
+                                contentDescription = CLOSE_TAB
                             )
                         }
                     }

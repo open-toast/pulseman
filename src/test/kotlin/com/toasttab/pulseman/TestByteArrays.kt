@@ -16,8 +16,8 @@
 package com.toasttab.pulseman
 
 import com.toasttab.pulseman.entities.CharacterSet
-import java.util.stream.Stream
 import org.junit.jupiter.params.provider.Arguments
+import java.util.stream.Stream
 
 object TestByteArrays {
     @OptIn(ExperimentalUnsignedTypes::class)

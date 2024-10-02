@@ -25,7 +25,7 @@ class FileDialog(
     mode: FileDialogMode,
     directory: String? = null,
     file: String? = null,
-    private val extensionFilters: List<String> = emptyList(),
+    private val extensionFilters: List<String> = emptyList()
 ) {
     private val fileDialog: AwtFileDialog = AwtFileDialog(Frame(), title, mode.ordinal)
 

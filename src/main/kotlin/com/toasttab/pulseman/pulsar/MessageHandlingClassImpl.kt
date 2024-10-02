@@ -23,8 +23,8 @@ import com.toasttab.pulseman.AppStrings.PROPERTIES
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import java.time.Instant
 import org.apache.pulsar.client.api.Message
+import java.time.Instant
 
 /**
  * This class handles printing received pulsar messages and logs the related class info

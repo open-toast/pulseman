@@ -33,6 +33,7 @@ enum class ConvertType {
                     .map { it.toInt(16).toByte() }
                     .toByteArray()
             }
+
             BASE64 -> {
                 value
                     .filter { !it.isWhitespace() }

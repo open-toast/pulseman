@@ -31,13 +31,13 @@ import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
 import com.toasttab.pulseman.pulsar.MessageHandling
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.view.receiveMessageUI
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.apache.pulsar.client.api.Consumer
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 class ReceiveMessage(
     private val setUserFeedback: (String) -> Unit,

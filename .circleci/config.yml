@@ -54,6 +54,9 @@ jobs:
             sudo apt-get update
             sudo apt-get install fakeroot
       - run:
+          name: "Run lint check"
+          command: ./gradlew ktlintCheck
+      - run:
           name: "Run test"
           command: ./gradlew test
       - store_test_results:

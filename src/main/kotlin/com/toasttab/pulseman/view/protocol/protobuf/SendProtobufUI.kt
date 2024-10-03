@@ -42,10 +42,10 @@ import com.toasttab.pulseman.AppTheme
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.view.ViewUtils.styledTextField
 import com.toasttab.pulseman.view.ViewUtils.threadedButton
-import javax.swing.BoxLayout
-import javax.swing.JPanel
 import kotlinx.coroutines.CoroutineScope
 import org.fife.ui.rtextarea.RTextScrollPane
+import javax.swing.BoxLayout
+import javax.swing.JPanel
 
 /**
  * This view allows the user to
@@ -108,7 +108,6 @@ fun sendProtobufUI(
             ) {
                 sendPulsarMessage()
             }
-
 
             Text(text = REPEAT)
             Switch(

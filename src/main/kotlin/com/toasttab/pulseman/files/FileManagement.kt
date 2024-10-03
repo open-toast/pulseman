@@ -70,8 +70,9 @@ object FileManagement {
     fun makeFolder(file: File) {
         val path: Path = Paths.get(file.toURI())
         Files.createDirectories(path)
-        if (!file.exists() && !file.mkdir())
+        if (!file.exists() && !file.mkdir()) {
             throw Exception(FAILED_TO_CREATE_DIRECTORY)
+        }
     }
 
     fun addFileDialog(jarFolder: File, action: (File) -> Unit) {
@@ -92,8 +93,9 @@ object FileManagement {
     }
 
     fun deleteFile(file: File) {
-        if (file.exists())
+        if (file.exists()) {
             file.delete()
+        }
     }
 
     fun saveProject(tabsJson: String, quickSave: Boolean, jarFolders: List<File>) {
@@ -132,7 +134,7 @@ object FileManagement {
                 title = PROJECT_FILE_DIALOG_TITLE,
                 mode = FileDialogMode.LOAD,
                 extensionFilters = listOf(ZIP_EXTENSION),
-                directory = projectFolder.absolutePath,
+                directory = projectFolder.absolutePath
             )
 
             fileDialog.show()
@@ -150,7 +152,9 @@ object FileManagement {
         if (it.exists()) {
             val lastLoadedFile = File(it.readText())
             if (lastLoadedFile.exists()) lastLoadedFile else null
-        } else null
+        } else {
+            null
+        }
     }
 
     fun loadedJars(jarFolder: File) = jarFolder.walk().filter { it.isFile }.toMutableSet()

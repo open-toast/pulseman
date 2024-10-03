@@ -52,7 +52,7 @@ fun userFeedbackUI(
                 .fillMaxSize()
                 .background(color = AppTheme.colors.backgroundLight)
                 .border(width = 2.dp, color = AppTheme.colors.backgroundMedium)
-                .padding(all = 3.dp),
+                .padding(all = 3.dp)
         ) {
             Column(
                 modifier = Modifier

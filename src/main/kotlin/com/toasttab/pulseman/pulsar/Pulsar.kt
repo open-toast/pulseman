@@ -33,9 +33,6 @@ import com.toasttab.pulseman.AppStrings.SERVICE_URL_NOT_SET
 import com.toasttab.pulseman.AppStrings.TOPIC_NOT_SET
 import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
 import com.toasttab.pulseman.state.PulsarSettings
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 import org.apache.pulsar.client.api.Authentication
 import org.apache.pulsar.client.api.Consumer
 import org.apache.pulsar.client.api.Message
@@ -45,6 +42,9 @@ import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
 import org.apache.pulsar.client.api.SubscriptionMode
 import org.apache.pulsar.client.api.SubscriptionType
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 /**
  * Handles
@@ -156,8 +156,9 @@ class Pulsar(
             setUserFeedback(NO_CLASS_GENERATED_TO_SEND)
             wrongSettings = true
         }
-        if (wrongSettings)
+        if (wrongSettings) {
             return false
+        }
 
         try {
             (producer ?: createNewProducer(topic))

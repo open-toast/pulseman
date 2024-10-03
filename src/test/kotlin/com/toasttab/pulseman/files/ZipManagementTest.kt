@@ -38,7 +38,7 @@ class ZipManagementTest {
     private fun directories(tempDir: File) = mapOf(
         "message" to File(tempDir, "message"),
         "auth" to File(tempDir, "auth"),
-        "other" to File(tempDir, "other"),
+        "other" to File(tempDir, "other")
     )
 
     private fun fileMap(directories: Map<String, File>) = directories.map {

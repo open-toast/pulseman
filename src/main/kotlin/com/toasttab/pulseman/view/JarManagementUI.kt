@@ -54,7 +54,7 @@ fun jarManagementUI(
     loadedJars: List<File>,
     jarFolder: File,
     onRemoveJar: (File) -> Unit,
-    onAddJar: (File) -> Unit,
+    onAddJar: (File) -> Unit
 ) {
     Surface {
         Box {

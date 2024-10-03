@@ -57,9 +57,11 @@ class AuthSelector(
 
     private fun onSelectedAuthClass(newValue: PulsarAuthHandler) {
         selectedAuthClass.selected =
-            if (selectedAuthClass.selected == newValue)
+            if (selectedAuthClass.selected == newValue) {
                 null
-            else newValue
+            } else {
+                newValue
+            }
         setUserFeedback("$SELECTED ${newValue.cls.name}")
         onChange()
     }

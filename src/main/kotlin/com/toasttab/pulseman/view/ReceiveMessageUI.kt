@@ -123,7 +123,7 @@ fun receiveMessageUI(
 
                                 Text(
                                     text = AnnotatedString(receivedMessage.header),
-                                    modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
+                                    modifier = Modifier.weight(1F).align(Alignment.CenterVertically)
                                 )
 
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -131,10 +131,11 @@ fun receiveMessageUI(
                                 IconButton(
                                     onClick = { receivedMessage.expanded.value = !receivedMessage.expanded.value }
                                 ) {
-                                    if (receivedMessage.expanded.value)
+                                    if (receivedMessage.expanded.value) {
                                         Icon(Icons.Default.ArrowDropUp, contentDescription = COLLAPSE)
-                                    else
+                                    } else {
                                         Icon(Icons.Default.ArrowDropDown, contentDescription = EXPAND)
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.width(8.dp))

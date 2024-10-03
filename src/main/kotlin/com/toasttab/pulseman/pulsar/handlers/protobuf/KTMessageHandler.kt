@@ -61,8 +61,9 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
                 it.name !in IGNORE_FIELDS
             }
             .forEach {
-                if (!it.type.isPrimitive)
+                if (!it.type.isPrimitive) {
                     importSet.add(it.type.name.replace("$", "."))
+                }
                 variables.appendLine("\t${it.name} = //$TODO")
             }
         val imports = StringBuilder()

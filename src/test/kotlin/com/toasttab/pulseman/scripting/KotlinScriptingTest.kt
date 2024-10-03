@@ -19,9 +19,9 @@ import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.MultipleTypesPulsarMessage
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.File
 
 class KotlinScriptingTest {
 

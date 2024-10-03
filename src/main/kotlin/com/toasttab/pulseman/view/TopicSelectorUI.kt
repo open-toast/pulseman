@@ -72,7 +72,7 @@ fun topicSelectorUI(
     topicRetrievalState: ButtonState,
     onTopicRetrievalStateChange: (ButtonState) -> Unit,
     filteredTopics: List<String>,
-    onSelectSettingsTopic: (String) -> Unit,
+    onSelectSettingsTopic: (String) -> Unit
 ) {
     val padding = 4.dp
     MaterialTheme(colors = AppTheme.colors.material) {

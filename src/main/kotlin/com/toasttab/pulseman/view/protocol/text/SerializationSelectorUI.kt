@@ -113,10 +113,11 @@ fun serializationSelectorUI(
                                 modifier = Modifier.weight(0.1F),
                                 onClick = { onSelectedCharacterSet(characterSet) }
                             ) {
-                                if (selectedCharacterSet == characterSet)
+                                if (selectedCharacterSet == characterSet) {
                                     Icon(Icons.Default.RadioButtonChecked, SELECTED_CHARSET)
-                                else
+                                } else {
                                     Icon(Icons.Default.RadioButtonUnchecked, CLICK_TO_SELECT)
+                                }
                             }
                         }
                     }

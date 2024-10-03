@@ -162,10 +162,11 @@ fun authSelectorUI(
                                             onSelectedAuthClass(classInfo)
                                         }
                                     ) {
-                                        if (selectedAuthClass === classInfo)
+                                        if (selectedAuthClass === classInfo) {
                                             Icon(Icons.Default.CheckCircle, SELECTED_CLASS)
-                                        else
+                                        } else {
                                             Icon(Icons.Default.Clear, CLICK_TO_SELECT)
+                                        }
                                     }
                                 }
                             }

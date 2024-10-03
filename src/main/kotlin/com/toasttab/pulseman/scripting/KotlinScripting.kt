@@ -69,6 +69,7 @@ object KotlinScripting {
         setUserFeedback: (String) -> Unit
     ): CompileResult? {
         with(compileInfo) {
+            println()
             return ThreadUtil.run(jarLoader) {
                 compile(
                     code = code,
@@ -88,25 +89,26 @@ object KotlinScripting {
         engine: ScriptEngine,
         setUserFeedback: (String) -> Unit
     ): CompileResult? {
-        return try {
-            val generatedClass = engine.eval(code)
-            if (generatedClass.javaClass.name != classToGenerate.cls.name) {
-                setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
-                null
-            } else {
-                setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
-                CompileResult(
-                    code = code,
-                    classToGenerate = classToGenerate,
-                    jarLoader = jarLoader,
-                    engine = engine,
-                    bytes = classToGenerate.serialize(generatedClass)
-                )
-            }
-        } catch (ex: Throwable) {
-            setUserFeedback("$EXCEPTION:\n$ex")
-            return null
+        // return try {
+        val generatedClass = engine.eval(code)
+        return if (generatedClass.javaClass.name != classToGenerate.cls.name) {
+            throw Exception("generatedClass:${generatedClass.javaClass.name}  classToGenerate.cls.name:${classToGenerate.cls.name}")
+            setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
+            null
+        } else {
+            setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
+            CompileResult(
+                code = code,
+                classToGenerate = classToGenerate,
+                jarLoader = jarLoader,
+                engine = engine,
+                bytes = classToGenerate.serialize(generatedClass)
+            )
         }
+        // } catch (ex: Throwable) {
+        //   setUserFeedback("$EXCEPTION:\n$ex")
+        //   return null
+        // }
     }
 
     private const val KTS_EXTENSION = "kts"

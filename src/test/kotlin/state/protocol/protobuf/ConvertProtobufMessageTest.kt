@@ -3,11 +3,11 @@ package state.protocol.protobuf
 import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.state.protocol.protobuf.ConvertType
 import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.kotlin.daemon.common.toHexString
 import org.junit.jupiter.api.Test
 import java.util.Base64
 
 class ConvertProtobufMessageTest {
+    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun `Convert hex to a class`() {
         val testType = MultipleTypes()

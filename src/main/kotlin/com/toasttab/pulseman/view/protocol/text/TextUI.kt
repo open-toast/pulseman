@@ -49,9 +49,11 @@ fun textUI(
                 SelectedTextView.SEND -> {
                     sendMessageUI()
                 }
+
                 SelectedTextView.RECEIVE -> {
                     receiveMessageUI()
                 }
+
                 SelectedTextView.SERIALIZATION -> {
                     selectSerializationUI()
                 }

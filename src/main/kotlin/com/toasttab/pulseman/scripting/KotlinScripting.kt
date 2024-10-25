@@ -70,12 +70,13 @@ object KotlinScripting {
     ): CompileResult? {
         with(compileInfo) {
             println()
+            val engineLocal: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
             return ThreadUtil.run(jarLoader) {
                 compile(
                     code = code,
                     classToGenerate = classToGenerate,
                     jarLoader = jarLoader,
-                    engine = engine,
+                    engine = engineLocal,
                     setUserFeedback = setUserFeedback
                 )
             }
@@ -101,7 +102,7 @@ object KotlinScripting {
                 code = code,
                 classToGenerate = classToGenerate,
                 jarLoader = jarLoader,
-                engine = engine,
+                // engine = engine,
                 bytes = classToGenerate.serialize(generatedClass)
             )
         }

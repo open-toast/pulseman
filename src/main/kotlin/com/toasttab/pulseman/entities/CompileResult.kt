@@ -8,6 +8,6 @@ class CompileResult(
     val code: String,
     val classToGenerate: PulsarMessageClassInfo,
     val jarLoader: JarLoader,
-    val engine: ScriptEngine,
-    val bytes: ByteArray
+    // val engine: ScriptEngine,
+    val bytes: ByteArray?
 )

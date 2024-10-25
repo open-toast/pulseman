@@ -17,6 +17,7 @@ package com.toasttab.pulseman.scripting
 
 import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.MultipleTypesPulsarMessage
+import com.toasttab.pulseman.entities.CompileResult
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import org.assertj.core.api.Assertions.assertThat
@@ -44,6 +45,36 @@ class KotlinScriptingTest {
 
         val generatedClass = MultipleTypes.fromBytes(compileResult?.bytes!!)
         assertThat(generatedClass).isEqualTo(MultipleTypes())
+    }
+
+    @Test
+    fun `Test recompile skip first compile`() {
+        val pulsarMessage = MultipleTypesPulsarMessage(MultipleTypes::class.java, File("test"))
+        val selectedClass = SingleSelection<PulsarMessageClassInfo>().apply {
+            selected = pulsarMessage
+        }
+
+        val classToGenerate = selectedClass.selected!!
+        val jarLoader = classToGenerate.getJarLoader()
+        val compileResult = CompileResult(
+            code = """
+                import com.toasttab.pulseman.MultipleTypes
+                
+                MultipleTypes()
+            """.trimIndent(),
+            classToGenerate = classToGenerate,
+            jarLoader = jarLoader,
+            bytes = null
+            // engine = ScriptEngineManager(jarLoader).getEngineByExtension("kts"),
+        )
+
+        val recompiledBytes = KotlinScripting.recompile(
+            compileInfo = compileResult,
+            setUserFeedback = { }
+        )
+
+        val recompiledClass = MultipleTypes.fromBytes(recompiledBytes?.bytes!!)
+        assertThat(recompiledClass).isEqualTo(MultipleTypes())
     }
 
     @Test

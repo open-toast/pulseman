@@ -49,12 +49,10 @@ object KotlinScripting {
         try {
             val jarLoader = classToGenerate.getJarLoader()
             return ThreadUtil.run(jarLoader) {
-                val engine: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
                 compile(
                     code = code,
                     classToGenerate = classToGenerate,
                     jarLoader = jarLoader,
-                    engine = engine,
                     setUserFeedback = setUserFeedback
                 )
             }
@@ -69,14 +67,11 @@ object KotlinScripting {
         setUserFeedback: (String) -> Unit
     ): CompileResult? {
         with(compileInfo) {
-            println()
-            val engineLocal: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
             return ThreadUtil.run(jarLoader) {
                 compile(
                     code = code,
                     classToGenerate = classToGenerate,
                     jarLoader = jarLoader,
-                    engine = engineLocal,
                     setUserFeedback = setUserFeedback
                 )
             }
@@ -87,29 +82,27 @@ object KotlinScripting {
         code: String,
         classToGenerate: PulsarMessageClassInfo,
         jarLoader: JarLoader,
-        engine: ScriptEngine,
         setUserFeedback: (String) -> Unit
     ): CompileResult? {
-        // return try {
-        val generatedClass = engine.eval(code)
-        return if (generatedClass.javaClass.name != classToGenerate.cls.name) {
-            throw Exception("generatedClass:${generatedClass.javaClass.name}  classToGenerate.cls.name:${classToGenerate.cls.name}")
-            setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
-            null
-        } else {
-            setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
-            CompileResult(
-                code = code,
-                classToGenerate = classToGenerate,
-                jarLoader = jarLoader,
-                // engine = engine,
-                bytes = classToGenerate.serialize(generatedClass)
-            )
+        return try {
+            val engine: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
+            val generatedClass = engine.eval(code)
+            return if (generatedClass.javaClass.name != classToGenerate.cls.name) {
+                setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
+                null
+            } else {
+                setUserFeedback(SUCCESSFULLY_COMPILED_CLASS)
+                CompileResult(
+                    code = code,
+                    classToGenerate = classToGenerate,
+                    jarLoader = jarLoader,
+                    bytes = classToGenerate.serialize(generatedClass)
+                )
+            }
+        } catch (ex: Throwable) {
+            setUserFeedback("$EXCEPTION:\n$ex")
+            return null
         }
-        // } catch (ex: Throwable) {
-        //   setUserFeedback("$EXCEPTION:\n$ex")
-        //   return null
-        // }
     }
 
     private const val KTS_EXTENSION = "kts"

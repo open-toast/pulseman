@@ -49,12 +49,10 @@ object KotlinScripting {
         try {
             val jarLoader = classToGenerate.getJarLoader()
             return ThreadUtil.run(jarLoader) {
-                val engine: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
                 compile(
                     code = code,
                     classToGenerate = classToGenerate,
                     jarLoader = jarLoader,
-                    engine = engine,
                     setUserFeedback = setUserFeedback
                 )
             }
@@ -74,7 +72,6 @@ object KotlinScripting {
                     code = code,
                     classToGenerate = classToGenerate,
                     jarLoader = jarLoader,
-                    engine = engine,
                     setUserFeedback = setUserFeedback
                 )
             }
@@ -85,10 +82,10 @@ object KotlinScripting {
         code: String,
         classToGenerate: PulsarMessageClassInfo,
         jarLoader: JarLoader,
-        engine: ScriptEngine,
         setUserFeedback: (String) -> Unit
     ): CompileResult? {
         return try {
+            val engine: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
             val generatedClass = engine.eval(code)
             if (generatedClass.javaClass.name != classToGenerate.cls.name) {
                 setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
@@ -99,7 +96,6 @@ object KotlinScripting {
                     code = code,
                     classToGenerate = classToGenerate,
                     jarLoader = jarLoader,
-                    engine = engine,
                     bytes = classToGenerate.serialize(generatedClass)
                 )
             }

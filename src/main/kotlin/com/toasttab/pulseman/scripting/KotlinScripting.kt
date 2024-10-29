@@ -87,7 +87,7 @@ object KotlinScripting {
         return try {
             val engine: ScriptEngine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
             val generatedClass = engine.eval(code)
-            return if (generatedClass.javaClass.name != classToGenerate.cls.name) {
+            if (generatedClass.javaClass.name != classToGenerate.cls.name) {
                 setUserFeedback(GENERATED_CLASS_NOT_SAME_AS_SELECTED)
                 null
             } else {

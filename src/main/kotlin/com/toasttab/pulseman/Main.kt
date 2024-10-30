@@ -81,6 +81,7 @@ fun main() = application {
                     appState.save(true)
                     exitApplication()
                 }
+
                 JOptionPane.NO_OPTION -> {
                     exitApplication()
                 }

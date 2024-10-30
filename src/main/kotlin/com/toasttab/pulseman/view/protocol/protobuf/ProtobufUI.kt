@@ -54,15 +54,19 @@ fun protobufUI(
                 SelectedProtobufView.SEND -> {
                     sendMessageUI()
                 }
+
                 SelectedProtobufView.RECEIVE -> {
                     receiveMessageUI()
                 }
+
                 SelectedProtobufView.BYTE_CONVERT -> {
                     byteConversionUI()
                 }
+
                 SelectedProtobufView.JAR_MANAGEMENT -> {
                     protobufJarManagementUI()
                 }
+
                 SelectedProtobufView.PROTOBUF_CLASS -> {
                     messageClassSelectorUI()
                 }

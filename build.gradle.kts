@@ -127,9 +127,9 @@ ktlint {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-        allWarningsAsErrors = true
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        allWarningsAsErrors.set(true)
     }
 }
 
@@ -151,9 +151,9 @@ val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
     filteredFiles.forEach { file ->
         val originalFileName = file.name
         val newFileName = if (originalFileName.endsWith("$googleCommonProtos.jar")) {
-            originalFileName.replace("$googleCommonProtos", "original")
+            originalFileName.replace(googleCommonProtos, "original")
         } else {
-            originalFileName.replace("$protoktVersion", "protoKT")
+            originalFileName.replace(protoktVersion, "protoKT")
         }
         rename(originalFileName, newFileName)
     }

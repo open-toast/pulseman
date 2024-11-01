@@ -11,6 +11,7 @@ jobs:
   linux-build:
     name: Linux build
     runs-on: ubuntu-latest
+    needs: mac-build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,13 +43,12 @@ jobs:
       SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
       SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
     name: Mac build
-    needs: linux-build
     runs-on: macos-latest
     steps:
       - name: Install the Apple certificate and provisioning profile
         run: |
           # Decode signing cert
-          base64 -D -o cert.p12 \<<< $SIGNING_CERT_TEMP
+          base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP
           # Create new keychain
           security create-keychain -p keychain-pass compose.keychain
           # Import signing cert

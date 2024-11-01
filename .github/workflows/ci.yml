@@ -12,7 +12,8 @@ jobs:
     name: Linux build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Set up java
         uses: actions/setup-java@v4
         with:
@@ -29,5 +30,50 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Package
+          name: LinuxPackage
+          path: build/libs
+
+  mac-build:
+    env:
+      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
+      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
+      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
+      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
+      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
+      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+    name: Mac build
+    needs: linux-build
+    runs-on: macos-latest
+    steps:
+      - name: Install the Apple certificate and provisioning profile
+        run: |
+          # Decode signing cert
+          base64 -D -o cert.p12 \<<< $SIGNING_CERT_TEMP
+          # Create new keychain
+          security create-keychain -p keychain-pass compose.keychain
+          # Import signing cert
+          security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
+          # Make chain accessible
+          security list-keychains -s "compose.keychain"
+          security list-keychains
+          security default-keychain -s "compose.keychain"
+          security unlock-keychain -p "keychain-pass" "compose.keychain"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k keychain-pass
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up java
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Create DMG
+        run: ./gradlew packageDmg --stacktrace
+      - name: Notarize DMG
+        run: ./gradlew notarizeDmg
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MacPackage
           path: build/libs

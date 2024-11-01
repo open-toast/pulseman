@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         run: ./gradlew test
       - name: Create Package deb
-        run: /gradlew packageDeb --info
+        run: ./gradlew packageDeb --info
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

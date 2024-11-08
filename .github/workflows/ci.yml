@@ -22,6 +22,8 @@ jobs:
           java-version: 17
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.1.1"
       - name: Run lint check
         run: ./gradlew ktlintCheck
       - name: Run tests
@@ -45,15 +47,14 @@ jobs:
     name: Mac build
     runs-on: macos-latest
     steps:
-      - name: Install the Apple certificate and provisioning profile
+      - name: Decode signing cert
+        run: base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP
+      - name: Create new keychain
+        run: security create-keychain -p keychain-pass compose.keychain
+      - name: Import signing cert
+        run: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
+      - name: Make chain accessible
         run: |
-          # Decode signing cert
-          base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP
-          # Create new keychain
-          security create-keychain -p keychain-pass compose.keychain
-          # Import signing cert
-          security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
-          # Make chain accessible
           security list-keychains -s "compose.keychain"
           security list-keychains
           security default-keychain -s "compose.keychain"
@@ -68,6 +69,8 @@ jobs:
           java-version: 17
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.1.1"
       - name: Create DMG
         run: ./gradlew packageDmg --stacktrace
       - name: Notarize DMG

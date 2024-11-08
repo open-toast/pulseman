@@ -75,10 +75,7 @@ jobs:
         run: ./gradlew packageDmg --stacktrace
       - name: Notarize DMG
         run: ./gradlew notarizeDmg
-      - uses: actions/upload-artifact@v4
-        with:
-          name: notarize-dmg-output
-          path: build/notorization-output
+        continue-on-error: true
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:

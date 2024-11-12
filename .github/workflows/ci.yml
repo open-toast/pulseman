@@ -80,4 +80,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MacPackage
-          path: build/libs
+          path: build/compose/logs

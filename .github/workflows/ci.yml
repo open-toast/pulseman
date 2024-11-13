@@ -44,11 +44,23 @@ jobs:
       PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
       SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
       SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+      SIGN_APP: ${{ secrets.SIGN_APP }}
     name: Mac build
     runs-on: macos-latest
     steps:
-      - name: Select Xcode version
-        run: sudo xcode-select -s '/Applications/Xcode_14.3.1.app/Contents/Developer'
+      - name: Decode signing cert
+        run: base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP
+      - name: Create new keychain
+        run: security create-keychain -p keychain-pass compose.keychain
+      - name: Import signing cert
+        run: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
+      - name: Make chain accessible
+        run: |
+          security list-keychains -s "compose.keychain"
+          security list-keychains
+          security default-keychain -s "compose.keychain"
+          security unlock-keychain -p "keychain-pass" "compose.keychain"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k keychain-pass
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up java
@@ -69,4 +81,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MacPackage
-          path: build/
+          path: build/compose/logs

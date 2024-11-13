@@ -11,7 +11,6 @@ jobs:
   linux-build:
     name: Linux build
     runs-on: ubuntu-latest
-    needs: mac-build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +32,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: LinuxPackage
+          name: linux-artifacts
           path: build/libs
 
   mac-build:
@@ -47,6 +46,7 @@ jobs:
       SIGN_APP: ${{ secrets.SIGN_APP }}
     name: Mac build
     runs-on: macos-latest
+    needs: linux-build
     steps:
       - name: Decode signing cert
         run: base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP
@@ -76,9 +76,8 @@ jobs:
         run: ./gradlew packageDmg --stacktrace
       - name: Notarize DMG
         run: ./gradlew notarizeDmg
-        continue-on-error: true
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: MacPackage
-          path: build/compose/logs
+          name: mac-artifacts
+          path: build/compose/binaries/main/dmg/

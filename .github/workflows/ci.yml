@@ -84,7 +84,7 @@ jobs:
           path: build/compose/binaries/main/dmg/
 
   release:
-    if: contains(github.ref, 'tags/v')
+    if: ${{ github.event_name == 'release' }}
     runs-on: ubuntu-latest
     needs: mac-build
     steps:

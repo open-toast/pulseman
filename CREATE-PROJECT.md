@@ -52,7 +52,7 @@ You can also define an optional key/value map of user-defined properties sent in
 ## Add a generic dependency jar
 
 If you just want to add any dependency for use in serialization/deserialization/auth you can add it to the
-**Dependency Jars** tab
+**Other** jars tab
 
 ## Searching for topics
 
@@ -75,7 +75,7 @@ More messaging formats will be added in the future.
 
 ### Steps
 
-1. Select the **Jars** tab in any **Protobuf** test tab.
+1. Select the **Jars** tab in any **Protobuf** test tab in the bottom half of the screen.
 2. Add any jars containing your message classes.
 3. In the **Class** tab you can now select any class to send a message with or deserialize with.  
    You can define multiple deserialization classes if you want to try to decode a message into multiple formats.

@@ -46,11 +46,6 @@ class ZipManagementTest {
     }
 
     @Test
-    fun `confirm tests fail is caught`() {
-        assertTrue(false)
-    }
-
-    @Test
     fun `Zip and unzip a project successfully`(@TempDir tempDir: File) {
         // Set up all the needed temp directories and files
         val directories = directories(tempDir)

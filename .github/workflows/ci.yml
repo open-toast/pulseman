@@ -27,7 +27,12 @@ jobs:
       - name: Run lint check
         run: ./gradlew ktlintCheck
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew iTest
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/iTest/TEST-*.xml'
       - name: Create Package deb
         run: ./gradlew packageDeb --info
       - name: Upload build artifacts

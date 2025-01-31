@@ -24,13 +24,13 @@ import java.net.URL
  */
 object SeperatedJars {
     // Gradle task copies and names these jars to the resource folder
-    private const val googleCommon = "proto-google-common-protos-original.jar"
-    private const val protoKTCommon = "proto-google-common-protos-protoKT.jar"
-    private const val protoKTCommonLite = "proto-google-common-protos-lite-protoKT.jar"
-    private const val commonResourceRoot = "common/"
+    private const val GOOGLE_COMMON = "proto-google-common-protos-original.jar"
+    private const val PROTOKT_COMMON = "proto-google-common-protos-protoKT.jar"
+    private const val PROTOKT_COMMON_LITE = "proto-google-common-protos-lite-protoKT.jar"
+    private const val COMMON_RESOURCE_ROOT = "common/"
 
-    private val googleJars = listOf(getJarURL(googleCommon))
-    private val protoKTJars = listOf(getJarURL(protoKTCommon), getJarURL(protoKTCommonLite))
+    private val googleJars = listOf(getJarURL(GOOGLE_COMMON))
+    private val protoKTJars = listOf(getJarURL(PROTOKT_COMMON), getJarURL(PROTOKT_COMMON_LITE))
 
     private fun getJarURL(resourcePath: String): URL {
         return try {
@@ -40,7 +40,7 @@ object SeperatedJars {
             resourcesDir.resolve(resourcePath).toURI().toURL()
         } catch (ex: Exception) {
             val contextClassLoader = Thread.currentThread().contextClassLoader!!
-            contextClassLoader.getResource("$commonResourceRoot$resourcePath")!!
+            contextClassLoader.getResource("$COMMON_RESOURCE_ROOT$resourcePath")!!
         }
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings.SELECTED
 import com.toasttab.pulseman.entities.ButtonState
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.PulsarConfig
 import com.toasttab.pulseman.view.topicSelectorUI
 import kotlinx.coroutines.CoroutineScope
@@ -33,10 +34,11 @@ class TopicSelector(
     private val settingsTopic: MutableState<String>,
     private val pulsarAdminUrl: MutableState<String>,
     private val showDiscover: MutableState<Boolean> = mutableStateOf(false),
-    val setUserFeedback: (String) -> Unit,
-    val onChange: () -> Unit
+    private val setUserFeedback: (String) -> Unit,
+    private val onChange: () -> Unit,
+    runTimeJarLoader: RunTimeJarLoader
 ) {
-    private val pulsarConfig = PulsarConfig(setUserFeedback)
+    private val pulsarConfig = PulsarConfig(runTimeJarLoader = runTimeJarLoader, setUserFeedback = setUserFeedback)
     private val topics: SnapshotStateList<String> = mutableStateListOf()
     private val topicRetrievalState = mutableStateOf(ButtonState.WAITING)
 

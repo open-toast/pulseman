@@ -27,7 +27,7 @@ import com.toasttab.pulseman.AppStrings.FAIL_TO_SUBSCRIBE
 import com.toasttab.pulseman.AppStrings.SUBSCRIBED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.ReceivedMessages
-import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.MessageHandling
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.view.receiveMessageUI
@@ -43,7 +43,8 @@ class ReceiveMessage(
     private val setUserFeedback: (String) -> Unit,
     private val pulsarSettings: PulsarSettings,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
-    private val messageHandling: MessageHandling
+    private val messageHandling: MessageHandling,
+    private val runTimeJarLoader: RunTimeJarLoader
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -60,9 +61,13 @@ class ReceiveMessage(
     private fun onSubscribe() {
         consumer?.close()
         pulsar.value?.close()
-        pulsar.value = Pulsar(pulsarSettings, setUserFeedback)
+        pulsar.value = Pulsar(
+            pulsarSettings = pulsarSettings,
+            runTimeJarLoader = runTimeJarLoader,
+            setUserFeedback = setUserFeedback
+        )
+
         try {
-            addJarsToClassLoader()
             subscribeFuture = pulsar.value?.createNewConsumer(messageHandling::parseMessage)
             subscribeFuture?.get(90, TimeUnit.SECONDS)?.let {
                 consumer = it

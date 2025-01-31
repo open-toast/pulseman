@@ -17,6 +17,7 @@ package com.toasttab.pulseman.pulsar.handlers
 
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.jars.JarLoader
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import java.io.File
 
 /**
@@ -28,6 +29,7 @@ import java.io.File
 interface PulsarMessageClassInfo : PulsarMessage, ClassInfo {
     override val file: File
     override val cls: Class<out Any>
+    val runTimeJarLoader: RunTimeJarLoader
 
     /**
      * Generates a kotlin scripting code template for the class, this code will be used to create a pulsar message class

@@ -23,6 +23,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.MessageHandlingImpl
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.ReceiveMessage
@@ -33,6 +34,7 @@ import com.toasttab.pulseman.view.selectTabViewUI
 class TextState(
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
+    runTimeJarLoader: RunTimeJarLoader,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit
 ) {
@@ -53,6 +55,7 @@ class TextState(
         setUserFeedback = setUserFeedback,
         pulsarSettings = pulsarSettings,
         initialSettings = initialSettings,
+        runTimeJarLoader = runTimeJarLoader,
         onChange = onChange
     )
 
@@ -68,7 +71,8 @@ class TextState(
         setUserFeedback = setUserFeedback,
         pulsarSettings = pulsarSettings,
         receivedMessages = receivedMessages,
-        messageHandling = messageHandling
+        messageHandling = messageHandling,
+        runTimeJarLoader = runTimeJarLoader
     )
 
     fun toTextTabValues() = TextTabValuesV3(

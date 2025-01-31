@@ -94,6 +94,11 @@ object FileManagement {
 
     fun deleteFile(file: File) {
         if (file.exists()) {
+            if (file.isDirectory) {
+                file.listFiles()?.forEach { child ->
+                    child.delete() // Not recursive, we don't have nested folders
+                }
+            }
             file.delete()
         }
     }

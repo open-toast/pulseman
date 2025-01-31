@@ -18,13 +18,17 @@ package com.toasttab.pulseman.pulsar.handlers.protobuf
 import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.util.JsonFormat
 import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
 
-data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessageV3>, override val file: File) :
-    PulsarMessageClassInfo {
+data class GeneratedMessageV3Handler(
+    override val cls: Class<out GeneratedMessageV3>,
+    override val file: File,
+    override val runTimeJarLoader: RunTimeJarLoader
+) : PulsarMessageClassInfo {
 
     override fun serialize(cls: Any): ByteArray {
         val generatedMessageV3 = cls as GeneratedMessageV3
@@ -54,7 +58,7 @@ data class GeneratedMessageV3Handler(override val cls: Class<out GeneratedMessag
     }
 
     override fun getJarLoader(): JarLoader {
-        return RunTimeJarLoader.googleJarLoader
+        return runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.GOOGLE_STANDARD)
     }
 
     companion object {

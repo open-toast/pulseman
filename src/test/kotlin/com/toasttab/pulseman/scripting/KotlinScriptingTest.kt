@@ -18,6 +18,7 @@ package com.toasttab.pulseman.scripting
 import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.MultipleTypesPulsarMessage
 import com.toasttab.pulseman.entities.SingleSelection
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -27,7 +28,7 @@ class KotlinScriptingTest {
 
     @Test
     fun `Compiling a kotlin class works`() {
-        val pulsarMessage = MultipleTypesPulsarMessage(MultipleTypes::class.java, File("test"))
+        val pulsarMessage = MultipleTypesPulsarMessage(MultipleTypes::class.java, File("test"), RunTimeJarLoader())
         val selectedClass = SingleSelection<PulsarMessageClassInfo>().apply {
             selected = pulsarMessage
         }
@@ -48,7 +49,7 @@ class KotlinScriptingTest {
 
     @Test
     fun `Recompiling a kotlin class works`() {
-        val pulsarMessage = MultipleTypesPulsarMessage(MultipleTypes::class.java, File("test"))
+        val pulsarMessage = MultipleTypesPulsarMessage(MultipleTypes::class.java, File("test"), RunTimeJarLoader())
         val selectedClass = SingleSelection<PulsarMessageClassInfo>().apply {
             selected = pulsarMessage
         }

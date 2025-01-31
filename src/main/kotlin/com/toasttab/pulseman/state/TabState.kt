@@ -33,15 +33,19 @@ import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.tabUI
 
 class TabState(
-    appState: AppState,
+    private val appState: AppState,
     private val tabName: MutableState<String> = mutableStateOf(NEW_TAB),
     val selection: SingleSelection<TabState>,
     val close: ((TabState) -> Unit),
     val unsavedChanges: MutableState<Boolean> = mutableStateOf(false),
     val initialSettings: TabValuesV3? = null,
+    val tabNumber: Int,
     newTab: Boolean,
-    initialMessage: String? = null
+    initialMessage: String? = null,
+    newJarFormat: Boolean
 ) {
+    private val pulsarMessageJars = appState.tabJarManager.add(tabNumber = tabNumber, newJarFormat = newJarFormat)
+
     private var lastSavedTabValues: TabValuesV3? = initialSettings
 
     private val userFeedback = UserFeedback(globalFeedback = appState.globalFeedback, newTab = newTab)
@@ -50,7 +54,7 @@ class TabState(
         mutableStateOf((initialSettings?.serializationFormat ?: SerializationFormat.PROTOBUF))
 
     private val serializationFormatSelector = DropdownSelector(
-        options = SerializationFormat.values().map { it.format },
+        options = SerializationFormat.entries.map { it.format },
         onSelected = {
             serializationFormat.value = SerializationFormat.fromFormat(it)
             userFeedback.set("$SELECTED $it $SERIALIZATION_FORMAT")
@@ -79,14 +83,15 @@ class TabState(
         )
 
     private val serializationState = SerializationState(
-        appState = appState,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
         setUserFeedback = userFeedback::set,
-        onChange = ::onChange
+        onChange = ::onChange,
+        pulsarMessageJars = pulsarMessageJars
     )
 
     fun cleanUp() {
+        appState.tabJarManager.remove(tabNumber = tabNumber)
         serializationState.cleanUp()
         userFeedback.close()
     }

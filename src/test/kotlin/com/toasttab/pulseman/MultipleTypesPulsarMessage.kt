@@ -15,12 +15,18 @@
 
 package com.toasttab.pulseman
 
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.jars.JarLoader
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import java.io.File
 
-class MultipleTypesPulsarMessage(override val cls: Class<out MultipleTypes>, override val file: File) :
+class MultipleTypesPulsarMessage(
+    override val cls: Class<out MultipleTypes>,
+    override val file: File,
+    override val runTimeJarLoader: RunTimeJarLoader
+) :
     PulsarMessageClassInfo {
     override fun serialize(cls: Any): ByteArray = (cls as MultipleTypes).toBytes()
 
@@ -32,6 +38,6 @@ class MultipleTypesPulsarMessage(override val cls: Class<out MultipleTypes>, ove
     override fun generateClassTemplate(): String = "MultipleTypes()"
 
     override fun getJarLoader(): JarLoader {
-        return JarLoader(arrayOfNulls(0))
+        return runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.BASE)
     }
 }

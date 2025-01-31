@@ -16,6 +16,7 @@
 package com.toasttab.pulseman.pulsar.filters.protobuf
 
 import com.toasttab.protokt.rt.KtMessage
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.filters.ClassFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.pulsar.handlers.protobuf.KTMessageHandler
@@ -28,13 +29,13 @@ import java.net.URLClassLoader
  * Filters for classes that implement the KtMessage protobuf message interface
  * https://github.com/open-toast/protokt/blob/main/protokt-runtime/src/main/kotlin/com/toasttab/protokt/rt/KtMessage.kt
  */
-class KTMessageFilter : ClassFilter<PulsarMessageClassInfo> {
+class KTMessageFilter(private val runTimeJarLoader: RunTimeJarLoader) : ClassFilter<PulsarMessageClassInfo> {
     override fun getClasses(file: File): Set<KTMessageHandler> {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
         return Reflections(classLoader.urLs)
             .get(Scanners.SubTypes.of(KtMessage::class.java).asClass<Any>(classLoader))
             .filterIsInstance<Class<out KtMessage>>()
-            .map { KTMessageHandler(it, file) }
+            .map { KTMessageHandler(cls = it, file = file, runTimeJarLoader = runTimeJarLoader) }
             .toSet()
     }
 }

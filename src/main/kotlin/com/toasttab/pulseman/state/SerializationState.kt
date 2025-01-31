@@ -17,9 +17,10 @@ package com.toasttab.pulseman.state
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
-import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.entities.SerializationFormat
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.jars.JarManager
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.protocol.protobuf.ProtobufState
 import com.toasttab.pulseman.state.protocol.text.TextState
 
@@ -28,7 +29,7 @@ import com.toasttab.pulseman.state.protocol.text.TextState
  * the ui for the currently selected format
  */
 class SerializationState(
-    appState: AppState,
+    pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
@@ -40,7 +41,7 @@ class SerializationState(
     }
 
     val protobufState = ProtobufState(
-        appState = appState,
+        pulsarMessageJars = pulsarMessageJars,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
         setUserFeedback = setUserFeedback,
@@ -50,6 +51,7 @@ class SerializationState(
     val textState = TextState(
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
+        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
         setUserFeedback = setUserFeedback,
         onChange = onChange
     )

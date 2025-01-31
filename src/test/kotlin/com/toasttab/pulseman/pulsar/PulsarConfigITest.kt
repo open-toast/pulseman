@@ -16,6 +16,7 @@
 package com.toasttab.pulseman.pulsar
 
 import com.toasttab.pulseman.entities.SingleSelection
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -32,7 +33,7 @@ class PulsarConfigITest : PulsarITestSupport() {
 
     @Test
     fun `PulsarSettings retrieves a list of topics correctly`() {
-        val topicList = PulsarConfig {}.getTopics(
+        val topicList = PulsarConfig(runTimeJarLoader = RunTimeJarLoader()) {}.getTopics(
             pulsarUrl = pulsarContainer.httpServiceUrl,
             pulsarSettings = mockk {
                 every { authSelector } returns mockk {

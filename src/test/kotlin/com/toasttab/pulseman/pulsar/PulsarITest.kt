@@ -18,6 +18,7 @@ package com.toasttab.pulseman.pulsar
 import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.entities.SingleSelection
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.state.PulsarSettings
 import io.mockk.every
 import io.mockk.mockk
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit
 class PulsarITest : PulsarITestSupport() {
     private lateinit var testTopic: String
     private lateinit var pulsarSettings: PulsarSettings
+    private lateinit var runTimeJarLoader: RunTimeJarLoader
 
     private val testPropertyString =
         """{
@@ -62,6 +64,7 @@ class PulsarITest : PulsarITestSupport() {
                 every { propertyMap() } returns testPropertyString
             }
         }
+        runTimeJarLoader = RunTimeJarLoader()
     }
 
     @Test
@@ -69,7 +72,7 @@ class PulsarITest : PulsarITestSupport() {
         val response = responseFuture(testTopic)
         val messageToSend = MultipleTypes()
 
-        Pulsar(pulsarSettings) {}.sendMessage(messageToSend.toBytes())
+        Pulsar(pulsarSettings, runTimeJarLoader) {}.sendMessage(messageToSend.toBytes())
 
         val message = response.get()
         val messageReceived = MultipleTypes.fromBytes(message.data)
@@ -84,7 +87,7 @@ class PulsarITest : PulsarITestSupport() {
         lateinit var receivedProperties: Map<String, String>
 
         val countDownLatch = CountDownLatch(1)
-        val subscribeFuture = Pulsar(pulsarSettings) {}.createNewConsumer {
+        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer {
             receivedBytes = it.data
             receivedProperties = it.properties
             countDownLatch.countDown()

@@ -15,6 +15,7 @@
 
 package com.toasttab.pulseman.pulsar
 
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.state.PulsarSettings
 import org.apache.pulsar.client.api.Authentication
@@ -31,13 +32,13 @@ import org.apache.pulsar.client.api.EncodedAuthenticationParameterSupport
  * You will then need to provide your auth settings as a string, these will be passed to the **configure** method of the
  * EncodedAuthenticationParameterSupport interface at runtime.
  */
-class PulsarAuth(private val pulsarSettings: PulsarSettings) {
+class PulsarAuth(private val pulsarSettings: PulsarSettings, private val runTimeJarLoader: RunTimeJarLoader) {
     fun getAuthHandler(): Authentication? {
         val pulsarAuthClass = pulsarSettings.authSelector.selectedAuthClass.selected
             ?: return null
 
-        val authHandler = RunTimeJarLoader
-            .loader
+        val authHandler = runTimeJarLoader
+            .getJarLoader(jarLoaderType = JarLoaderType.BASE)
             .loadClass(pulsarAuthClass.cls.canonicalName)
             .getDeclaredConstructor()
             .newInstance() as Authentication

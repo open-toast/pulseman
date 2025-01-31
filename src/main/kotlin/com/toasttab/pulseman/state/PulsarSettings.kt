@@ -49,7 +49,8 @@ class PulsarSettings(
         settingsTopic = topic,
         pulsarAdminUrl = pulsarAdminUrl,
         setUserFeedback = setUserFeedback,
-        onChange = onChange
+        onChange = onChange,
+        runTimeJarLoader = appState.authJars.runTimeJarLoader
     )
 
     private val authJarManagement =

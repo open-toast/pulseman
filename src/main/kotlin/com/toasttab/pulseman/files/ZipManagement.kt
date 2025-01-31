@@ -74,6 +74,11 @@ class ZipManagement(private val homeDirectory: String) {
                     while (true) {
                         val nextEntry = zis.nextEntry ?: return projectJson
                         if (!nextEntry.isDirectory && nextEntry.name !in skipFiles) {
+                            val newFile = File("$homeDirectory${nextEntry.name}")
+                            val parentFile: File? = newFile.parentFile
+                            if (parentFile?.exists() == true && isValidFolderPrefix(parentFile.name)) {
+                                parentFile.mkdirs()
+                            }
                             if (nextEntry.name == projectTabsFileName) {
                                 projectJson = String(zis.readAllBytes())
                             } else {
@@ -94,8 +99,11 @@ class ZipManagement(private val homeDirectory: String) {
         }
     }
 
+    private fun isValidFolderPrefix(folderName: String) = allowedFolder.any { folderName.startsWith(it) }
+
     companion object {
         private const val projectTabsFileName = "project_tabs.json"
         private val skipFiles = listOf(".DS_Store")
+        private val allowedFolder = listOf("message_jars")
     }
 }

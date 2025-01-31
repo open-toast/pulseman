@@ -31,7 +31,7 @@ import com.toasttab.pulseman.AppStrings.NO_CLASS_GENERATED_TO_SEND
 import com.toasttab.pulseman.AppStrings.ON_TOPIC
 import com.toasttab.pulseman.AppStrings.SERVICE_URL_NOT_SET
 import com.toasttab.pulseman.AppStrings.TOPIC_NOT_SET
-import com.toasttab.pulseman.jars.RunTimeJarLoader.addJarsToClassLoader
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.state.PulsarSettings
 import org.apache.pulsar.client.api.Authentication
 import org.apache.pulsar.client.api.Consumer
@@ -53,10 +53,11 @@ import java.util.concurrent.TimeUnit
  */
 class Pulsar(
     private val pulsarSettings: PulsarSettings,
+    runTimeJarLoader: RunTimeJarLoader,
     private val setUserFeedback: (String) -> Unit
 ) {
     private var producer: Producer<ByteArray>? = null
-    private val pulsarAuth = PulsarAuth(pulsarSettings)
+    private val pulsarAuth = PulsarAuth(pulsarSettings = pulsarSettings, runTimeJarLoader = runTimeJarLoader)
 
     fun close() {
         try {
@@ -83,7 +84,6 @@ class Pulsar(
 
     private val pulsarClient by lazy {
         try {
-            addJarsToClassLoader()
             pulsarAuth.getAuthHandler()?.let { authHandler ->
                 authenticatedPulsarClient(authHandler)
             } ?: unAuthenticatedPulsarClient()

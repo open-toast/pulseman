@@ -20,7 +20,7 @@ enum class SerializationFormat(val format: String) {
     PROTOBUF("Protobuf");
 
     companion object {
-        private val formatMapping = values().associateBy { it.format }
+        private val formatMapping = entries.associateBy { it.format }
 
         fun fromFormat(format: String): SerializationFormat = formatMapping[format]!!
     }

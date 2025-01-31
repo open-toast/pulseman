@@ -18,6 +18,7 @@ package com.toasttab.pulseman.pulsar
 import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.entities.CharacterSet
 import com.toasttab.pulseman.entities.SingleSelection
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.text.TextHandler
 import com.toasttab.pulseman.state.PulsarSettings
 import io.mockk.every
@@ -35,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class PulsarTextMessageITest : PulsarITestSupport() {
     private lateinit var testTopic: String
     private lateinit var pulsarSettings: PulsarSettings
+    private lateinit var runTimeJarLoader: RunTimeJarLoader
 
     @BeforeAll
     fun init() {
@@ -50,6 +52,7 @@ class PulsarTextMessageITest : PulsarITestSupport() {
                 every { propertyMap() } returns testPropertyString
             }
         }
+        runTimeJarLoader = RunTimeJarLoader()
     }
 
     @ParameterizedTest(name = "characterSet:{0} input:{2} expectedOutput:{1}")
@@ -62,7 +65,7 @@ class PulsarTextMessageITest : PulsarITestSupport() {
         val response = responseFuture(testTopic)
         val textHandler = TextHandler(characterSet = characterSet)
 
-        Pulsar(pulsarSettings) {}.sendMessage(textHandler.serialize(input))
+        Pulsar(pulsarSettings, runTimeJarLoader) {}.sendMessage(textHandler.serialize(input))
 
         assertThat(response.get().data).isEqualTo(expectedOutput)
     }
@@ -77,7 +80,7 @@ class PulsarTextMessageITest : PulsarITestSupport() {
         val response = responseFuture(testTopic)
         val textHandler = TextHandler(characterSet = characterSet)
 
-        Pulsar(pulsarSettings) {}.sendMessage(input)
+        Pulsar(pulsarSettings, runTimeJarLoader) {}.sendMessage(input)
 
         val message = response.get()
         val messageReceived = textHandler.deserialize(message.data)

@@ -96,7 +96,7 @@ fun jarManagementUI(
 
                         Text(
                             text = AnnotatedString(ADD_JAR),
-                            modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
+                            modifier = Modifier.weight(1Fs).align(Alignment.CenterVertically),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

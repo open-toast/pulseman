@@ -120,6 +120,7 @@ tasks {
 task<Test>("iTest") {
     group = "verification"
     useJUnitPlatform()
+    dependsOn("createTestJar")
 }
 
 ktlint {

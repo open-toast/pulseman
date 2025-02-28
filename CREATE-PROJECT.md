@@ -1,6 +1,6 @@
 # Creating a project
 
-## General settings
+## General settings test
 
 **Topic**: The topic you want to sent messages to or monitor.  
 e.g `persistent://tenant/namespace/topic`  

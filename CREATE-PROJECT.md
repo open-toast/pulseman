@@ -9,11 +9,41 @@ e.g `pulsar+ssl://pulsar.eng.com:6651`
 
 ## Adding jars to a project
 
-The **Jars** button in the top pane allows two types of Jars to be added to the project in the **Auth** or **Other**
-tab.  
+Pulseman allows you to add jars to a project, they are used in serialization/deserialization of messages and when
+setting up authorization.
+
+Separate Jar loaders are used so that each tab can have its unique set of Jars loaded and avoid conflicts. The following
+Jar loaders are used.
+
+- **Common jar loader**: Jars added here will be available project wide in all tabs.
+- **Auth jar loader**: The auth jar loader has the common jar loader as a dependency and has all its jars loaded, it is
+  used by the Auth code to filter for the Authorization class you want to use.
+- **Tab jar loaders**: Each tab has its own jar loader, this is used to load jars that are specific to the tab. This is
+  dependent on the Auth Jar loader.
+
+### Hierarchy of jar loaders
+
+```mermaid
+graph LR
+    CJ[Common Jar Loader] --> AJ(Auth Jar Loader)
+    AJ --> T![Tab 1 Jar Loader]
+    AJ --> T2[Tab 2 Jar Loader]
+    AJ --> T3[Tab 3 Jar Loader]
+```
+
+The **Jars** button in the top pane contains the UI to add jars to the **Common** or **Auth** jar loaders.
+
 If the **Protobuf** serialization option is selected you can add the messaging jars in the **Jars** tab on the bottom
-pane.  
-These are described below. If a jar is added to any tab it is available to the whole project.
+pane.
+
+*ProtoKt* clashes with the namespace of some standard google protobuf imports, to support them working side by side
+in the same project the following gradle imports are loaded manually to the jar loader depending on what type of
+protobuf class is selected for serializing/deserializing.
+
+```
+"com.google.api.grpc:proto-google-common-protos:$googleCommonProtos"
+"com.toasttab.protokt.thirdparty:proto-google-common-protos:$protoktVersion"
+```
 
 ## Set up auth
 
@@ -52,7 +82,7 @@ You can also define an optional key/value map of user-defined properties sent in
 ## Add a generic dependency jar
 
 If you just want to add any dependency for use in serialization/deserialization/auth you can add it to the
-**Dependency Jars** tab
+**Common Jars** tab
 
 ## Searching for topics
 
@@ -60,8 +90,7 @@ If you select the magnifying glass icon and point it at your pulsar set up
 
 e.g `http://localhost:8079`
 
-You can pull down all the topics configured and select which one to use in the project, this only works for
-unauthenticated pulsar setups currently.
+You can pull down all the topics configured and select which one to use in the project.
 
 ## Import your messaging jars
 
@@ -71,14 +100,14 @@ and
 [GeneratedMessageV3](https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html)
 protobuf messaging formats are supported. You can import any jars that have classes implementing these interfaces.
 
-More messaging formats will be added in the future.
-
 ### Steps
 
 1. Select the **Jars** tab in any **Protobuf** test tab.
 2. Add any jars containing your message classes.
-3. In the **Class** tab you can now select any class to send a message with or deserialize with.  
-   You can define multiple deserialization classes if you want to try to decode a message into multiple formats.
+3. In the **Class** tab you can now select any class to send a message or deserialize with.
+
+If you want to use the same jars in multiple tabs you can add them to the **Common Jars** tab and reduce project size,
+however be wary of conflicts.
 
 ## Send a message to a topic
 
@@ -107,7 +136,8 @@ Each message decoded will show the pulsar properties of the message also.
 
 1. Import the message jar you wish to deserialize messages with.
 2. In the **Class** tab select a class to decode messages with.
-3. In the **Receive** tab every message on the topic will be decoded with the class selected.
+3. In the **Receive** tab every message on the topic will be decoded with the class selected, if you have a mismatch
+   between the message contents and the selected class you may get garbled output.
 
 ### Text
 

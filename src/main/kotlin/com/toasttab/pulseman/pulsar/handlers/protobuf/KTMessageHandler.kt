@@ -24,11 +24,9 @@ import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import java.io.File
 
 data class KTMessageHandler(
     override val cls: Class<out KtMessage>,
-    override val file: File,
     override val runTimeJarLoader: RunTimeJarLoader
 ) : PulsarMessageClassInfo {
 

@@ -20,11 +20,9 @@ import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import java.io.File
 
 class MultipleTypesPulsarMessage(
     override val cls: Class<out MultipleTypes>,
-    override val file: File,
     override val runTimeJarLoader: RunTimeJarLoader
 ) :
     PulsarMessageClassInfo {

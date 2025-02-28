@@ -68,13 +68,11 @@ data class JarManager<T : ClassInfo>(
     private fun addJar(jarFile: File, printError: Boolean) {
         checkForConflicts(file = jarFile, printError = printError)
         loadedJars.add(jarFile)
-        loadedClasses.addFile(jarFile)
         runTimeJarLoader.addJar(jarFile.toURI().toURL())
     }
 
     private fun removeJar(jarFile: File) {
         loadedJars.remove(jarFile)
-        loadedClasses.removeFile(jarFile)
         runTimeJarLoader.removeJar(jarFile.toURI().toURL())
     }
 
@@ -83,7 +81,6 @@ data class JarManager<T : ClassInfo>(
             runTimeJarLoader.removeJar(it.toURI().toURL())
         }
         loadedJars.clear()
-        loadedClasses.clear()
     }
 
     fun refresh(printError: Boolean) {
@@ -144,9 +141,9 @@ data class JarManager<T : ClassInfo>(
     ) {
         removeJar(jar)
         var feedback = "$REMOVED ${jar.path}"
-        if (selectedClass?.selected?.file == jar) {
-            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass.selected?.cls?.name}"
-            selectedClass.selected = null
+        if (selectedClass?.selected?.cls?.protectionDomain?.codeSource?.location?.path == jar.path) {
+            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass?.selected?.cls?.name}"
+            selectedClass?.selected = null
         }
         setUserFeedback(feedback)
         onChange()

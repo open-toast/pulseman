@@ -6,10 +6,11 @@ Pulseman (Pulsar manager) is an [Apache Pulsar](https://pulsar.apache.org/) test
 - Subscribe to a Pulsar topic and receive messages
 - Query all topics
 - Import JAR files for serialization and deserialization of messages
+- Import JAR files to decode protobuf messages
 - Import custom authentication JAR files
 - Store and share test collections
 
-Currently, this has only been tested and targeted to work on macOS.
+Currently, this has only been tested and targeted to work on macOS but should work on other platforms.
 
 ## Supported pulsar formats
 

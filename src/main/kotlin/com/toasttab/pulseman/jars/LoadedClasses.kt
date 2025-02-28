@@ -16,36 +16,53 @@
 package com.toasttab.pulseman.jars
 
 import com.toasttab.pulseman.entities.ClassInfo
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.pulsar.filters.ClassFilter
-import java.io.File
+import java.net.URL
 
 /**
  * Stores a set of classes T, classes are loaded from a jar file using the classFilters supplied
  *
  * @param T the type of class that will be filtered for
  * @param classFilters this is a list of class filters used to pull any matching classes from a jar file
+ * @param runTimeJarLoader the RunTimeJarLoader object that contains the jars we want to search for classes
  */
-class LoadedClasses<T : ClassInfo>(private val classFilters: List<ClassFilter<T>>) {
-    private val classSet = mutableSetOf<T>()
+class LoadedClasses<T : ClassInfo>(
+    private val classFilters: List<ClassFilter<T>>,
+    private val runTimeJarLoader: RunTimeJarLoader
+) {
+    private val classes = mutableMapOf<String, T>()
+    private var storedURLs: MutableList<URL> = mutableListOf()
+    private var storedURLSet: MutableSet<String> = mutableSetOf()
 
-    fun addFile(file: File) {
-        classFilters.forEach {
-            classSet.addAll(it.getClasses(file))
+    private fun generateURLs(): MutableList<URL> =
+        runTimeJarLoader.getJarLoader(JarLoaderType.BASE).urLs.toMutableList()
+
+    private fun MutableList<URL>.toStringSet(): MutableSet<String> = this.map { it.toString() }.toMutableSet()
+
+    private fun generateClasses(): MutableMap<String, T> {
+        val currentURLs = generateURLs()
+        val currentURLSet = currentURLs.toStringSet()
+
+        if (storedURLSet == currentURLSet) {
+            return classes
         }
+        classes.clear()
+        storedURLs = currentURLs
+        storedURLSet = currentURLSet
+
+        currentURLs.forEach { url ->
+            classFilters.forEach { filter ->
+                filter.getClasses(url).forEach { cls ->
+                    classes[cls.cls.name] = cls
+                }
+            }
+        }
+        return classes
     }
 
-    fun removeFile(file: File) {
-        classSet.removeIf { it.file == file }
-    }
-
-    fun getClass(className: String): T? = classSet.firstOrNull {
-        it.cls.name == className
-    }
+    fun getClass(className: String): T? = generateClasses()[className]
 
     fun filter(nameFilter: String): List<T> =
-        classSet.filter { it.cls.name.contains(nameFilter, true) }.sortedBy { it.cls.name }
-
-    fun clear() {
-        classSet.clear()
-    }
+        generateClasses().values.filter { it.cls.name.contains(nameFilter, true) }.sortedBy { it.cls.name }
 }

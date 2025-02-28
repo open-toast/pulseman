@@ -37,13 +37,17 @@ import com.toasttab.pulseman.state.TabHolder
 class AppState {
     val globalFeedback = GlobalFeedback()
 
-    val dependencyJars: JarManager<ClassInfo> = JarManager(
+    private val commonJarLoader = RunTimeJarLoader()
+    private val authJarLoader = RunTimeJarLoader(dependentJarLoader = commonJarLoader)
+
+    val commonJars: JarManager<ClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
-            classFilters = emptyList()
+            classFilters = emptyList(),
+            runTimeJarLoader = commonJarLoader
         ),
         jarFolderName = DEPENDENCY_JAR_FOLDER,
         globalFeedback = globalFeedback,
-        runTimeJarLoader = RunTimeJarLoader(),
+        runTimeJarLoader = commonJarLoader,
         originalJarFolderName = null
     )
 
@@ -52,20 +56,21 @@ class AppState {
             classFilters = listOf(
                 // Add all the pulsar auth classes supported here
                 AuthClassFilter()
-            )
+            ),
+            runTimeJarLoader = authJarLoader
         ),
         jarFolderName = AUTH_JAR_FOLDER,
         globalFeedback = globalFeedback,
-        runTimeJarLoader = RunTimeJarLoader(dependentJarLoader = dependencyJars.runTimeJarLoader),
+        runTimeJarLoader = authJarLoader,
         originalJarFolderName = null
     )
 
     val tabJarManager = TabJarManager(
         globalFeedback = globalFeedback,
-        dependentJarLoader = authJars.runTimeJarLoader
+        dependentJarLoader = authJarLoader
     )
 
-    private val jarManagers = listOf(authJars, dependencyJars)
+    private val jarManagers = listOf(authJars, commonJars)
 
     val requestTabs = TabHolder(appState = this)
 

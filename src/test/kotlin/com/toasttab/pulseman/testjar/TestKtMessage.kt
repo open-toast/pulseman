@@ -13,22 +13,18 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar.filters
+package com.toasttab.pulseman.testjar
 
-import com.toasttab.pulseman.entities.ClassInfo
-import java.net.URL
+import com.toasttab.protokt.rt.KtMessage
+import com.toasttab.protokt.rt.KtMessageSerializer
 
 /**
- * Defines an interface to filter a specific class type from a jar file
+ * Do not delete, this class is used to generate a JAR used in the LoadedClassesTest tests
  *
- * @param T The ClassInfo type that will be filtered
+ * The createTestJar gradle task creates the JAR file.
  */
-interface ClassFilter<T : ClassInfo> {
-    /**
-     * Should take the supplied jar file and return a set of filtered classes
-     *
-     * @param url The URL of the jar file to filter
-     * @return A set of T containing the list of filtered classes and their linked file.
-     */
-    fun getClasses(url: URL): Set<T>
+class TestKtMessage(override val messageSize: Int) : KtMessage {
+    override fun serialize(serializer: KtMessageSerializer) {
+        TODO("Not yet implemented")
+    }
 }

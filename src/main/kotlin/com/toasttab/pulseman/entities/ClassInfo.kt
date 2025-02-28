@@ -15,12 +15,9 @@
 
 package com.toasttab.pulseman.entities
 
-import java.io.File
-
 /**
  * Interface that links a class to jar file
  */
 interface ClassInfo {
-    val file: File
     val cls: Class<out Any>
 }

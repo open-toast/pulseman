@@ -22,7 +22,7 @@ import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.pulsar.handlers.protobuf.GeneratedMessageV3Handler
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
-import java.io.File
+import java.net.URL
 import java.net.URLClassLoader
 
 /**
@@ -30,12 +30,12 @@ import java.net.URLClassLoader
  * https://www.javadoc.io/static/com.google.protobuf/protobuf-java/3.5.1/com/google/protobuf/GeneratedMessageV3.html
  */
 class GeneratedMessageV3Filter(private val runTimeJarLoader: RunTimeJarLoader) : ClassFilter<PulsarMessageClassInfo> {
-    override fun getClasses(file: File): Set<GeneratedMessageV3Handler> {
-        val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()))
+    override fun getClasses(url: URL): Set<GeneratedMessageV3Handler> {
+        val classLoader = URLClassLoader(arrayOf(url))
         return Reflections(classLoader.urLs)
             .get(Scanners.SubTypes.of(GeneratedMessageV3::class.java).asClass<Any>(classLoader))
             .filterIsInstance<Class<out GeneratedMessageV3>>()
-            .map { GeneratedMessageV3Handler(cls = it, file = file, runTimeJarLoader = runTimeJarLoader) }
+            .map { GeneratedMessageV3Handler(cls = it, runTimeJarLoader = runTimeJarLoader) }
             .toSet()
     }
 }

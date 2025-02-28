@@ -20,6 +20,8 @@ import com.toasttab.pulseman.pulsar.filters.protobuf.GeneratedMessageV3Filter
 import com.toasttab.pulseman.pulsar.filters.protobuf.KTMessageFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.GlobalFeedback
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Manages the jars needed to serialize and deserialize messages for each tab
@@ -27,10 +29,10 @@ import com.toasttab.pulseman.state.GlobalFeedback
 data class TabJarManager(
     private val globalFeedback: GlobalFeedback,
     private val dependentJarLoader: RunTimeJarLoader? = null,
-    val jarManagers: MutableMap<Int, JarManager<PulsarMessageClassInfo>> = mutableMapOf()
+    val jarManagers: MutableMap<UUID, JarManager<PulsarMessageClassInfo>> = mutableMapOf()
 ) {
 
-    fun add(tabNumber: Int, newJarFormat: Boolean): JarManager<PulsarMessageClassInfo> {
+    fun add(tabID: UUID, newJarFormat: Boolean): JarManager<PulsarMessageClassInfo> {
         val runTimeJarLoader = RunTimeJarLoader(dependentJarLoader = dependentJarLoader)
         return JarManager(
             loadedClasses = LoadedClasses(
@@ -38,14 +40,15 @@ data class TabJarManager(
                     // Add all the pulsar message formats supported here
                     KTMessageFilter(runTimeJarLoader = runTimeJarLoader),
                     GeneratedMessageV3Filter(runTimeJarLoader = runTimeJarLoader)
-                )
+                ),
+                runTimeJarLoader = runTimeJarLoader
             ),
-            jarFolderName = "${MESSAGE_JAR_FOLDER}_tab_$tabNumber",
+            jarFolderName = "${MESSAGE_JAR_FOLDER}_tab_${currentTabNumber.getAndIncrement()}",
             globalFeedback = globalFeedback,
             runTimeJarLoader = runTimeJarLoader,
             originalJarFolderName = if (newJarFormat) null else MESSAGE_JAR_FOLDER
-        ).also {
-            jarManagers[tabNumber] = it
+        ).also { newJarManager ->
+            jarManagers[tabID] = newJarManager
             refresh(printError = true)
         }
     }
@@ -68,17 +71,20 @@ data class TabJarManager(
         jarManagers.values.forEach { it.refresh(printError = printError) }
     }
 
-    fun remove(tabNumber: Int) {
-        jarManagers.remove(tabNumber)
+    fun remove(tabID: UUID) {
+        val jarManager = jarManagers[tabID] ?: return
+        jarManagers.remove(tabID)
+        FileManagement.deleteFile(file = jarManager.jarFolder)
     }
 
-    fun copyTab(fromTabNumber: Int, toTabNumber: Int) {
-        val fromJarManager = jarManagers[fromTabNumber] ?: return
-        val toJarManager = jarManagers[toTabNumber] ?: return
+    fun copyTab(fromTabID: UUID, toTabID: UUID) {
+        val fromJarManager = jarManagers[fromTabID] ?: return
+        val toJarManager = jarManagers[toTabID] ?: return
         toJarManager.copyJars(jarFiles = fromJarManager.loadedJars, printError = true)
     }
 
     companion object {
         private const val MESSAGE_JAR_FOLDER = "message_jars"
+        private var currentTabNumber = AtomicInteger(0)
     }
 }

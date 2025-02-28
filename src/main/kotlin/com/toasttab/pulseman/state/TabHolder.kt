@@ -35,7 +35,6 @@ class TabHolder(private val appState: AppState) {
             close = ::close,
             initialMessage = initialMessage,
             newTab = true,
-            tabNumber = tabState.size + 1,
             newJarFormat = true
         )
         tabState.add(tab)
@@ -51,14 +50,13 @@ class TabHolder(private val appState: AppState) {
     }
 
     fun load(tabSettings: List<TabValuesV3>, newJarFormat: Boolean) {
-        tabSettings.forEachIndexed { index, initialSettings ->
+        tabSettings.forEach { initialSettings ->
             val tab = TabState(
                 appState = appState,
                 selection = selection,
                 close = ::close,
                 initialSettings = initialSettings,
                 newTab = false,
-                tabNumber = index + 1,
                 newJarFormat = newJarFormat
             )
             tabState.add(tab)
@@ -78,11 +76,10 @@ class TabHolder(private val appState: AppState) {
                     )
                 },
                 newTab = true,
-                tabNumber = tabState.size + 1,
                 newJarFormat = true
             )
             tabState.add(copiedTab)
-            appState.tabJarManager.copyTab(fromTabNumber = currentTab.tabNumber, toTabNumber = copiedTab.tabNumber)
+            appState.tabJarManager.copyTab(fromTabID = currentTab.tabID, toTabID = copiedTab.tabID)
             copiedTab.activate()
         }
     }

@@ -48,7 +48,8 @@ class AppState {
         jarFolderName = DEPENDENCY_JAR_FOLDER,
         globalFeedback = globalFeedback,
         runTimeJarLoader = commonJarLoader,
-        originalJarFolderName = null
+        originalJarFolderName = null,
+        tabFileExtension = null
     )
 
     val authJars: JarManager<PulsarAuthHandler> = JarManager(
@@ -62,7 +63,8 @@ class AppState {
         jarFolderName = AUTH_JAR_FOLDER,
         globalFeedback = globalFeedback,
         runTimeJarLoader = authJarLoader,
-        originalJarFolderName = null
+        originalJarFolderName = null,
+        tabFileExtension = null
     )
 
     val tabJarManager = TabJarManager(
@@ -81,9 +83,10 @@ class AppState {
             tabJarManager.deleteAllJars()
             tabJarManager.reset()
             val projectSettings =
-                FileManagement.loadProject(projectFile)?.let { loadedProject ->
-                    loadConfig(loadedProject)
-                }
+                FileManagement.loadProject(file = projectFile, setUserFeedback = globalFeedback::set)
+                    ?.let { loadedProject ->
+                        loadConfig(project = loadedProject)
+                    }
             if (projectSettings?.tabs != null) {
                 jarManagers.forEach {
                     it.refresh(printError = true)

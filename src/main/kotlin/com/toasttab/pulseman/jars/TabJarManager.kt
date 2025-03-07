@@ -20,8 +20,8 @@ import com.toasttab.pulseman.pulsar.filters.protobuf.GeneratedMessageV3Filter
 import com.toasttab.pulseman.pulsar.filters.protobuf.KTMessageFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.GlobalFeedback
+import java.io.File
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Manages the jars needed to serialize and deserialize messages for each tab
@@ -31,9 +31,9 @@ data class TabJarManager(
     private val dependentJarLoader: RunTimeJarLoader? = null,
     val jarManagers: MutableMap<UUID, JarManager<PulsarMessageClassInfo>> = mutableMapOf()
 ) {
-
-    fun add(tabID: UUID, newJarFormat: Boolean): JarManager<PulsarMessageClassInfo> {
+    fun add(tabID: UUID, newJarFormat: Boolean, tabFileExtension: Int?): JarManager<PulsarMessageClassInfo> {
         val runTimeJarLoader = RunTimeJarLoader(dependentJarLoader = dependentJarLoader)
+        val finalTabFileExtension = tabFileExtension ?: getNewTabNumber()
         return JarManager(
             loadedClasses = LoadedClasses(
                 classFilters = listOf(
@@ -43,10 +43,11 @@ data class TabJarManager(
                 ),
                 runTimeJarLoader = runTimeJarLoader
             ),
-            jarFolderName = "${MESSAGE_JAR_FOLDER}_tab_${currentTabNumber.getAndIncrement()}",
+            jarFolderName = jarFolderName(finalTabFileExtension),
             globalFeedback = globalFeedback,
             runTimeJarLoader = runTimeJarLoader,
-            originalJarFolderName = if (newJarFormat) null else MESSAGE_JAR_FOLDER
+            originalJarFolderName = if (newJarFormat) null else MESSAGE_JAR_FOLDER,
+            tabFileExtension = finalTabFileExtension
         ).also { newJarManager ->
             jarManagers[tabID] = newJarManager
             refresh(printError = true)
@@ -83,8 +84,18 @@ data class TabJarManager(
         toJarManager.copyJars(jarFiles = fromJarManager.loadedJars, printError = true)
     }
 
+    // This is a recursive function that will find the next available tab number
+    private fun getNewTabNumber(tabNumber: Int = 0): Int {
+        return if (File("${FileManagement.APP_FOLDER_NAME}${jarFolderName(tabNumber = tabNumber)}/").exists()) {
+            getNewTabNumber(tabNumber = tabNumber + 1)
+        } else {
+            tabNumber
+        }
+    }
+
+    private fun jarFolderName(tabNumber: Int): String = "${MESSAGE_JAR_FOLDER}_tab_$tabNumber"
+
     companion object {
         private const val MESSAGE_JAR_FOLDER = "message_jars"
-        private var currentTabNumber = AtomicInteger(0)
     }
 }

@@ -72,7 +72,8 @@ class TabHolder(private val appState: AppState) {
                 close = ::close,
                 initialSettings = currentTab.tabValues().let { currentTabValues ->
                     currentTabValues.copy(
-                        tabName = currentTabValues.tabName + " - $COPY"
+                        tabName = currentTabValues.tabName + " - $COPY",
+                        tabExtension = null
                     )
                 },
                 newTab = true,

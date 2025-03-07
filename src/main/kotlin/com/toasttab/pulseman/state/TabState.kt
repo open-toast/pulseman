@@ -45,7 +45,11 @@ class TabState(
     initialMessage: String? = null,
     newJarFormat: Boolean
 ) {
-    private val pulsarMessageJars = appState.tabJarManager.add(tabID = tabID, newJarFormat = newJarFormat)
+    private val pulsarMessageJars = appState.tabJarManager.add(
+        tabID = tabID,
+        newJarFormat = newJarFormat,
+        tabFileExtension = initialSettings?.tabExtension
+    )
 
     private var lastSavedTabValues: TabValuesV3? = initialSettings
 
@@ -108,7 +112,8 @@ class TabState(
             serializationFormat = serializationFormat.value,
             protobufSettings = serializationState.protobufState.toProtobufTabValues(),
             textSettings = serializationState.textState.toTextTabValues(),
-            pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value
+            pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value,
+            tabExtension = pulsarMessageJars.tabFileExtension
         )
 
         if (save) {

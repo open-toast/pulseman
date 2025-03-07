@@ -148,9 +148,9 @@ object FileManagement {
         }
     }
 
-    fun loadProject(file: File): String? {
+    fun loadProject(file: File, setUserFeedback: (String) -> Unit): String? {
         FileWriter(lastConfigLoadedPath).use { fw -> fw.write(file.absolutePath) }
-        return zipManager.unzipProject(file)
+        return zipManager.unzipProject(zippedFile = file, setUserFeedback = setUserFeedback)
     }
 
     private fun getLastLoadedFile(): File? = File(lastConfigLoadedPath).let {

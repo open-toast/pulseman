@@ -50,7 +50,8 @@ data class JarManager<T : ClassInfo>(
     private val globalFeedback: GlobalFeedback,
     private val jarFolderName: String,
     val runTimeJarLoader: RunTimeJarLoader,
-    val originalJarFolderName: String?
+    val originalJarFolderName: String?,
+    val tabFileExtension: Int?
 ) {
     private val originalJarFolderPath = originalJarFolderName?.let { "$it/" }
     private val originalJarFolder = originalJarFolderPath?.let { File("$APP_FOLDER_NAME$originalJarFolderPath") }

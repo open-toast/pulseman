@@ -51,7 +51,8 @@ data class ProjectSettingsV1(@Suppress("DEPRECATION") val tabs: List<TabValuesV1
                         text = null,
                         selectedEncoding = null
                     ),
-                    pulsarAdminURL = null
+                    pulsarAdminURL = null,
+                    tabExtension = null
                 )
             }
         )

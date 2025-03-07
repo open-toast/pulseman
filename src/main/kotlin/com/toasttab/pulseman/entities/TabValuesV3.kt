@@ -31,5 +31,6 @@ data class TabValuesV3(
     val serializationFormat: SerializationFormat?,
     val protobufSettings: ProtobufTabValuesV3?,
     val textSettings: TextTabValuesV3?,
-    val pulsarAdminURL: String?
+    val pulsarAdminURL: String?,
+    val tabExtension: Int?
 )

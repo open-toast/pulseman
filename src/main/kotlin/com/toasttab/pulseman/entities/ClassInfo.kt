@@ -16,7 +16,8 @@
 package com.toasttab.pulseman.entities
 
 /**
- * Interface that links a class to jar file
+ * Allows us to have generic class handling while the implementation can be more restrictive to the type of classes they
+ * handle
  */
 interface ClassInfo {
     val cls: Class<out Any>

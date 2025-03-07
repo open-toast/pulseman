@@ -37,7 +37,10 @@ import com.toasttab.pulseman.state.TabHolder
 class AppState {
     val globalFeedback = GlobalFeedback()
 
+    // A common Jar Loader, any jars loaded here will be available to all tabs and auth functionality
     private val commonJarLoader = RunTimeJarLoader()
+
+    // This is used for auth operation, inherits the common jars and will be available in all tabs
     private val authJarLoader = RunTimeJarLoader(dependentJarLoader = commonJarLoader)
 
     val commonJars: JarManager<ClassInfo> = JarManager(

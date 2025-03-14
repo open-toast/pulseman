@@ -94,6 +94,11 @@ object FileManagement {
 
     fun deleteFile(file: File) {
         if (file.exists()) {
+            if (file.isDirectory) {
+                file.listFiles()?.forEach { child ->
+                    child.delete() // Not recursive, we don't have nested folders
+                }
+            }
             file.delete()
         }
     }
@@ -143,9 +148,9 @@ object FileManagement {
         }
     }
 
-    fun loadProject(file: File): String? {
+    fun loadProject(file: File, setUserFeedback: (String) -> Unit): String? {
         FileWriter(lastConfigLoadedPath).use { fw -> fw.write(file.absolutePath) }
-        return zipManager.unzipProject(file)
+        return zipManager.unzipProject(zippedFile = file, setUserFeedback = setUserFeedback)
     }
 
     private fun getLastLoadedFile(): File? = File(lastConfigLoadedPath).let {

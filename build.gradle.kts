@@ -113,12 +113,14 @@ tasks {
     test {
         exclude("**/*IT*.class")
         useJUnitPlatform()
+        dependsOn("createTestJar")
     }
 }
 
 task<Test>("iTest") {
     group = "verification"
     useJUnitPlatform()
+    dependsOn("createTestJar")
 }
 
 ktlint {
@@ -218,6 +220,13 @@ gradle.projectsEvaluated {
     tasks.named("prepareAppResources") {
         dependsOn(copyCommonProtoJarToResources)
     }
+}
+
+tasks.register<Jar>("createTestJar") {
+    archiveBaseName.set("test-class1")
+    archiveVersion.set("") // Prevents appVersion from being appended
+    from(sourceSets.test.get().output)
+    include("com/toasttab/pulseman/testjar/**")
 }
 
 compose.desktop {

@@ -13,14 +13,30 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar.handlers
+package com.toasttab.pulseman.testjar
 
-import com.toasttab.pulseman.entities.ClassInfo
 import org.apache.pulsar.client.api.Authentication
 
 /**
- * Links the Pulsar Authentication class to the jar file it came from
+ * Do not delete, this class is used to generate a JAR used in the LoadedClassesTest tests
+ *
+ * The createTestJar gradle task creates the JAR file.
  */
-data class PulsarAuthHandler(
-    override val cls: Class<out Authentication>
-) : ClassInfo
+class TestAuthentication : Authentication {
+    override fun close() {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAuthMethodName(): String {
+        TODO("Not yet implemented")
+    }
+
+    @Deprecated("", ReplaceWith(""))
+    override fun configure(authParams: MutableMap<String, String>?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun start() {
+        TODO("Not yet implemented")
+    }
+}

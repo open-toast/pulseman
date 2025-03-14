@@ -42,13 +42,21 @@ import java.io.File
  * @param loadedJars a list of all the jars loaded
  * @param loadedClasses a collection of the classes of Type T loaded in the jars
  * @param jarFolderName where all the loaded jars are stored
+ * @param originalJarFolderName used for migrating from project wide folders to each tab having its own folder
  */
 data class JarManager<T : ClassInfo>(
     val loadedJars: SnapshotStateList<File> = mutableStateListOf(),
     val loadedClasses: LoadedClasses<T>,
     private val globalFeedback: GlobalFeedback,
-    private val jarFolderName: String
+    private val jarFolderName: String,
+    val runTimeJarLoader: RunTimeJarLoader,
+    val originalJarFolderName: String?,
+    val tabFileExtension: Int?
 ) {
+    private val originalJarFolderPath = originalJarFolderName?.let { "$it/" }
+    private val originalJarFolder = originalJarFolderPath?.let { File("$APP_FOLDER_NAME$originalJarFolderPath") }
+    private var isMigrated = originalJarFolder == null
+
     private val jarFolderPath = "$jarFolderName/"
     val jarFolder = File("$APP_FOLDER_NAME$jarFolderPath")
 
@@ -61,22 +69,19 @@ data class JarManager<T : ClassInfo>(
     private fun addJar(jarFile: File, printError: Boolean) {
         checkForConflicts(file = jarFile, printError = printError)
         loadedJars.add(jarFile)
-        loadedClasses.addFile(jarFile)
-        RunTimeJarLoader.addJar(jarFile.toURI().toURL())
+        runTimeJarLoader.addJar(jarFile.toURI().toURL())
     }
 
     private fun removeJar(jarFile: File) {
         loadedJars.remove(jarFile)
-        loadedClasses.removeFile(jarFile)
-        RunTimeJarLoader.removeJar(jarFile.toURI().toURL())
+        runTimeJarLoader.removeJar(jarFile.toURI().toURL())
     }
 
     private fun clearAllJars() {
         loadedJars.forEach {
-            RunTimeJarLoader.removeJar(it.toURI().toURL())
+            runTimeJarLoader.removeJar(it.toURI().toURL())
         }
         loadedJars.clear()
-        loadedClasses.clear()
     }
 
     fun refresh(printError: Boolean) {
@@ -84,7 +89,23 @@ data class JarManager<T : ClassInfo>(
         loadedJars(jarFolder).forEach {
             addJar(jarFile = it, printError = printError)
         }
+        migrateOldJarFolderFormat(printError = printError)
         sortLists()
+    }
+
+    private fun migrateOldJarFolderFormat(printError: Boolean) {
+        if (originalJarFolder != null && loadedJars.isEmpty() && !isMigrated) {
+            loadedJars(originalJarFolder).forEach { file ->
+                addJar(jarFile = file, printError = printError)
+                copyFile(file = file)
+            }
+            isMigrated = true
+        }
+    }
+
+    private fun copyFile(file: File) {
+        val copiedFile = jarFolder.resolve(file.name)
+        file.copyTo(target = copiedFile, overwrite = true)
     }
 
     private fun sortLists() {
@@ -106,6 +127,13 @@ data class JarManager<T : ClassInfo>(
         }
     }
 
+    fun copyJars(jarFiles: List<File>, printError: Boolean) {
+        jarFiles.forEach { file ->
+            addJar(jarFile = file, printError = printError)
+            copyFile(file = file)
+        }
+    }
+
     fun removeJar(
         jar: File,
         setUserFeedback: (String) -> Unit,
@@ -114,9 +142,9 @@ data class JarManager<T : ClassInfo>(
     ) {
         removeJar(jar)
         var feedback = "$REMOVED ${jar.path}"
-        if (selectedClass?.selected?.file == jar) {
-            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass.selected?.cls?.name}"
-            selectedClass.selected = null
+        if (selectedClass?.selected?.cls?.protectionDomain?.codeSource?.location?.path == jar.path) {
+            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass?.selected?.cls?.name}"
+            selectedClass?.selected = null
         }
         setUserFeedback(feedback)
         onChange()
@@ -126,6 +154,11 @@ data class JarManager<T : ClassInfo>(
         refresh(printError = false)
         loadedJars.forEach {
             deleteFile(it)
+        }
+        originalJarFolder?.let {
+            loadedJars(originalJarFolder).forEach {
+                deleteFile(it)
+            }
         }
         clearAllJars()
     }

@@ -31,17 +31,26 @@ import com.toasttab.pulseman.entities.SerializationFormat
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.tabUI
+import java.util.UUID
 
 class TabState(
-    appState: AppState,
+    private val appState: AppState,
     private val tabName: MutableState<String> = mutableStateOf(NEW_TAB),
     val selection: SingleSelection<TabState>,
     val close: ((TabState) -> Unit),
     val unsavedChanges: MutableState<Boolean> = mutableStateOf(false),
     val initialSettings: TabValuesV3? = null,
+    val tabID: UUID = UUID.randomUUID(),
     newTab: Boolean,
-    initialMessage: String? = null
+    initialMessage: String? = null,
+    newJarFormat: Boolean
 ) {
+    private val pulsarMessageJars = appState.tabJarManager.add(
+        tabID = tabID,
+        newJarFormat = newJarFormat,
+        tabFileExtension = initialSettings?.tabExtension
+    )
+
     private var lastSavedTabValues: TabValuesV3? = initialSettings
 
     private val userFeedback = UserFeedback(globalFeedback = appState.globalFeedback, newTab = newTab)
@@ -50,7 +59,7 @@ class TabState(
         mutableStateOf((initialSettings?.serializationFormat ?: SerializationFormat.PROTOBUF))
 
     private val serializationFormatSelector = DropdownSelector(
-        options = SerializationFormat.values().map { it.format },
+        options = SerializationFormat.entries.map { it.format },
         onSelected = {
             serializationFormat.value = SerializationFormat.fromFormat(it)
             userFeedback.set("$SELECTED $it $SERIALIZATION_FORMAT")
@@ -79,7 +88,7 @@ class TabState(
         )
 
     private val serializationState = SerializationState(
-        appState = appState,
+        pulsarMessageJars = pulsarMessageJars,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
         setUserFeedback = userFeedback::set,
@@ -87,6 +96,7 @@ class TabState(
     )
 
     fun cleanUp() {
+        appState.tabJarManager.remove(tabID = tabID)
         serializationState.cleanUp()
         userFeedback.close()
     }
@@ -102,7 +112,8 @@ class TabState(
             serializationFormat = serializationFormat.value,
             protobufSettings = serializationState.protobufState.toProtobufTabValues(),
             textSettings = serializationState.textState.toTextTabValues(),
-            pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value
+            pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value,
+            tabExtension = pulsarMessageJars.tabFileExtension
         )
 
         if (save) {

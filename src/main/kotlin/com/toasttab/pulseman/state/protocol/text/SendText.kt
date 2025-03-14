@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.AppStrings.FAILED_TO_SEND_MESSAGE
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.onStateChange
@@ -33,9 +34,9 @@ import kotlinx.coroutines.cancel
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 
-@Suppress("UNUSED_PARAMETER")
 class SendText(
     private val serializationTypeSelector: SerializationTypeSelector,
+    private val runTimeJarLoader: RunTimeJarLoader,
     val setUserFeedback: (String) -> Unit,
     val pulsarSettings: PulsarSettings,
     onChange: () -> Unit,
@@ -56,7 +57,11 @@ class SendText(
     }
 
     private fun sendPulsarMessage() {
-        val pulsar = Pulsar(pulsarSettings, setUserFeedback)
+        val pulsar = Pulsar(
+            pulsarSettings = pulsarSettings,
+            runTimeJarLoader = runTimeJarLoader,
+            setUserFeedback = setUserFeedback
+        )
         try {
             pulsar.sendMessage(serializationTypeSelector.selectedEncoding.selected?.serialize(textArea.text))
         } catch (ex: Throwable) {

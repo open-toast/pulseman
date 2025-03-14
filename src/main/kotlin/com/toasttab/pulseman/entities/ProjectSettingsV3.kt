@@ -17,12 +17,13 @@ package com.toasttab.pulseman.entities
 
 data class ProjectSettingsV3(
     val configVersion: String,
+    val newJarFormatUsed: Boolean?, // This is a nullable field to support older versions of the project settings
     val tabs: List<TabValuesV3>
 ) : ProjectSettings {
 
-    override fun toV3(): List<TabValuesV3> = tabs
+    override fun toV3() = this
 
     companion object {
-        const val currentVersion = "3.0.0"
+        const val CURRENT_VERSION = "3.0.0"
     }
 }

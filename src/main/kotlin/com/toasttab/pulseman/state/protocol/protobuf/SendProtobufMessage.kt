@@ -38,6 +38,7 @@ import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.CompileResult
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.Pulsar
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.scripting.KotlinScripting
@@ -58,6 +59,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
 
 class SendProtobufMessage(
+    private val runTimeJarLoader: RunTimeJarLoader,
     val setUserFeedback: (String) -> Unit,
     val selectedClass: SingleSelection<PulsarMessageClassInfo>,
     val pulsarSettings: PulsarSettings,
@@ -129,7 +131,11 @@ class SendProtobufMessage(
     }
 
     private fun sendSinglePulsarMessage() {
-        pulsar = Pulsar(pulsarSettings, setUserFeedback)
+        pulsar = Pulsar(
+            pulsarSettings = pulsarSettings,
+            runTimeJarLoader = runTimeJarLoader,
+            setUserFeedback = setUserFeedback
+        )
         try {
             pulsar?.sendMessage(compileResult?.bytes)
         } catch (ex: Throwable) {
@@ -141,7 +147,11 @@ class SendProtobufMessage(
 
     private fun sendRepeatingPulsarMessages() {
         val job = createSendingMessageJob()
-        pulsar = Pulsar(pulsarSettings, setUserFeedback)
+        pulsar = Pulsar(
+            pulsarSettings = pulsarSettings,
+            runTimeJarLoader = runTimeJarLoader,
+            setUserFeedback = setUserFeedback
+        )
         var runs = 0
         var fails = 0
         var sleepTime = 0L
@@ -163,7 +173,12 @@ class SendProtobufMessage(
                         return
                     }
                     Thread.sleep(FAIL_SLEEP_TIME)
-                    pulsar = Pulsar(pulsarSettings, setUserFeedback) // Recreate producer so it can reconnect
+                    // Recreate producer so it can reconnect
+                    pulsar = Pulsar(
+                        pulsarSettings = pulsarSettings,
+                        runTimeJarLoader = runTimeJarLoader,
+                        setUserFeedback = setUserFeedback
+                    )
                     setUserFeedback("$FAILED_TO_SEND_MESSAGE. $RETRYING. $FAILS:$fails")
                 } else {
                     fails = 0

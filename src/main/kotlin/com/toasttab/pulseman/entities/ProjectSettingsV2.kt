@@ -31,28 +31,33 @@ data class ProjectSettingsV2(
     val configVersion: String,
     @Suppress("DEPRECATION") val tabs: List<TabValuesV2>
 ) : ProjectSettings {
-    override fun toV3(): List<TabValuesV3> {
-        return tabs.map { tab ->
-            TabValuesV3(
-                tabName = tab.tabName,
-                topic = tab.topic,
-                serviceUrl = tab.serviceUrl,
-                selectedAuthClass = tab.selectedAuthClass,
-                authJsonParameters = tab.authJsonParameters,
-                propertyMap = tab.propertyMap,
-                serializationFormat = tab.serializationFormat,
-                protobufSettings = ProtobufTabValuesV3(
-                    code = tab.protobufSettings?.code,
-                    selectedClass = tab.protobufSettings?.selectedClassSend,
-                    convertValue = null,
-                    convertType = ConvertType.BASE64
-                ),
-                textSettings = TextTabValuesV3(
-                    text = tab.textSettings?.text,
-                    selectedEncoding = tab.textSettings?.selectedSendEncoding
-                ),
-                pulsarAdminURL = null
-            )
-        }
+    override fun toV3(): ProjectSettingsV3 {
+        return ProjectSettingsV3(
+            configVersion = ProjectSettingsV3.CURRENT_VERSION,
+            newJarFormatUsed = false,
+            tabs = tabs.map { tab ->
+                TabValuesV3(
+                    tabName = tab.tabName,
+                    topic = tab.topic,
+                    serviceUrl = tab.serviceUrl,
+                    selectedAuthClass = tab.selectedAuthClass,
+                    authJsonParameters = tab.authJsonParameters,
+                    propertyMap = tab.propertyMap,
+                    serializationFormat = tab.serializationFormat,
+                    protobufSettings = ProtobufTabValuesV3(
+                        code = tab.protobufSettings?.code,
+                        selectedClass = tab.protobufSettings?.selectedClassSend,
+                        convertValue = null,
+                        convertType = ConvertType.BASE64
+                    ),
+                    textSettings = TextTabValuesV3(
+                        text = tab.textSettings?.text,
+                        selectedEncoding = tab.textSettings?.selectedSendEncoding
+                    ),
+                    pulsarAdminURL = null,
+                    tabExtension = null
+                )
+            }
+        )
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.AppStrings.ADD_CREDENTIAL_VALUES
 import com.toasttab.pulseman.AppStrings.SELECTED
+import com.toasttab.pulseman.AppStrings.UNSELECTED
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.jars.JarManager
@@ -57,12 +58,14 @@ class AuthSelector(
 
     private fun onSelectedAuthClass(newValue: PulsarAuthHandler) {
         selectedAuthClass.selected =
-            if (selectedAuthClass.selected == newValue) {
+            if (selectedAuthClass.selected?.cls?.name == newValue.cls.name) {
+                setUserFeedback("$UNSELECTED ${newValue.cls.name}")
                 null
             } else {
+                setUserFeedback("$SELECTED ${newValue.cls.name}")
                 newValue
             }
-        setUserFeedback("$SELECTED ${newValue.cls.name}")
+
         onChange()
     }
 

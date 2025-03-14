@@ -20,11 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.MessageHandlingClassImpl
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.JarManagement
 import com.toasttab.pulseman.state.JarManagementTabs
 import com.toasttab.pulseman.state.PulsarSettings
@@ -34,7 +35,7 @@ import com.toasttab.pulseman.view.protocol.protobuf.protobufUI
 import com.toasttab.pulseman.view.selectTabViewUI
 
 class ProtobufState(
-    appState: AppState,
+    pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
@@ -47,7 +48,7 @@ class ProtobufState(
 
     private val protobufSelector =
         ProtobufMessageClassSelector(
-            pulsarMessageJars = appState.pulsarMessageJars,
+            pulsarMessageJars = pulsarMessageJars,
             setUserFeedback = setUserFeedback,
             onChange = onChange,
             initialSettings = initialSettings
@@ -55,10 +56,10 @@ class ProtobufState(
 
     private val protobufJarManagement =
         JarManagement(
-            appState.pulsarMessageJars,
-            protobufSelector.selectedClass,
-            setUserFeedback,
-            onChange
+            jars = pulsarMessageJars,
+            selectedClass = protobufSelector.selectedClass,
+            setUserFeedback = setUserFeedback,
+            onChange = onChange
         )
 
     private val protobufJarManagementTab = JarManagementTabs(
@@ -72,6 +73,7 @@ class ProtobufState(
         selectedClass = protobufSelector.selectedClass,
         pulsarSettings = pulsarSettings,
         initialSettings = initialSettings,
+        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
         onChange = onChange
     )
 
@@ -86,7 +88,8 @@ class ProtobufState(
         setUserFeedback = setUserFeedback,
         pulsarSettings = pulsarSettings,
         receivedMessages = receivedMessages,
-        messageHandling = messageHandling
+        messageHandling = messageHandling,
+        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader
     )
 
     private val convertProtoBufMessage = ConvertProtobufMessage(

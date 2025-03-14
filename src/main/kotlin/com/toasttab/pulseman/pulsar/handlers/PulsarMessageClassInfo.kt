@@ -17,7 +17,7 @@ package com.toasttab.pulseman.pulsar.handlers
 
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.jars.JarLoader
-import java.io.File
+import com.toasttab.pulseman.jars.RunTimeJarLoader
 
 /**
  * Defines an interface for serializing, deserializing and generating kotlin templates of a specific pulsar
@@ -26,8 +26,8 @@ import java.io.File
  * TODO make this interface more type safe
  */
 interface PulsarMessageClassInfo : PulsarMessage, ClassInfo {
-    override val file: File
     override val cls: Class<out Any>
+    val runTimeJarLoader: RunTimeJarLoader
 
     /**
      * Generates a kotlin scripting code template for the class, this code will be used to create a pulsar message class

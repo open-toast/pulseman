@@ -37,6 +37,7 @@ object AppStrings {
     const val CLOSE_TAB = "Close tab"
     const val CLOSING = "Closing..."
     const val COLLAPSE = "Collapse"
+    const val COMMON = "Common"
     const val COMPILE = "Compile"
     const val COMPILING = "Compiling..."
     const val COMPILING_MESSAGE = "Compiling protobuf message"
@@ -92,7 +93,6 @@ object AppStrings {
     const val NO_VALID_CLASSES_LOADED = "No valid classes loaded"
     const val NO_TOPICS_FOUND = "No topics found"
     const val ON_TOPIC = "on topic"
-    const val OTHER = "Other"
     const val PROJECT_LOAD = "project load"
     const val PROJECT_FILE_DIALOG_TITLE = "Select Project File"
     const val PROTO_CLASS_NOT_SELECTED = "Proto class not selected"
@@ -139,4 +139,5 @@ object AppStrings {
     const val WAIT_SEND_TO_FINISH_ERROR = "Waiting to finish errored out"
     const val UNSAVED_CHANGES_DIALOG_MESSAGE = "Do you want to save your changes?"
     const val UNSAVED_CHANGES_DIALOG_TITLE = "Unsaved changes"
+    const val UNSELECTED = "Unselected"
 }

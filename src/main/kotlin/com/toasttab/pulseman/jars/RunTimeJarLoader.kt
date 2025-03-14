@@ -15,48 +15,63 @@
 
 package com.toasttab.pulseman.jars
 
+import com.toasttab.pulseman.entities.JarLoaderType
 import java.net.URL
 
 /**
- * This is the projects global class loader, any jars that are added to the project are added to this object.
- * This makes serialization/deserialization/authentication with imported classes much easier to manage.
+ * Manages a collection of jars that are loaded at runtime. Allows you to load a whole dependency tree of jar loaders.
+ * In this project we have the several jar loaders dependent on each other:
+ *
+ * 1. General Jar loader, this has no dependencies and its jars will be used project wide.
+ * 2. Auth Jar loader, this has a dependency on the general jar loader and will be used project wide.
+ * 3. Tab Jar loader, this has a dependency on the general jar loader and the auth Jar loader. We will have one of
+ *    these per tab so that we can have fully independent jars per tab and avoid conflicts.
+ *
+ * @param dependentJarLoader An optional dependent RunTimeJarLoader, any jars in this class will be added to the
+ * JarLoader that is returned by getJarLoader().
  */
-object RunTimeJarLoader {
+class RunTimeJarLoader(private val dependentJarLoader: RunTimeJarLoader? = null) {
     // Using a list as a user might add the same jar multiple times in different jar dependency sections
     private val loadedJars = mutableListOf<URL>()
 
     fun addJar(url: URL) {
         loadedJars.add(url)
-        jarLoader.addJar(url)
     }
 
     fun removeJar(url: URL) {
         loadedJars.remove(url)
-        jarLoader = newJarLoader().apply {
-            loadedJars.forEach { url ->
-                this.addJar(url)
-            }
-        }
     }
 
-    fun addJarsToClassLoader() {
+    // This is a recursive function that will load all the jars in the dependency tree
+    private fun loadJars(runTimeJarLoader: RunTimeJarLoader, jarLoader: JarLoader): JarLoader {
+        runTimeJarLoader.loadedJars.forEach { url ->
+            jarLoader.addJar(url)
+        }
+        runTimeJarLoader.dependentJarLoader?.let { dependentJarLoader ->
+            loadJars(runTimeJarLoader = dependentJarLoader, jarLoader = jarLoader)
+        }
+        return jarLoader
+    }
+
+    /**
+     * Get a JarLoader that contains all the jars in the dependency tree.
+     * This also supports adding jars specifically for Google Standard and ProtoKT jars which share the same namespace
+     * and can lead to conflicts.
+     *
+     * Before returning the JarLoader, the current thread's context class loader is set to the JarLoader.
+     * Things like scripting and serialization/deserialization wouldnt have access to the needed classes otherwise.
+     *
+     * @param jarLoaderType The type of jar loader to get.
+     * @return A JarLoader that contains all the jars in the dependency tree.
+     */
+    fun getJarLoader(jarLoaderType: JarLoaderType): JarLoader {
+        val jarLoader = loadJars(runTimeJarLoader = this, jarLoader = JarLoader(arrayOfNulls(0)))
+        when (jarLoaderType) {
+            JarLoaderType.BASE -> {}
+            JarLoaderType.GOOGLE_STANDARD -> SeperatedJars.addGoogleJars(jarLoader)
+            JarLoaderType.PROTOKT -> SeperatedJars.addProtoKTJars(jarLoader)
+        }
         Thread.currentThread().contextClassLoader = jarLoader
+        return jarLoader
     }
-
-    private fun newJarLoader() = JarLoader(arrayOfNulls(0))
-
-    private var jarLoader = newJarLoader()
-
-    val loader: JarLoader
-        get() = jarLoader
-
-    val googleJarLoader: JarLoader
-        get() = jarLoader.copy().also {
-            SeperatedJars.addGoogleJars(it)
-        }
-
-    val protoKTJarLoader: JarLoader
-        get() = jarLoader.copy().also {
-            SeperatedJars.addProtoKTJars(it)
-        }
 }

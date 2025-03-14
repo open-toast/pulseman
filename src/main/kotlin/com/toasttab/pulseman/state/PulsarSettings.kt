@@ -22,7 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.window.DialogState
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.AUTH
-import com.toasttab.pulseman.AppStrings.OTHER
+import com.toasttab.pulseman.AppStrings.COMMON
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.propertyConfigurationUI
 import com.toasttab.pulseman.view.pulsarSettingsUI
@@ -49,13 +49,14 @@ class PulsarSettings(
         settingsTopic = topic,
         pulsarAdminUrl = pulsarAdminUrl,
         setUserFeedback = setUserFeedback,
-        onChange = onChange
+        onChange = onChange,
+        runTimeJarLoader = appState.authJars.runTimeJarLoader
     )
 
+    private val commonJarManagement =
+        JarManagement(appState.commonJars, null, setUserFeedback, onChange)
     private val authJarManagement =
         JarManagement(appState.authJars, authSelector.selectedAuthClass, setUserFeedback, onChange)
-    private val dependencyJarManagement =
-        JarManagement(appState.dependencyJars, null, setUserFeedback, onChange)
 
     private val showDiscover = mutableStateOf(false)
     private val showJarManagement = mutableStateOf(false)
@@ -64,8 +65,8 @@ class PulsarSettings(
 
     private val jarManagementTabs = JarManagementTabs(
         listOf(
-            Pair(AUTH, authJarManagement),
-            Pair(OTHER, dependencyJarManagement)
+            Pair(COMMON, commonJarManagement),
+            Pair(AUTH, authJarManagement)
         )
     )
 

@@ -16,5 +16,5 @@
 package com.toasttab.pulseman.entities
 
 interface ProjectSettings {
-    fun toV3(): List<TabValuesV3>
+    fun toV3(): ProjectSettingsV3
 }

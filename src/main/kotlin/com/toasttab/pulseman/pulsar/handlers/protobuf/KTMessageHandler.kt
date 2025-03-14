@@ -19,13 +19,16 @@ import com.toasttab.protokt.rt.KtDeserializer
 import com.toasttab.protokt.rt.KtMessage
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.TODO
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
-import java.io.File
 
-data class KTMessageHandler(override val cls: Class<out KtMessage>, override val file: File) : PulsarMessageClassInfo {
+data class KTMessageHandler(
+    override val cls: Class<out KtMessage>,
+    override val runTimeJarLoader: RunTimeJarLoader
+) : PulsarMessageClassInfo {
 
     override fun serialize(cls: Any): ByteArray {
         val ktMessage = cls as KtMessage
@@ -73,7 +76,7 @@ data class KTMessageHandler(override val cls: Class<out KtMessage>, override val
     }
 
     override fun getJarLoader(): JarLoader {
-        return RunTimeJarLoader.protoKTJarLoader
+        return runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.PROTOKT)
     }
 
     companion object {

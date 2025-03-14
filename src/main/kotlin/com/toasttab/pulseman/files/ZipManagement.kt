@@ -15,6 +15,7 @@
 
 package com.toasttab.pulseman.files
 
+import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.files.FileManagement.loadedJars
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -42,7 +43,7 @@ class ZipManagement(private val homeDirectory: String) {
             BufferedOutputStream(fos).use { bos ->
                 ZipOutputStream(bos).use { zos ->
                     // Save json file
-                    val jsonEntry = ZipEntry(projectTabsFileName)
+                    val jsonEntry = ZipEntry(PROJECT_TABS_FILE_NAME)
                     zos.putNextEntry(jsonEntry)
                     zos.write(tabsJson.toByteArray())
                     zos.closeEntry()
@@ -66,7 +67,7 @@ class ZipManagement(private val homeDirectory: String) {
 
     private fun savePath(file: File) = File(homeDirectory).toURI().relativize(file.toURI()).path
 
-    fun unzipProject(zippedFile: File): String? {
+    fun unzipProject(zippedFile: File, setUserFeedback: (String) -> Unit): String? {
         var projectJson: String? = null
         FileInputStream(zippedFile).use { fis ->
             BufferedInputStream(fis).use { bis ->
@@ -74,16 +75,24 @@ class ZipManagement(private val homeDirectory: String) {
                     while (true) {
                         val nextEntry = zis.nextEntry ?: return projectJson
                         if (!nextEntry.isDirectory && nextEntry.name !in skipFiles) {
-                            if (nextEntry.name == projectTabsFileName) {
+                            val newFile = File("$homeDirectory${nextEntry.name}")
+                            val parentFile: File? = newFile.parentFile
+                            if (parentFile?.exists() == false && isValidFolderPrefix(parentFile.name)) {
+                                parentFile.mkdirs()
+                            }
+                            if (nextEntry.name == PROJECT_TABS_FILE_NAME) {
                                 projectJson = String(zis.readAllBytes())
                             } else {
-                                val newFile = File("$homeDirectory${nextEntry.name}")
-                                BufferedOutputStream(FileOutputStream(newFile)).use { bos ->
-                                    val bytesIn = ByteArray(1024)
-                                    var read: Int
-                                    while (zis.read(bytesIn).also { read = it } != -1) {
-                                        bos.write(bytesIn, 0, read)
+                                try {
+                                    BufferedOutputStream(FileOutputStream(newFile)).use { bos ->
+                                        val bytesIn = ByteArray(1024)
+                                        var read: Int
+                                        while (zis.read(bytesIn).also { read = it } != -1) {
+                                            bos.write(bytesIn, 0, read)
+                                        }
                                     }
+                                } catch (ex: Throwable) {
+                                    setUserFeedback("$EXCEPTION:\n$ex")
                                 }
                             }
                             zis.closeEntry()
@@ -94,8 +103,11 @@ class ZipManagement(private val homeDirectory: String) {
         }
     }
 
+    private fun isValidFolderPrefix(folderName: String) = allowedFolder.any { folderName.startsWith(it) }
+
     companion object {
-        private const val projectTabsFileName = "project_tabs.json"
+        private const val PROJECT_TABS_FILE_NAME = "project_tabs.json"
         private val skipFiles = listOf(".DS_Store")
+        private val allowedFolder = listOf("message_jars", "auth_jars", "dependency_jars")
     }
 }

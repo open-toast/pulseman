@@ -24,31 +24,35 @@ import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.entities.ProjectSettingsV1
 import com.toasttab.pulseman.entities.ProjectSettingsV2
 import com.toasttab.pulseman.entities.ProjectSettingsV3
-import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.jars.LoadedClasses
+import com.toasttab.pulseman.jars.RunTimeJarLoader
+import com.toasttab.pulseman.jars.TabJarManager
 import com.toasttab.pulseman.pulsar.filters.AuthClassFilter
-import com.toasttab.pulseman.pulsar.filters.protobuf.GeneratedMessageV3Filter
-import com.toasttab.pulseman.pulsar.filters.protobuf.KTMessageFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
-import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.GlobalFeedback
 import com.toasttab.pulseman.state.TabHolder
 
 class AppState {
     val globalFeedback = GlobalFeedback()
 
-    val pulsarMessageJars: JarManager<PulsarMessageClassInfo> = JarManager(
+    // A common Jar Loader, any jars loaded here will be available to all tabs and auth functionality
+    private val commonJarLoader = RunTimeJarLoader()
+
+    // This is used for auth operation, inherits the common jars and will be available in all tabs
+    private val authJarLoader = RunTimeJarLoader(dependentJarLoader = commonJarLoader)
+
+    val commonJars: JarManager<ClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
-            classFilters = listOf(
-                // Add all the pulsar message formats supported here
-                KTMessageFilter(),
-                GeneratedMessageV3Filter()
-            )
+            classFilters = emptyList(),
+            runTimeJarLoader = commonJarLoader
         ),
-        jarFolderName = MESSAGE_JAR_FOLDER,
-        globalFeedback = globalFeedback
+        jarFolderName = DEPENDENCY_JAR_FOLDER,
+        globalFeedback = globalFeedback,
+        runTimeJarLoader = commonJarLoader,
+        originalJarFolderName = null,
+        tabFileExtension = null
     )
 
     val authJars: JarManager<PulsarAuthHandler> = JarManager(
@@ -56,46 +60,54 @@ class AppState {
             classFilters = listOf(
                 // Add all the pulsar auth classes supported here
                 AuthClassFilter()
-            )
+            ),
+            runTimeJarLoader = authJarLoader
         ),
         jarFolderName = AUTH_JAR_FOLDER,
-        globalFeedback = globalFeedback
+        globalFeedback = globalFeedback,
+        runTimeJarLoader = authJarLoader,
+        originalJarFolderName = null,
+        tabFileExtension = null
     )
 
-    val dependencyJars: JarManager<ClassInfo> = JarManager(
-        loadedClasses = LoadedClasses(
-            classFilters = emptyList()
-        ),
-        jarFolderName = DEPENDENCY_JAR_FOLDER,
-        globalFeedback = globalFeedback
+    val tabJarManager = TabJarManager(
+        globalFeedback = globalFeedback,
+        dependentJarLoader = authJarLoader
     )
 
-    private val jarManagers = listOf(pulsarMessageJars, authJars, dependencyJars)
+    private val jarManagers = listOf(authJars, commonJars)
 
-    val requestTabs = TabHolder(this)
+    val requestTabs = TabHolder(appState = this)
 
     fun loadFile(loadDefault: Boolean) {
         globalFeedback.reset()
         FileManagement.getProjectFile(loadDefault)?.let { projectFile ->
             jarManagers.forEach { it.deleteAllJars() }
-            val newTabs =
-                FileManagement.loadProject(projectFile)?.let { loadedProject ->
-                    loadConfig(loadedProject)
-                }
-            if (newTabs != null) {
+            tabJarManager.deleteAllJars()
+            tabJarManager.reset()
+            val projectSettings =
+                FileManagement.loadProject(file = projectFile, setUserFeedback = globalFeedback::set)
+                    ?.let { loadedProject ->
+                        loadConfig(project = loadedProject)
+                    }
+            if (projectSettings?.tabs != null) {
                 jarManagers.forEach {
                     it.refresh(printError = true)
                 }
+                tabJarManager.refresh(printError = true)
                 requestTabs.closeAll()
-                requestTabs.load(newTabs)
+                requestTabs.load(
+                    tabSettings = projectSettings.tabs,
+                    newJarFormat = projectSettings.newJarFormatUsed ?: false
+                )
             }
         }
     }
 
-    private fun loadConfig(project: String): List<TabValuesV3> {
+    private fun loadConfig(project: String): ProjectSettingsV3 {
         val error = StringBuilder()
         try {
-            return mapper.readValue(project, ProjectSettingsV3::class.java).toV3()
+            return mapper.readValue(project, ProjectSettingsV3::class.java)
         } catch (ex: Exception) {
             error.appendLine("V3 $PROJECT_LOAD:$ex")
         }
@@ -119,15 +131,17 @@ class AppState {
 
     fun save(quickSave: Boolean) {
         FileManagement.saveProject(
-            mapper.writerWithDefaultPrettyPrinter()
+            tabsJson = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(
                     ProjectSettingsV3(
-                        configVersion = ProjectSettingsV3.currentVersion,
-                        tabs = requestTabs.allTabValues()
+                        configVersion = ProjectSettingsV3.CURRENT_VERSION,
+                        tabs = requestTabs.allTabValues(),
+                        newJarFormatUsed = true
                     )
                 ),
-            quickSave,
-            jarManagers.map { it.jarFolder }
+            quickSave = quickSave,
+            jarFolders = tabJarManager.jarManagers.map { it.value.jarFolder }
+                .plus(jarManagers.map { it.jarFolder })
         )
         requestTabs.savedChanges()
     }
@@ -144,6 +158,5 @@ class AppState {
     companion object {
         private const val AUTH_JAR_FOLDER = "auth_jars"
         private const val DEPENDENCY_JAR_FOLDER = "dependency_jars"
-        private const val MESSAGE_JAR_FOLDER = "message_jars"
     }
 }

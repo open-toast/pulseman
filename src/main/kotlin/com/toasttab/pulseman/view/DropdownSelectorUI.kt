@@ -43,7 +43,8 @@ import com.toasttab.pulseman.AppStrings
 @Composable
 fun dropdownSelectorUI(
     expanded: Boolean,
-    currentlySelected: String,
+    currentlySelected: String?,
+    noOptionSelected: String = "",
     options: List<String>,
     onChangeExpanded: () -> Unit,
     onSelectedOption: (String) -> Unit
@@ -58,7 +59,11 @@ fun dropdownSelectorUI(
                     .border(width = 0.8.dp, color = Color.White.copy(alpha = 0.5f), shape = RoundedCornerShape(8.dp))
             ) {
                 Row(modifier = Modifier.background(Color.Transparent).padding(8.dp, 8.dp)) {
-                    Text(currentlySelected)
+                    if (currentlySelected != null) {
+                        Text(currentlySelected)
+                    } else {
+                        Text(noOptionSelected)
+                    }
                     Icon(Icons.Filled.ArrowDropDown, contentDescription = AppStrings.CHOOSE_OPTION)
                 }
             }

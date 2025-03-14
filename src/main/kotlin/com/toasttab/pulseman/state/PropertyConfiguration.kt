@@ -15,6 +15,10 @@
 
 package com.toasttab.pulseman.state
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
@@ -36,5 +40,22 @@ class PropertyConfiguration(
 
     val sp = RTextScrollPane(textArea)
 
-    fun propertyMap(): String = textArea.text
+    fun propertyText(): String = textArea.text
+
+    fun propertyMap(setUserFeedback: (String) -> Unit): Map<String, String> {
+        val propertiesJsonMap = textArea.text
+        if (textArea.text.isNotBlank()) {
+            try {
+                return mapper.readValue(propertiesJsonMap, mapTypeRef)
+            } catch (ex: Exception) {
+                setUserFeedback("${AppStrings.FAILED_TO_DESERIALIZE_PROPERTIES}=$propertiesJsonMap. ${AppStrings.EXCEPTION}=$ex")
+            }
+        }
+        return emptyMap()
+    }
+
+    companion object {
+        private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+        private val mapTypeRef = object : TypeReference<Map<String, String>>() {}
+    }
 }

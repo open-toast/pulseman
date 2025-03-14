@@ -25,11 +25,12 @@ class DropdownSelector(
 ) {
     private val expanded = mutableStateOf(false)
 
-    fun getUI(currentlySelected: String): @Composable () -> Unit {
+    fun getUI(currentlySelected: String?, noOptionSelected: String = ""): @Composable () -> Unit {
         return {
             dropdownSelectorUI(
                 expanded = expanded.value,
                 currentlySelected = currentlySelected,
+                noOptionSelected = noOptionSelected,
                 options = options,
                 onChangeExpanded = expanded::onChange,
                 onSelectedOption = onSelected

@@ -44,13 +44,23 @@ class ReceiveMessage(
     private val pulsarSettings: PulsarSettings,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val messageHandling: MessageHandling,
-    private val runTimeJarLoader: RunTimeJarLoader
+    private val runTimeJarLoader: RunTimeJarLoader,
+    private val propertyFilter: MutableState<Pair<String, String>?>
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val subscribeState = mutableStateOf(ButtonState.WAITING)
     private val clearState = mutableStateOf(ButtonState.WAITING)
     private val closeState = mutableStateOf(ButtonState.WAITING)
+
+    private val propertyFilterSelectorUI = DropdownSelector(
+        options = pulsarSettings.propertySettings.propertyMap(setUserFeedback).keys.toList(),
+        onSelected = { selectedKey ->
+            pulsarSettings.propertySettings.propertyMap(setUserFeedback)[selectedKey]?.let { selectedValue ->
+                propertyFilter.value = Pair(selectedKey, selectedValue)
+            }
+        }
+    ).getUI(currentlySelected = "")
 
     private val pulsar: MutableState<Pulsar?> = mutableStateOf(null)
     private var consumer: Consumer<ByteArray>? = null
@@ -117,7 +127,8 @@ class ReceiveMessage(
                 onClear = ::onClear,
                 onCloseConnection = ::onCloseConnection,
                 receivedMessages = receivedMessages,
-                scrollState = stateVertical
+                scrollState = stateVertical,
+                propertyFilterSelectorUI = propertyFilterSelectorUI
             )
         }
     }

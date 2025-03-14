@@ -17,6 +17,7 @@ package com.toasttab.pulseman.state.protocol.protobuf
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -77,9 +78,11 @@ class ProtobufState(
         onChange = onChange
     )
 
+    private val propertyFilter: MutableState<Pair<String, String>?> = mutableStateOf(null)
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
     private val messageHandling = MessageHandlingClassImpl(
         selectedProtoClass = protobufSelector.selectedClass,
+        propertyFilter = propertyFilter.value,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -89,7 +92,8 @@ class ProtobufState(
         pulsarSettings = pulsarSettings,
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
-        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader
+        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
+        propertyFilter = propertyFilter
     )
 
     private val convertProtoBufMessage = ConvertProtobufMessage(

@@ -16,24 +16,35 @@
 package com.toasttab.pulseman.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.toasttab.pulseman.entities.ClassInfo
+import com.toasttab.pulseman.state.JarViewHandler.GradleManagementView
+import com.toasttab.pulseman.state.JarViewHandler.JarManagementView
 import com.toasttab.pulseman.view.jarManagementTabsUI
 
-class JarManagementTabs(private val jarManagers: List<Pair<String, JarManagement<out ClassInfo>>>) {
-    private val currentView = mutableStateOf(jarManagers.first())
+class JarManagementTabs(
+    private val jarManagers: List<Pair<String, JarManagement<out ClassInfo>>>,
+    private val gradleManagement: Pair<String, GradleManagement>?
+) {
+    private val views: List<JarViewHandler> = buildList {
+        jarManagers.forEach { add(JarManagementView(it)) }
+        gradleManagement?.let { add(GradleManagementView(it)) }
+    }
+
+    val currentView: MutableState<JarViewHandler> = mutableStateOf(views.first())
 
     fun getUI(): @Composable () -> Unit {
-        val currentViewState = currentView.value.second
+        val currentViewUI: @Composable () -> Unit = when (val currentViewState = currentView.value) {
+            is JarManagementView -> currentViewState.jarManagement.second.getUI()
+            is GradleManagementView -> currentViewState.gradleManagement.second.getUI()
+        }
         return {
             jarManagementTabsUI(
-                loadedJars = currentViewState.jars.loadedJars,
-                jarFolder = currentViewState.jars.jarFolder,
-                onRemoveJar = currentViewState::onRemoveJar,
-                onAddJar = currentViewState::onAddJar,
-                jarManagers = jarManagers,
+                views = views,
                 currentView = currentView.value,
-                setCurrentView = currentView::onStateChange
+                setCurrentView = currentView::onStateChange,
+                currentViewUI = currentViewUI
             )
         }
     }

@@ -65,4 +65,16 @@ class LoadedClasses<T : ClassInfo>(
 
     fun filter(nameFilter: String): List<T> =
         generateClasses().values.filter { it.cls.name.contains(nameFilter, true) }.sortedBy { it.cls.name }
+
+    fun doesJarContainValidClasses(url: URL): Boolean {
+        // If there are no filters assume all classes are valid
+        if (classFilters.isEmpty()) return true
+
+        // Return early if any filter finds classes
+        classFilters.forEach { filter ->
+            if (filter.getClasses(url).isNotEmpty()) return true
+        }
+
+        return false
+    }
 }

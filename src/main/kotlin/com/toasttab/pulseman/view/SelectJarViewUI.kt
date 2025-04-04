@@ -28,18 +28,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.entities.ClassInfo
-import com.toasttab.pulseman.state.JarManagement
+import com.toasttab.pulseman.state.JarViewHandler
 
 @Composable
 fun selectJarViewUI(
-    jarManagers: List<Pair<String, JarManagement<out ClassInfo>>>,
-    currentView: Pair<String, JarManagement<out ClassInfo>>,
-    setCurrentView: (Pair<String, JarManagement<out ClassInfo>>) -> Unit
+    views: List<JarViewHandler>,
+    currentView: JarViewHandler,
+    setCurrentView: (JarViewHandler) -> Unit
 ) {
     Row {
-        val showHeader = jarManagers.size > 1
-        jarManagers.forEach {
+        val showHeader = views.size > 1
+        views.forEach {
             Surface(color = if (currentView == it) AppTheme.colors.backgroundLight else AppTheme.colors.backgroundMedium) {
                 Row(
                     modifier = Modifier.clickable(onClick = { setCurrentView(it) }),
@@ -47,7 +46,7 @@ fun selectJarViewUI(
                 ) {
                     if (showHeader) {
                         Text(
-                            it.first,
+                            it.title,
                             color = Color.White,
                             fontSize = 18.sp,
                             overflow = TextOverflow.Ellipsis,

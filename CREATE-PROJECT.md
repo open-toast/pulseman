@@ -16,19 +16,22 @@ Separate Jar loaders are used so that each tab can have its unique set of Jars l
 Jar loaders are used.
 
 - **Common jar loader**: Jars added here will be available project wide in all tabs.
-- **Auth jar loader**: The auth jar loader has the common jar loader as a dependency and has all its jars loaded, it is
-  used by the Auth code to filter for the Authorization class you want to use.
+- **Auth jar loader**: The auth jar loader has the common jar loader as a dependency and has all its jars loaded, it
+  is used by the Auth code to filter for the Authorization class you want to use.
+- **Messaging jar loader**: Holds global pulsar messaging jars, these are used for serialization/deserialization of
+  messages and will be available to every tab. Is dependent on the auth jar loader.
 - **Tab jar loaders**: Each tab has its own jar loader, this is used to load jars that are specific to the tab. This is
-  dependent on the Auth Jar loader.
+  dependent on the global messaging Jar loader.
 
 ### Hierarchy of jar loaders
 
 ```mermaid
 graph LR
-    CJ[Common Jar Loader] --> AJ(Auth Jar Loader)
-    AJ --> T![Tab 1 Jar Loader]
-    AJ --> T2[Tab 2 Jar Loader]
-    AJ --> T3[Tab 3 Jar Loader]
+    CJ[Common Jar Loader] --> AJ(Auth Jar Loader) 
+    AJ --> MJ(Messaging Jar Loader)
+    MJ --> T![Tab 1 Jar Loader]
+    MJ --> T2[Tab 2 Jar Loader]
+    MJ --> T3[Tab 3 Jar Loader]
 ```
 
 The **Jars** button in the top pane contains the UI to add jars to the **Common** or **Auth** jar loaders.
@@ -44,6 +47,51 @@ protobuf class is selected for serializing/deserializing.
 "com.google.api.grpc:proto-google-common-protos:$googleCommonProtos"
 "com.toasttab.protokt.thirdparty:proto-google-common-protos:$protoktVersion"
 ```
+
+## Importing Jars
+
+There are two options to import a jar, manually add the jar through a file dialog or add the jar through gradle.
+
+### Manual import
+
+In any of the **Jars** windows just select **Add Jar** and navigate to the jar you want to import.
+
+### Gradle import
+
+You can import jars through gradle by creating a `build.gradle.kt` configuration file like follows in one of the
+**Gradle** tabs.
+
+```kotlin
+plugins {
+    kotlin("jvm") version "2.0.21"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+```
+
+The files are written in `kotlin` scripting. You can add custom repositories and dependencies to the file.  
+The files will be downloaded locally and copied to the projects directories.
+
+### Global
+
+Select the **Jars** button in the top pane and navigate to the **Gradle** tab. Any jars added here will be available
+project wide.  
+Auth jars will be loaded in the **Auth** tab, messaging jars will be loaded in the **Message** tab and any others will
+be added to the **Common** jar loader automatically.
+
+If you enable the `Filter Pulsar Jars` toggle, only Jars that contain classes that implement the pulsar interfaces will
+be loaded, i.e. only the **messaging** and **auth** jars will be loaded.
+
+### Tab specific
+
+Select the **Gradle** tab in the bottom pan. Any jars added here will only be available in the tab you are currently
+in.  
+You can only add messaging jars, all other jars will be filtered.
 
 ## Set up auth
 

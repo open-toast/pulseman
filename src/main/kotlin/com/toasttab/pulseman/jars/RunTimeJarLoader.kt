@@ -30,12 +30,15 @@ import java.net.URL
  * @param dependentJarLoader An optional dependent RunTimeJarLoader, any jars in this class will be added to the
  * JarLoader that is returned by getJarLoader().
  */
-class RunTimeJarLoader(private val dependentJarLoader: RunTimeJarLoader? = null) {
+class RunTimeJarLoader(
+    private val dependentJarLoader: RunTimeJarLoader? = null,
     // Using a list as a user might add the same jar multiple times in different jar dependency sections
-    private val loadedJars = mutableListOf<URL>()
+    private val loadedJars: MutableList<URL> = mutableListOf()
+) {
 
-    fun addJar(url: URL) {
+    fun addJar(url: URL): RunTimeJarLoader {
         loadedJars.add(url)
+        return this
     }
 
     fun removeJar(url: URL) {

@@ -23,11 +23,7 @@ import com.toasttab.pulseman.AppStrings.DELETED_CLASS_FEEDBACK
 import com.toasttab.pulseman.AppStrings.REMOVED
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.files.FileManagement.APP_FOLDER_NAME
-import com.toasttab.pulseman.files.FileManagement.appFolder
-import com.toasttab.pulseman.files.FileManagement.deleteFile
-import com.toasttab.pulseman.files.FileManagement.loadedJars
-import com.toasttab.pulseman.files.FileManagement.makeFolder
+import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.state.GlobalFeedback
 import java.io.File
 
@@ -51,19 +47,21 @@ data class JarManager<T : ClassInfo>(
     private val jarFolderName: String,
     val runTimeJarLoader: RunTimeJarLoader,
     val originalJarFolderName: String?,
-    val tabFileExtension: Int?
+    val tabFileExtension: Int?,
+    val fileManagement: FileManagement
 ) {
     private val originalJarFolderPath = originalJarFolderName?.let { "$it/" }
-    private val originalJarFolder = originalJarFolderPath?.let { File("$APP_FOLDER_NAME$originalJarFolderPath") }
+    private val originalJarFolder =
+        originalJarFolderPath?.let { File("${fileManagement.APP_FOLDER_NAME}$originalJarFolderPath") }
     private var isMigrated = originalJarFolder == null
 
     private val jarFolderPath = "$jarFolderName/"
-    val jarFolder = File("$APP_FOLDER_NAME$jarFolderPath")
+    val jarFolder = File("${fileManagement.APP_FOLDER_NAME}$jarFolderPath")
 
     init {
         // This app folder creation will be repeated, as I'm wary of object creation order with FileManagement
-        makeFolder(appFolder)
-        makeFolder(jarFolder)
+        fileManagement.makeFolder(fileManagement.appFolder)
+        fileManagement.makeFolder(jarFolder)
     }
 
     private fun addJar(jarFile: File, printError: Boolean) {
@@ -86,7 +84,7 @@ data class JarManager<T : ClassInfo>(
 
     fun refresh(printError: Boolean) {
         clearAllJars()
-        loadedJars(jarFolder).forEach {
+        fileManagement.loadedJars(jarFolder).forEach {
             addJar(jarFile = it, printError = printError)
         }
         migrateOldJarFolderFormat(printError = printError)
@@ -95,17 +93,18 @@ data class JarManager<T : ClassInfo>(
 
     private fun migrateOldJarFolderFormat(printError: Boolean) {
         if (originalJarFolder != null && loadedJars.isEmpty() && !isMigrated) {
-            loadedJars(originalJarFolder).forEach { file ->
-                addJar(jarFile = file, printError = printError)
-                copyFile(file = file)
+            fileManagement.loadedJars(originalJarFolder).forEach { file ->
+                val newFile = copyFile(file = file)
+                addJar(jarFile = newFile, printError = printError)
             }
             isMigrated = true
         }
     }
 
-    private fun copyFile(file: File) {
+    fun copyFile(file: File): File {
         val copiedFile = jarFolder.resolve(file.name)
         file.copyTo(target = copiedFile, overwrite = true)
+        return copiedFile
     }
 
     private fun sortLists() {
@@ -153,11 +152,11 @@ data class JarManager<T : ClassInfo>(
     fun deleteAllJars() {
         refresh(printError = false)
         loadedJars.forEach {
-            deleteFile(it)
+            fileManagement.deleteFile(it)
         }
         originalJarFolder?.let {
-            loadedJars(originalJarFolder).forEach {
-                deleteFile(it)
+            fileManagement.loadedJars(originalJarFolder).forEach {
+                fileManagement.deleteFile(it)
             }
         }
         clearAllJars()

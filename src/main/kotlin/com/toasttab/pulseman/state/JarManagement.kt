@@ -15,17 +15,20 @@
 
 package com.toasttab.pulseman.state
 
+import androidx.compose.runtime.Composable
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.entities.SingleSelection
-import com.toasttab.pulseman.files.FileManagement.deleteFile
+import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
+import com.toasttab.pulseman.view.jarManagementUI
 import java.io.File
 
 class JarManagement<T : ClassInfo>(
     val jars: JarManager<T>,
     private val selectedClass: SingleSelection<T>?,
     val setUserFeedback: (String) -> Unit,
-    val onChange: () -> Unit
+    val onChange: () -> Unit,
+    private val fileManagement: FileManagement
 ) {
     fun onAddJar(jar: File) {
         jars.addJar(
@@ -36,7 +39,24 @@ class JarManagement<T : ClassInfo>(
     }
 
     fun onRemoveJar(jar: File) {
-        deleteFile(jar)
+        fileManagement.deleteFile(jar)
         jars.removeJar(jar, setUserFeedback, selectedClass, onChange)
+    }
+
+    fun onRemoveAllJars() {
+        jars.deleteAllJars()
+    }
+
+    fun getUI(): @Composable () -> Unit {
+        return {
+            jarManagementUI(
+                loadedJars = jars.loadedJars,
+                jarFolder = jars.jarFolder,
+                onRemoveJar = ::onRemoveJar,
+                onAddJar = ::onAddJar,
+                onRemoveAllJars = ::onRemoveAllJars,
+                fileManagement = fileManagement
+            )
+        }
     }
 }

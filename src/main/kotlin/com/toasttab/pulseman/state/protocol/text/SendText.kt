@@ -48,7 +48,7 @@ class SendText(
     private val textArea =
         RSyntaxTextArea.textArea(
             initialSettings?.textSettings?.text ?: "",
-            SyntaxConstants.SYNTAX_STYLE_JAVA,
+            SyntaxConstants.SYNTAX_STYLE_KOTLIN,
             onChange
         )
 

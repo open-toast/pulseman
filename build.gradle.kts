@@ -31,6 +31,7 @@ version = appVersion
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.google.com") }
+    maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
 }
 
 val assertJVersion: String by rootProject
@@ -47,6 +48,7 @@ val reflectionsVersion: String by rootProject
 val rsyntaxVersion: String by rootProject
 val sl4jNoop: String by rootProject
 val testContainerPulsar: String by rootProject
+val toolingApiVersion: String by rootProject
 
 configurations {
     compileOnly {
@@ -69,6 +71,7 @@ dependencies {
     implementation("com.toasttab.protokt:protokt-core:$protoktVersion")
     implementation("com.toasttab.protokt:protokt-extensions:$protoktVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")
+    implementation("org.gradle:gradle-tooling-api:$toolingApiVersion")
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")

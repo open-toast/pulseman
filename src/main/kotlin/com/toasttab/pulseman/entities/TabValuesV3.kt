@@ -32,5 +32,6 @@ data class TabValuesV3(
     val protobufSettings: ProtobufTabValuesV3?,
     val textSettings: TextTabValuesV3?,
     val pulsarAdminURL: String?,
-    val tabExtension: Int?
+    val tabExtension: Int?,
+    val gradleScript: String?
 )

@@ -85,7 +85,7 @@ class ZipManagementTest {
 
         // Zip the files
         val jarsToZip = generatedJarFiles.map { it.file } + invalidJarFiles.map { it.file }
-        zipManagement = ZipManagement("${tempDir.path}/")
+        zipManagement = ZipManagement(fileManagement = FileManagement(homeDirectory = "${tempDir.path}/"))
         zipManagement.zipProject(inJson, savedZipFile.absolutePath, jarsToZip)
 
         assertThat(tempDir.listFiles()).hasSize(generatedJarFiles.size + invalidJarFiles.size + 1)

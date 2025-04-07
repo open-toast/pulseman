@@ -54,7 +54,7 @@ class GradleRunnerTest {
     }
 
     @Test
-    fun `Confirm non pulsar files are not stored at all when for pulsar`(@TempDir tempDir: File) {
+    fun `Confirm non pulsar files are not stored at all when filtering for pulsar files`(@TempDir tempDir: File) {
         setup(tempDir = tempDir)
 
         val gradleRunner = gradleRunner(filterPulsar = true, tempDir = tempDir)
@@ -74,7 +74,7 @@ class GradleRunnerTest {
     }
 
     @Test
-    fun `Confirm pulsar files are stored in the correct loaders when not filtering`(@TempDir tempDir: File) {
+    fun `Confirm pulsar files are stored in the correct loaders when not filtering for pulsar files`(@TempDir tempDir: File) {
         setup(tempDir = tempDir)
 
         val gradleRunner = gradleRunner(filterPulsar = false, tempDir = tempDir)

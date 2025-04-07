@@ -41,7 +41,7 @@ import javax.swing.JPanel
 /**
  * This view allows the user to
  * - Generate a gradle script template
- * - Edit and compile gradle script to download dependencies
+ * - Edit and compile gradle scripts to download dependencies
  */
 @Composable
 fun gradleManagementUI(

@@ -65,7 +65,9 @@ class ZipManagementTest {
 
     // Set up all the needed temp directories and files
     private fun setUpZipProject(tempDir: File) {
-        val directories = validDirectories(tempDir)
+        val fileManagement = FileManagement(homeDirectory = tempDir.path)
+        val appFolder = File(fileManagement.APP_FOLDER_NAME)
+        val directories = validDirectories(appFolder)
         // Create the valid jar folders
         directories.forEach { directory ->
             directory.value.mkdir()
@@ -74,30 +76,31 @@ class ZipManagementTest {
         generatedJarFiles = fileMap(directories)
 
         // Create folders to be zipped that we don't support unzipping
-        val invalidDirectories = invalidDirectories(tempDir)
+        val invalidDirectories = invalidDirectories(appFolder)
         invalidDirectories.forEach { invalidDirectory ->
             invalidDirectory.value.mkdir()
         }
         invalidJarFiles = fileMap(invalidDirectories)
 
         // Create the zip file location
-        savedZipFile = File(tempDir, "file.zip")
+        savedZipFile = File(appFolder, "file.zip")
 
         // Zip the files
         val jarsToZip = generatedJarFiles.map { it.file } + invalidJarFiles.map { it.file }
-        zipManagement = ZipManagement(fileManagement = FileManagement(homeDirectory = "${tempDir.path}/"))
+        zipManagement = ZipManagement(fileManagement = fileManagement)
         zipManagement.zipProject(inJson, savedZipFile.absolutePath, jarsToZip)
 
-        assertThat(tempDir.listFiles()).hasSize(generatedJarFiles.size + invalidJarFiles.size + 1)
+        // savedZipFile and the prject folder make the +2
+        assertThat(appFolder.listFiles()).hasSize(generatedJarFiles.size + invalidJarFiles.size + 2)
 
         // Delete all folders in the tempDir, leaving only the zip file
-        tempDir.listFiles()?.forEach {
+        appFolder.listFiles()?.forEach {
             if (it.isDirectory) {
                 it.deleteRecursively()
             }
         }
 
-        assertThat(tempDir.listFiles()).hasSize(1)
+        assertThat(appFolder.listFiles()).hasSize(1)
     }
 
     @Test

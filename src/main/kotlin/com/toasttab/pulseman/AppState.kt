@@ -141,7 +141,7 @@ class AppState {
             }
             projectSettings?.gradleScript?.let {
                 gradleManagement.loadGradleScript(it)
-            }
+            } ?: gradleManagement.generateGradleTemplate()
         }
     }
 

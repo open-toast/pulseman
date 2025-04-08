@@ -66,7 +66,7 @@ class GradleManagement(
         fileManagement = fileManagement
     )
 
-    private fun generateGradleTemplate() {
+    fun generateGradleTemplate() {
         textArea.text = GradleScripting.gradleTemplate
     }
 

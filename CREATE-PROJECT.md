@@ -19,7 +19,7 @@ Jar loaders are used.
 - **Auth jar loader**: The auth jar loader has the common jar loader as a dependency and has all its jars loaded, it
   is used by the Auth code to filter for the Authorization class you want to use.
 - **Messaging jar loader**: Holds global pulsar messaging jars, these are used for serialization/deserialization of
-  messages and will be available to every tab. Is dependent on the auth jar loader.
+  messages and will be available in every tab. The jar loader is dependent on the auth jar loader.
 - **Tab jar loaders**: Each tab has its own jar loader, this is used to load jars that are specific to the tab. This is
   dependent on the global messaging Jar loader.
 
@@ -50,15 +50,15 @@ protobuf class is selected for serializing/deserializing.
 
 ## Importing Jars
 
-There are two options to import a jar, manually add the jar through a file dialog or add the jar through gradle.
+There are two options to import a Jar, manually add the Jar through a file dialog or add the Jar through gradle.
 
 ### Manual import
 
-In any of the **Jars** windows just select **Add Jar** and navigate to the jar you want to import.
+In any of the **Jar** selection screen just select **Add Jar** and navigate to the Jar you want to import.
 
 ### Gradle import
 
-You can import jars through gradle by creating a `build.gradle.kt` configuration file like follows in one of the
+You can import Jars through gradle by creating a `build.gradle.kt` configuration file like follows in one of the
 **Gradle** tabs.
 
 ```kotlin
@@ -79,19 +79,19 @@ The files will be downloaded locally and copied to the projects directories.
 
 ### Global
 
-Select the **Jars** button in the top pane and navigate to the **Gradle** tab. Any jars added here will be available
+Select the **Jars** button in the top pane and navigate to the **Gradle** tab. Any Jars added here will be available
 project wide.  
 Auth jars will be loaded in the **Auth** tab, messaging jars will be loaded in the **Message** tab and any others will
-be added to the **Common** jar loader automatically.
+be added to the **Common** Jar loader automatically.
 
 If you enable the `Filter Pulsar Jars` toggle, only Jars that contain classes that implement the pulsar interfaces will
 be loaded, i.e. only the **messaging** and **auth** jars will be loaded.
 
 ### Tab specific
 
-Select the **Gradle** tab in the bottom pan. Any jars added here will only be available in the tab you are currently
+Select the **Gradle** tab in the bottom pan. Any Jars added here will only be available in the tab you are currently
 in.  
-You can only add messaging jars, all other jars will be filtered.
+You can only add messaging Jars, all other Jars will be filtered.
 
 ## Set up auth
 

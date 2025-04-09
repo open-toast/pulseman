@@ -5,6 +5,7 @@ Pulseman (Pulsar manager) is an [Apache Pulsar](https://pulsar.apache.org/) test
 - Generate and publish messages to a pulsar topic using Kotlin Scripting
 - Subscribe to a Pulsar topic and receive messages
 - Query all topics
+- Import JAR files through gradle or file dialog
 - Import JAR files for serialization and deserialization of messages
 - Import JAR files to decode protobuf messages
 - Import custom authentication JAR files

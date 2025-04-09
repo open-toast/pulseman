@@ -1,7 +1,6 @@
-package state.protocol.protobuf
+package com.toasttab.pulseman.state.protocol.protobuf
 
 import com.toasttab.pulseman.MultipleTypes
-import com.toasttab.pulseman.state.protocol.protobuf.ConvertType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.Base64

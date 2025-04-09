@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.5.0] - 2025-04-09
+- Add unique Jar loaders per tab, each tab is now fully sandboxed and can have its own set of jars.
+- Add gradle support, you can now add jars to a tab using gradle.
+
 ## [1.4.1] - 2024-03-08
 
 - Add auth support for querying available pulsar topics.

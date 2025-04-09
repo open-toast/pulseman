@@ -16,7 +16,6 @@
 package com.toasttab.pulseman.files
 
 import com.toasttab.pulseman.AppStrings.EXCEPTION
-import com.toasttab.pulseman.files.FileManagement.loadedJars
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -37,7 +36,7 @@ import java.util.zip.ZipOutputStream
  * Unzips a project file it will take all the zipped jar files and copy them as they are out of the zip
  * and return the json configuration for each tab.
  */
-class ZipManagement(private val homeDirectory: String) {
+class ZipManagement(private val fileManagement: FileManagement) {
     fun zipProject(tabsJson: String, zipName: String, jarFolders: List<File>) {
         FileOutputStream(File(zipName)).use { fos ->
             BufferedOutputStream(fos).use { bos ->
@@ -50,7 +49,7 @@ class ZipManagement(private val homeDirectory: String) {
 
                     // Save loaded jars
                     jarFolders.forEach { jarFolder ->
-                        loadedJars(jarFolder).forEach { jar ->
+                        fileManagement.loadedJars(jarFolder).forEach { jar ->
                             FileInputStream(jar).use { input ->
                                 BufferedInputStream(input).use { origin ->
                                     val entry = ZipEntry(savePath(jar))
@@ -65,7 +64,7 @@ class ZipManagement(private val homeDirectory: String) {
         }
     }
 
-    private fun savePath(file: File) = File(homeDirectory).toURI().relativize(file.toURI()).path
+    private fun savePath(file: File) = File(fileManagement.HOME_DIRECTORY).toURI().relativize(file.toURI()).path
 
     fun unzipProject(zippedFile: File, setUserFeedback: (String) -> Unit): String? {
         var projectJson: String? = null
@@ -75,7 +74,7 @@ class ZipManagement(private val homeDirectory: String) {
                     while (true) {
                         val nextEntry = zis.nextEntry ?: return projectJson
                         if (!nextEntry.isDirectory && nextEntry.name !in skipFiles) {
-                            val newFile = File("$homeDirectory${nextEntry.name}")
+                            val newFile = File("${fileManagement.HOME_DIRECTORY}${nextEntry.name}")
                             val parentFile: File? = newFile.parentFile
                             if (parentFile?.exists() == false && isValidFolderPrefix(parentFile.name)) {
                                 parentFile.mkdirs()

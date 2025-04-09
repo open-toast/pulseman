@@ -38,29 +38,21 @@ import java.nio.file.Paths
  *
  * TODO pull all view logic out of here
  */
-object FileManagement {
-    private const val MAC_HOME_FOLDER = "/Library/Pulseman/"
-    private const val CONFIG_DIRECTORY = "pulseman_config/"
-    private const val LAST_CONFIG_USED_FILENAME = "last_config_loaded"
-    private const val PROJECTS_FOLDER_NAME = "projects/"
-    private const val ZIP_EXTENSION = ".zip"
-    private const val JAR_EXTENSION = ".jar"
-    private const val MAC_OS = "Mac"
-    private const val OS_PROPERTY = "os.name"
-    private const val HOME_PROPERTY = "user.home"
-    private const val DEFAULT_PROJECT_NAME = "pulseman-project$ZIP_EXTENSION"
+class FileManagement(homeDirectory: String? = null) {
 
     private val os = System.getProperty(OS_PROPERTY)
 
     // Sand boxed mac apps only have access by default to this folder
-    private val HOME_DIRECTORY = if (os.contains(MAC_OS)) System.getProperty(HOME_PROPERTY) + MAC_HOME_FOLDER else ""
+    val HOME_DIRECTORY = homeDirectory?.let {
+        if (it.endsWith("/")) it else "$it/"
+    } ?: if (os.contains(MAC_OS)) System.getProperty(HOME_PROPERTY) + MAC_HOME_FOLDER else ""
 
     val APP_FOLDER_NAME = "${HOME_DIRECTORY}$CONFIG_DIRECTORY"
     val appFolder = File(APP_FOLDER_NAME)
 
     private val lastConfigLoadedPath = "${APP_FOLDER_NAME}$LAST_CONFIG_USED_FILENAME"
     private val projectFolder = File("$APP_FOLDER_NAME$PROJECTS_FOLDER_NAME")
-    private val zipManager = ZipManagement(HOME_DIRECTORY)
+    private val zipManager = ZipManagement(fileManagement = this)
 
     init {
         makeFolder(appFolder)
@@ -163,4 +155,17 @@ object FileManagement {
     }
 
     fun loadedJars(jarFolder: File) = jarFolder.walk().filter { it.isFile }.toMutableSet()
+
+    companion object {
+        private const val MAC_HOME_FOLDER = "/Library/Pulseman/"
+        private const val CONFIG_DIRECTORY = "pulseman_config/"
+        private const val LAST_CONFIG_USED_FILENAME = "last_config_loaded"
+        private const val PROJECTS_FOLDER_NAME = "projects/"
+        private const val ZIP_EXTENSION = ".zip"
+        private const val JAR_EXTENSION = ".jar"
+        private const val MAC_OS = "Mac"
+        private const val OS_PROPERTY = "os.name"
+        private const val HOME_PROPERTY = "user.home"
+        private const val DEFAULT_PROJECT_NAME = "pulseman-project$ZIP_EXTENSION"
+    }
 }

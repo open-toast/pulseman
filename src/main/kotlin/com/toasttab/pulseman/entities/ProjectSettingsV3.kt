@@ -17,6 +17,7 @@ package com.toasttab.pulseman.entities
 
 data class ProjectSettingsV3(
     val configVersion: String,
+    val gradleScript: String?,
     val newJarFormatUsed: Boolean?, // This is a nullable field to support older versions of the project settings
     val tabs: List<TabValuesV3>
 ) : ProjectSettings {

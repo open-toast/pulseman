@@ -19,6 +19,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import com.toasttab.pulseman.entities.SerializationFormat
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.protocol.protobuf.ProtobufState
@@ -29,11 +30,13 @@ import com.toasttab.pulseman.state.protocol.text.TextState
  * the ui for the currently selected format
  */
 class SerializationState(
+    gradleManagement: GradleManagement,
     pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
-    onChange: () -> Unit
+    onChange: () -> Unit,
+    fileManagement: FileManagement
 ) {
     fun cleanUp() {
         protobufState.cleanUp()
@@ -41,11 +44,13 @@ class SerializationState(
     }
 
     val protobufState = ProtobufState(
+        gradleManagement = gradleManagement,
         pulsarMessageJars = pulsarMessageJars,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
         setUserFeedback = setUserFeedback,
-        onChange = onChange
+        onChange = onChange,
+        fileManagement = fileManagement
     )
 
     val textState = TextState(

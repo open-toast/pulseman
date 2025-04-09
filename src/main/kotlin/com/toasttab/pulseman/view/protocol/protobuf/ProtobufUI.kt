@@ -41,6 +41,7 @@ fun protobufUI(
     sendMessageUI: @Composable () -> Unit,
     selectTabViewUI: @Composable () -> Unit,
     protobufJarManagementUI: @Composable () -> Unit,
+    gradleUI: @Composable () -> Unit,
     byteConversionUI: @Composable () -> Unit
 ) {
     Column {
@@ -65,6 +66,10 @@ fun protobufUI(
 
                 SelectedProtobufView.JAR_MANAGEMENT -> {
                     protobufJarManagementUI()
+                }
+
+                SelectedProtobufView.GRADLE -> {
+                    gradleUI()
                 }
 
                 SelectedProtobufView.PROTOBUF_CLASS -> {

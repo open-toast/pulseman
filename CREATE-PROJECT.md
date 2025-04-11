@@ -77,6 +77,9 @@ dependencies {
 The files are written in `kotlin` scripting. You can add custom repositories and dependencies to the file.  
 The files will be downloaded locally and copied to the projects directories.
 
+Note: Gradle will not work in the release version if you don't have a `JAVA_HOME` system variable set pointing to a
+valid JDK.
+
 ### Global
 
 Select the **Jars** button in the top pane and navigate to the **Gradle** tab. Any Jars added here will be available

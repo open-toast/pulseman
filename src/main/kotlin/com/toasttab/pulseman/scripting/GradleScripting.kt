@@ -37,7 +37,6 @@ object GradleScripting {
     private const val SETTINGS_FILE_CONTENT = "rootProject.name = \"pulseman\""
     private const val COPY_JAR_FOLDER = "gradle_download"
     private const val JAR_EXTENSION = ".jar"
-    private const val GRADLE_VERSION = "8.9"
     private const val JAVA_HOME_SETTING = "org.gradle.java.home="
     private val javaHome = System.getenv("JAVA_HOME")
 
@@ -71,11 +70,7 @@ object GradleScripting {
         }
 
         try {
-            val connector = GradleConnector
-                .newConnector()
-                .forProjectDirectory(projectDir)
-                .useGradleVersion(GRADLE_VERSION)
-
+            val connector = GradleConnector.newConnector().forProjectDirectory(projectDir)
             connector.connect().use { connection ->
                 connection.newBuild().apply {
                     forTasks(taskName)

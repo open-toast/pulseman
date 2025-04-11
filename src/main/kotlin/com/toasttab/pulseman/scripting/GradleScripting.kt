@@ -15,14 +15,15 @@
 
 package com.toasttab.pulseman.scripting
 
+import com.toasttab.pulseman.AppStrings.GRADLE_ALREADY_RUNNING
 import com.toasttab.pulseman.AppStrings.GRADLE_ERROR
+import com.toasttab.pulseman.AppStrings.JAVA_HOME_ERROR
 import com.toasttab.pulseman.AppStrings.RUNNING_GRADLE_TASK
 import com.toasttab.pulseman.AppStrings.SETTING_UP_GRADLE
 import com.toasttab.pulseman.AppStrings.SETUP
 import kotlinx.coroutines.sync.Mutex
 import org.gradle.tooling.GradleConnector
 import java.io.File
-import java.io.FileOutputStream
 import java.net.URL
 
 /**
@@ -32,18 +33,29 @@ object GradleScripting {
     private val mutex = Mutex()
     private const val SETTINGS_FILE_NAME = "settings.gradle.kts"
     private const val BUILD_FILE_NAME = "build.gradle.kts"
+    private const val GRADLE_PROPERTIES_FILE_NAME = "gradle.properties"
     private const val SETTINGS_FILE_CONTENT = "rootProject.name = \"pulseman\""
     private const val COPY_JAR_FOLDER = "gradle_download"
     private const val JAR_EXTENSION = ".jar"
     private const val GRADLE_VERSION = "8.9"
-    private const val GRADLE_DISTRIBUTION = "gradle-$GRADLE_VERSION-bin.zip"
-    private const val GRADLE_ZIP_URL = "https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip"
+    private const val JAVA_HOME_SETTING = "org.gradle.java.home="
+    private val javaHome = System.getenv("JAVA_HOME")
 
-    private fun createGradleBuildFiles(projectDir: File, buildFileContent: String) {
+    private fun createGradleBuildFiles(
+        projectDir: File,
+        buildFileContent: String,
+        setUserFeedback: (String) -> Unit
+    ) {
         val settingsFile = File(projectDir, SETTINGS_FILE_NAME)
         val buildFile = File(projectDir, BUILD_FILE_NAME)
+        val gradlePropertiesFile = File(projectDir, GRADLE_PROPERTIES_FILE_NAME)
         settingsFile.writeText(SETTINGS_FILE_CONTENT)
         buildFile.writeText(buildFileContent)
+        javaHome?.let {
+            gradlePropertiesFile.writeText("$JAVA_HOME_SETTING$javaHome")
+        } ?: run {
+            setUserFeedback("${JAVA_HOME_ERROR}null")
+        }
     }
 
     private fun runGradleTask(
@@ -59,19 +71,11 @@ object GradleScripting {
         }
 
         try {
-            val gradleZipFile = gradleZipFile(projectDir = projectDir.absolutePath)
-            if (!gradleZipFile.exists()) {
-                downloadGradleDistribution(projectDir = projectDir.absolutePath, setUserFeedback = setUserFeedback)
-                if (!gradleZipFile.exists()) {
-                    setUserFeedback("Failed to download gradle distribution")
-                    return
-                }
-            }
             val connector = GradleConnector
                 .newConnector()
                 .forProjectDirectory(projectDir)
                 .useGradleVersion(GRADLE_VERSION)
-                .useDistribution(gradleZipFile.toURI())
+
             connector.connect().use { connection ->
                 connection.newBuild().apply {
                     forTasks(taskName)
@@ -80,7 +84,9 @@ object GradleScripting {
                 }.run()
             }
         } catch (ex: Exception) {
-            setUserFeedback("$GRADLE_ERROR $taskName: ${ex.message}")
+            setUserFeedback("$GRADLE_ERROR $ex")
+            setUserFeedback("$JAVA_HOME_ERROR:$javaHome")
+            setUserFeedback(output.toString())
         }
         setUserFeedback(output.toString())
     }
@@ -100,7 +106,8 @@ object GradleScripting {
     ): Set<URL> {
         createGradleBuildFiles(
             projectDir = projectDir,
-            buildFileContent = buildFileContent(gradleScript = gradleTemplate, taskName = taskName)
+            buildFileContent = buildFileContent(gradleScript = gradleTemplate, taskName = taskName),
+            setUserFeedback = setUserFeedback
         )
         setUserFeedback(SETTING_UP_GRADLE)
         runGradleTask(projectDir = projectDir, taskName = taskName, setUserFeedback = setUserFeedback)
@@ -120,7 +127,8 @@ object GradleScripting {
         )
         createGradleBuildFiles(
             projectDir = projectDir,
-            buildFileContent = buildFileContent(gradleScript = gradleScript, taskName = taskName)
+            buildFileContent = buildFileContent(gradleScript = gradleScript, taskName = taskName),
+            setUserFeedback = setUserFeedback
         )
         setUserFeedback("$RUNNING_GRADLE_TASK: $taskName")
         runGradleTask(projectDir = projectDir, taskName = taskName, setUserFeedback = setUserFeedback)
@@ -142,13 +150,14 @@ object GradleScripting {
                 mutex.unlock()
             }
         } else {
-            throw Exception("$taskName failed gradle already running")
+            throw Exception("$taskName $GRADLE_ALREADY_RUNNING")
         }
     }
 
     private fun cleanUpInternal(projectDir: File) {
         File(projectDir, SETTINGS_FILE_NAME).delete()
         File(projectDir, BUILD_FILE_NAME).delete()
+        File(projectDir, GRADLE_PROPERTIES_FILE_NAME).delete()
         File(projectDir, COPY_JAR_FOLDER).deleteRecursively()
     }
 
@@ -160,31 +169,8 @@ object GradleScripting {
                 mutex.unlock()
             }
         } else {
-            throw Exception("Failed to clean up gradle, another gradle task is running")
+            throw Exception(GRADLE_ALREADY_RUNNING)
         }
-    }
-
-    private fun gradleZipFile(projectDir: String) = File(projectDir, GRADLE_DISTRIBUTION)
-
-    private fun downloadGradleDistribution(
-        projectDir: String,
-        setUserFeedback: (String) -> Unit
-    ) {
-        val destinationFile = gradleZipFile(projectDir = projectDir)
-        setUserFeedback("Downloading Gradle $GRADLE_ZIP_URL from $GRADLE_ZIP_URL to ${destinationFile.absolutePath}")
-
-        try {
-            URL(GRADLE_ZIP_URL).openStream().use { input ->
-                FileOutputStream(destinationFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-        } catch (e: Exception) {
-            setUserFeedback("Failed to download Gradle $GRADLE_ZIP_URL: ${e.message}")
-            return
-        }
-
-        setUserFeedback("Gradle $GRADLE_ZIP_URL downloaded successfully.")
     }
 
     private fun buildFileContent(gradleScript: String, taskName: String) =

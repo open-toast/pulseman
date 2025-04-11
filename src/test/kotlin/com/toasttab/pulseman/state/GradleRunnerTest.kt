@@ -19,7 +19,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.URL
 
-// TODO these tests are downloading the gradle zip for every test, this needs to be optimized or mocked
 class GradleRunnerTest {
     private lateinit var fileManagement: FileManagement
     private lateinit var globalFeedback: GlobalFeedback
@@ -240,7 +239,7 @@ class GradleRunnerTest {
         assertUrlContents(urls = messageLoadedJars, expectedFiles = expectedMessageFiles)
 
         val files = tempDir.listFiles()
-        assertThat(files).hasSize(3)
+        assertThat(files).hasSize(2)
         val pulsemanConfigFiles = files?.first { it.name == PULSEMAN_CONFIG_FOLDER }?.listFiles()
         val gradleFiles = files?.first { it.name == GRADLE_CONFIG_FOLDER }?.listFiles()
         assertThat(gradleFiles).hasSize(3)

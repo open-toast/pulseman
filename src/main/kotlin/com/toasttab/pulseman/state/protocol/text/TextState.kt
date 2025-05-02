@@ -17,6 +17,7 @@ package com.toasttab.pulseman.state.protocol.text
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -59,10 +60,12 @@ class TextState(
         onChange = onChange
     )
 
+    private val propertyFilter: MutableState<Pair<String, String>?> = mutableStateOf(null)
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
 
     private val messageHandling = MessageHandlingImpl(
         messageType = serializationTypeSelector.selectedEncoding,
+        propertyFilter = propertyFilter.value,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -72,7 +75,8 @@ class TextState(
         pulsarSettings = pulsarSettings,
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
-        runTimeJarLoader = runTimeJarLoader
+        runTimeJarLoader = runTimeJarLoader,
+        propertyFilter = propertyFilter
     )
 
     fun toTextTabValues() = TextTabValuesV3(

@@ -76,7 +76,8 @@ fun receiveMessageUI(
     onClear: () -> Unit,
     onCloseConnection: () -> Unit,
     receivedMessages: List<ReceivedMessages>,
-    scrollState: ScrollState
+    scrollState: ScrollState,
+    propertyFilterSelectorUI: @Composable () -> Unit
 ) {
     Column {
         Row {
@@ -109,6 +110,8 @@ fun receiveMessageUI(
             ) {
                 onCloseConnection()
             }
+
+            propertyFilterSelectorUI()
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.verticalScroll(scrollState)) {

@@ -30,12 +30,16 @@ import java.time.Instant
  */
 class MessageHandlingImpl(
     private val messageType: SingleSelection<PulsarMessage>,
+    private val propertyFilter: Pair<String, String>?,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val setUserFeedback: (String) -> Unit
 ) : MessageHandling {
 
     override fun parseMessage(message: Message<ByteArray>) {
         try {
+            if (skipMessage(message, propertyFilter)) {
+                return
+            }
             val messageString = messageType.selected?.deserialize(message.data)
             val publishTime = Instant.ofEpochMilli(message.publishTime)
             receivedMessages.add(

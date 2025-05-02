@@ -36,6 +36,7 @@ data class ProjectSettingsV2(
             configVersion = ProjectSettingsV3.CURRENT_VERSION,
             newJarFormatUsed = false,
             gradleScript = null,
+            javaHome = null,
             tabs = tabs.map { tab ->
                 TabValuesV3(
                     tabName = tab.tabName,

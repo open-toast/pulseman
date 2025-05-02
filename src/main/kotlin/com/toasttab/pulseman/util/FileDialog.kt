@@ -18,10 +18,12 @@ package com.toasttab.pulseman.util
 import java.awt.Frame
 import java.io.File
 import java.io.FilenameFilter
+import javax.swing.JFileChooser
+import javax.swing.SwingUtilities
 import java.awt.FileDialog as AwtFileDialog
 
 class FileDialog(
-    title: String,
+    private val title: String,
     mode: FileDialogMode,
     directory: String? = null,
     file: String? = null,
@@ -50,6 +52,24 @@ class FileDialog(
             null
         } else {
             File(directory).resolve(file)
+        }
+    }
+
+    /**
+     * Chooses a folder using a JFileChooser.
+     *
+     * I would have used the AwtFileDialog for this, but it doesn't allow you to select folders.
+     */
+    fun chooseFolder(action: (File) -> Unit) {
+        SwingUtilities.invokeLater {
+            val chooser = JFileChooser().apply {
+                dialogTitle = title
+                fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+            }
+            val result = chooser.showOpenDialog(null)
+            if (result == JFileChooser.APPROVE_OPTION) {
+                action(chooser.selectedFile)
+            }
         }
     }
 }

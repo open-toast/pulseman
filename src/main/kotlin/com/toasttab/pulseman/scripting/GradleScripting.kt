@@ -17,6 +17,7 @@ package com.toasttab.pulseman.scripting
 
 import com.toasttab.pulseman.AppStrings.GRADLE_ALREADY_RUNNING
 import com.toasttab.pulseman.AppStrings.GRADLE_ERROR
+import com.toasttab.pulseman.AppStrings.JAVA_HOME
 import com.toasttab.pulseman.AppStrings.JAVA_HOME_ERROR
 import com.toasttab.pulseman.AppStrings.RUNNING_GRADLE_TASK
 import com.toasttab.pulseman.AppStrings.SETTING_UP_GRADLE
@@ -38,11 +39,11 @@ object GradleScripting {
     private const val COPY_JAR_FOLDER = "gradle_download"
     private const val JAR_EXTENSION = ".jar"
     private const val JAVA_HOME_SETTING = "org.gradle.java.home="
-    private val javaHome = System.getenv("JAVA_HOME")
 
     private fun createGradleBuildFiles(
         projectDir: File,
         buildFileContent: String,
+        javaHome: String?,
         setUserFeedback: (String) -> Unit
     ) {
         val settingsFile = File(projectDir, SETTINGS_FILE_NAME)
@@ -50,16 +51,22 @@ object GradleScripting {
         val gradlePropertiesFile = File(projectDir, GRADLE_PROPERTIES_FILE_NAME)
         settingsFile.writeText(SETTINGS_FILE_CONTENT)
         buildFile.writeText(buildFileContent)
-        javaHome?.let {
-            gradlePropertiesFile.writeText("$JAVA_HOME_SETTING$javaHome")
-        } ?: run {
-            setUserFeedback("${JAVA_HOME_ERROR}null")
+        // In debug mode we have access to where JAVA_HOME is so if no value is passed in we can get it automatically.
+        // There is no easy way to get the JAVA_HOME in release mode so we need to pass it in.
+        val jvmPath = if (javaHome.isNullOrBlank()) {
+            System.getenv("JAVA_HOME") ?: System.getProperty("java.home")
+        } else {
+            javaHome
         }
+
+        setUserFeedback("$JAVA_HOME$jvmPath")
+        gradlePropertiesFile.writeText("$JAVA_HOME_SETTING$jvmPath")
     }
 
     private fun runGradleTask(
         projectDir: File,
         taskName: String,
+        javaHome: String?,
         setUserFeedback: (String) -> Unit
     ) {
         val output = StringBuilder()
@@ -97,15 +104,22 @@ object GradleScripting {
     private fun getBaseUrls(
         projectDir: File,
         taskName: String,
+        javaHome: String?,
         setUserFeedback: (String) -> Unit
     ): Set<URL> {
         createGradleBuildFiles(
             projectDir = projectDir,
             buildFileContent = buildFileContent(gradleScript = gradleTemplate, taskName = taskName),
+            javaHome = javaHome,
             setUserFeedback = setUserFeedback
         )
         setUserFeedback(SETTING_UP_GRADLE)
-        runGradleTask(projectDir = projectDir, taskName = taskName, setUserFeedback = setUserFeedback)
+        runGradleTask(
+            projectDir = projectDir,
+            taskName = taskName,
+            javaHome = javaHome,
+            setUserFeedback = setUserFeedback
+        )
         return getDownloadedURLs(projectDir)
     }
 
@@ -113,20 +127,28 @@ object GradleScripting {
         projectDir: File,
         taskName: String,
         gradleScript: String,
+        javaHome: String?,
         setUserFeedback: (String) -> Unit
     ): List<URL> {
         val baseURls = getBaseUrls(
             projectDir = projectDir,
             taskName = "${taskName}_$SETUP",
+            javaHome = javaHome,
             setUserFeedback = setUserFeedback
         )
         createGradleBuildFiles(
             projectDir = projectDir,
             buildFileContent = buildFileContent(gradleScript = gradleScript, taskName = taskName),
+            javaHome = javaHome,
             setUserFeedback = setUserFeedback
         )
         setUserFeedback("$RUNNING_GRADLE_TASK: $taskName")
-        runGradleTask(projectDir = projectDir, taskName = taskName, setUserFeedback = setUserFeedback)
+        runGradleTask(
+            projectDir = projectDir,
+            taskName = taskName,
+            javaHome = javaHome,
+            setUserFeedback = setUserFeedback
+        )
         val allUrls = getDownloadedURLs(projectDir)
         val downloadedUrls = allUrls.minus(baseURls).toList()
         return downloadedUrls
@@ -136,11 +158,18 @@ object GradleScripting {
         projectDir: File,
         taskName: String,
         gradleScript: String,
+        javaHome: String?,
         setUserFeedback: (String) -> Unit
     ): List<URL> {
         if (mutex.tryLock()) {
             try {
-                return downloadJarsInternal(projectDir, taskName, gradleScript, setUserFeedback)
+                return downloadJarsInternal(
+                    projectDir = projectDir,
+                    taskName = taskName,
+                    gradleScript = gradleScript,
+                    javaHome = javaHome,
+                    setUserFeedback = setUserFeedback
+                )
             } finally {
                 mutex.unlock()
             }

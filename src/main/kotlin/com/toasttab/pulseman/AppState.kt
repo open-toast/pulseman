@@ -16,6 +16,8 @@
 
 package com.toasttab.pulseman
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -40,6 +42,8 @@ import com.toasttab.pulseman.state.TabHolder
 
 class AppState {
     val fileManagement: FileManagement = FileManagement()
+
+    val javaHome: MutableState<String> = mutableStateOf("")
 
     val globalFeedback = GlobalFeedback()
 
@@ -112,6 +116,7 @@ class AppState {
         onChange = { }, // TODO make it possible to notify about global state changes
         taskPrefix = GLOBAL_GRADLE_TASK_NAME,
         gradleScript = null, // Is loaded by loadFile below
+        javaHome = javaHome,
         fileManagement = fileManagement
     )
 
@@ -142,6 +147,12 @@ class AppState {
             projectSettings?.gradleScript?.let {
                 gradleManagement.loadGradleScript(it)
             } ?: gradleManagement.generateGradleTemplate()
+
+            projectSettings?.javaHome?.let {
+                javaHome.value = it
+            } ?: run {
+                javaHome.value = ""
+            }
         }
     }
 
@@ -177,6 +188,7 @@ class AppState {
                     ProjectSettingsV3(
                         configVersion = ProjectSettingsV3.CURRENT_VERSION,
                         gradleScript = gradleManagement.currentGradleScript(),
+                        javaHome = javaHome.value,
                         tabs = requestTabs.allTabValues(),
                         newJarFormatUsed = true
                     )

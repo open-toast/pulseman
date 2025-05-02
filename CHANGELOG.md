@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.5.1] - 2025-04-11
+## [1.5.2] - 2025-05-02
 - Created new Gradle download UI and Gradle scripting support.
 - Updated JAR UI to have a mass delete button.
 - Created a new global jar loader just for Protobuf jars.

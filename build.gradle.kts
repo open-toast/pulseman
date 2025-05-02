@@ -23,7 +23,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
-val appVersion = "1.5.1"
+val appVersion = "1.5.2"
 
 group = "com.toasttab.pulseman"
 version = appVersion
@@ -70,6 +70,7 @@ dependencies {
     implementation("com.google.protobuf:protobuf-kotlin:$protobufUtils")
     implementation("com.toasttab.protokt:protokt-core:$protoktVersion")
     implementation("com.toasttab.protokt:protokt-extensions:$protoktVersion")
+    implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")
     implementation("org.gradle:gradle-tooling-api:$toolingApiVersion")
     implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
@@ -83,17 +84,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.reflections:reflections:$reflectionsVersion")
     implementation("org.slf4j:slf4j-nop:$sl4jNoop")
-
-    /**
-     * The pulsar-client jar is causing an issue with signing Mac apps, something to do with
-     * the compressed size being mismatched.
-     *  Cause: invalid entry compressed size (expected 5232 but got 5227 bytes)
-     * Stripping all META-INF from the import via gradle task for now to make it work.
-     * This happened with multiple versions of the import.
-     *
-     * STRIP META-INF Part 1: Download the jar but don't include it in the final app.
-     */
-    compileOnly("org.apache.pulsar:pulsar-client:$pulsarVersion")
 
     /**
      * The protokt version of proto-google-common-protos uses the same package and class names.
@@ -170,50 +160,8 @@ val copyCommonProtoJarToResources by tasks.creating(Copy::class) {
     }
 }
 
-/**
- * STRIP META-INF Part 2: Copy the jar to a temp directory
- */
-val copyPulsarClientTask by tasks.creating(Copy::class) {
-    into("$buildDir/temp")
-    from(configurations.compileOnly.get().find { it.name.equals(pulsarClientJar) })
-}
-
-/**
- * STRIP META-INF Part 3: Strip the META-INF from the pulsar client jar.
- */
-val stripMetaInfTask: TaskProvider<Task> = tasks.register("stripMetaInf") {
-    dependsOn(copyPulsarClientTask)
-
-    doLast {
-        val jarFile = file("$tempBuildDir$pulsarClientJar")
-        exec {
-            commandLine("zip", "-d", jarFile.absolutePath, "META-INF/*")
-        }
-    }
-}
-
-/**
- * STRIP META-INF Part 4: Make the stripped jar an implementation dependency on the app.
- */
-val importPulsarClientTask: TaskProvider<Task> = tasks.register("importPulsarClientTask") {
-    dependsOn(stripMetaInfTask)
-
-    doLast {
-        dependencies {
-            implementation(files("$tempBuildDir$pulsarClientJar"))
-        }
-    }
-}
-
 tasks.named("processResources") {
     dependsOn(copyCommonProtoJarToResources)
-}
-
-/**
- * STRIP META-INF Part 0: Kick off flow
- */
-tasks.named("assemble") {
-    dependsOn(importPulsarClientTask)
 }
 
 /**

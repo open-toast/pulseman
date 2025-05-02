@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.5.0] - 2025-04-09
+## [1.5.1] - 2025-05-02
 - Add unique Jar loaders per tab, each tab is now fully sandboxed and can have its own set of jars.
 - Add gradle support, you can now add jars to a tab using gradle.
 

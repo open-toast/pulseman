@@ -28,6 +28,14 @@ on:
 
 jobs:
   mac_build:
+    env:
+      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
+      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
+      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
+      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
+      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
+      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+      SIGN_APP: ${{ secrets.SIGN_APP }}
     runs-on: macos-latest
     steps:
       - name: Decode signing cert

@@ -46,37 +46,41 @@ jobs:
     name: Mac arm build
     runs-on: macos-latest
     needs: linux-build
-    uses: ./.github/workflows/mac-setup.yml
-    with:
-      gradle-version: "8.1.1"
-      java-version: "17"
-      artifact-name: mac-arm-artifacts
-    secrets:
-      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
-      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
-      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
-      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
-      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
-      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
-      SIGN_APP: ${{ secrets.SIGN_APP }}
+    steps:
+      - name: Call reusable workflow
+        uses: ./.github/workflows/mac-setup.yml
+        with:
+          gradle-version: "8.1.1"
+          java-version: "17"
+          artifact-name: mac-arm-artifacts
+        secrets:
+          APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
+          IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
+          NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
+          PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
+          SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
+          SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+          SIGN_APP: ${{ secrets.SIGN_APP }}
 
   mac-build-intel:
     name: Mac intel build
     runs-on: macos-13
     needs: linux-build
-    uses: ./.github/workflows/mac-setup.yml
-    with:
-      gradle-version: "8.1.1"
-      java-version: "17"
-      artifact-name: mac-intel-artifacts
-    secrets:
-      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
-      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
-      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
-      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
-      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
-      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
-      SIGN_APP: ${{ secrets.SIGN_APP }}
+    steps:
+      - name: Call reusable workflow
+        uses: ./.github/workflows/mac-setup.yml
+        with:
+          gradle-version: "8.1.1"
+          java-version: "17"
+          artifact-name: mac-intel-artifacts
+        secrets:
+          APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
+          IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
+          NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
+          PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
+          SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
+          SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+          SIGN_APP: ${{ secrets.SIGN_APP }}
 
   release:
     if: ${{ github.event_name == 'release' }}

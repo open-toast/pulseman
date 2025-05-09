@@ -53,13 +53,11 @@ jobs:
       SIGN_APP: ${{ secrets.SIGN_APP }}
     name: Mac arm build
     runs-on: macos-latest
-    steps:
-      - name: Build for mac arm
-        uses: ./.github/workflows/mac-setup.yml
-        with:
-          gradle-version: "8.1.1"
-          java-version: "17"
-          artifact-name: mac-arm-artifacts
+    uses: ./.github/workflows/mac-setup.yml
+    with:
+      gradle-version: "8.1.1"
+      java-version: "17"
+      artifact-name: mac-arm-artifacts
 
   mac-build-intel:
     env:

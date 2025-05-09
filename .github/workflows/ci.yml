@@ -41,14 +41,24 @@ jobs:
           name: linux-artifacts
           path: build/compose/binaries/main/deb/
 
-
   mac-build-arm:
     name: Mac arm build
     uses: ./.github/workflows/mac-setup.yml
     with:
+      runner-type: macos-latest
       gradle-version: "8.1.1"
       java-version: "17"
       artifact-name: mac-arm-artifacts
+    secrets: inherit
+
+  mac-build-intel:
+    name: Mac intel build
+    uses: ./.github/workflows/mac-setup.yml
+    with:
+      runner-type: macos-13
+      gradle-version: "8.1.1"
+      java-version: "17"
+      artifact-name: mac-intel-artifacts
     secrets: inherit
 
   release:
@@ -56,6 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - mac-build-arm
+      - mac-build-intel
     steps:
       - name: Download linux artifacts
         uses: actions/download-artifact@v4

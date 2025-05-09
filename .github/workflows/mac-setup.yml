@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      runner-type:
+        required: true
+        type: string
       artifact-name:
         required: true
         type: string
@@ -36,7 +39,7 @@ jobs:
       SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
       SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
       SIGN_APP: ${{ secrets.SIGN_APP }}
-    runs-on: macos-latest
+    runs-on: ${{ inputs.runner-type }}
     steps:
       - name: Decode signing cert
         run: base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP

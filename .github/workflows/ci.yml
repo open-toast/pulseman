@@ -44,8 +44,7 @@ jobs:
 
   mac-build-arm:
     name: Mac arm build
-    runs-on: macos-latest
-    uses: ./.github/workflows/mac-setup.yml
+    uses: ./.github/workflows/mac-setup.yml@main
     with:
       gradle-version: "8.1.1"
       java-version: "17"
@@ -59,30 +58,10 @@ jobs:
       SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
       SIGN_APP: ${{ secrets.SIGN_APP }}
 
-  mac-build-intel:
-    env:
-      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
-      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
-      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
-      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
-      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
-      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
-      SIGN_APP: ${{ secrets.SIGN_APP }}
-    name: Mac intel build
-    runs-on: macos-13
-    steps:
-      - name: Build for mac intel
-        uses: ./.github/workflows/mac-setup.yml
-        with:
-          gradle-version: "8.1.1"
-          java-version: "17"
-          artifact-name: mac-intel-artifacts
-
   release:
     if: ${{ github.event_name == 'release' }}
     runs-on: ubuntu-latest
     needs:
-      - mac-build-intel
       - mac-build-arm
     steps:
       - name: Download linux artifacts

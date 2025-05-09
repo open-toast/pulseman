@@ -1,5 +1,3 @@
-name: Setup Mac Environment
-
 on:
   workflow_call:
     inputs:
@@ -29,7 +27,8 @@ on:
         required: true
 
 jobs:
-  setup:
+  mac_build:
+    runs-on: macos-latest
     steps:
       - name: Decode signing cert
         run: base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP

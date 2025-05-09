@@ -44,7 +44,7 @@ jobs:
 
   mac-build-arm:
     name: Mac arm build
-    uses: ./.github/workflows/mac-setup.yml@main
+    uses: ./.github/workflows/mac-setup.yml
     with:
       gradle-version: "8.1.1"
       java-version: "17"

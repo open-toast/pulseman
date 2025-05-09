@@ -85,6 +85,7 @@ object AppStrings {
     const val JAR_FILE_DIALOG_TITLE = "Select JAR files"
     const val JAVA_HOME = "Java home:"
     const val JAVA_HOME_ERROR = "Java home must be valid for gradle JAVA_HOME:"
+    const val LOADED_JAVA_HOME = "Loaded java home:"
     const val LOADING = "Loading..."
     const val LOAD_PROJECT = "Load project"
     const val LOAD_TOPICS = "Load topics"

@@ -18,6 +18,7 @@ package com.toasttab.pulseman.state
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.toasttab.pulseman.AppStrings.LOADED_JAVA_HOME
 import com.toasttab.pulseman.AppStrings.SELECT_JAVA_HOME
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.ClassInfo
@@ -105,7 +106,7 @@ class GradleManagement(
     private fun onSearchSelected() {
         fileManagement.getFolderPath(dialogTitle = SELECT_JAVA_HOME) {
             javaHome.value = it.absolutePath
-            setUserFeedback("Loaded java home:${javaHome.value}")
+            setUserFeedback("$LOADED_JAVA_HOME${javaHome.value}")
         }
     }
 

@@ -61,7 +61,6 @@ jobs:
           gradle-version: "8.1.1"
           java-version: "17"
           artifact-name: mac-arm-artifacts
-        secrets: inherit
 
   mac-build-intel:
     env:
@@ -82,7 +81,6 @@ jobs:
           gradle-version: "8.1.1"
           java-version: "17"
           artifact-name: mac-intel-artifacts
-        secrets: inherit
 
   release:
     if: ${{ github.event_name == 'release' }}

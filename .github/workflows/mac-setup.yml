@@ -1,0 +1,66 @@
+name: Setup Mac Environment
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        required: true
+        type: string
+      gradle-version:
+        required: true
+        type: string
+      java-version:
+        required: true
+        type: string
+    secrets:
+      APPLE_ID_TEMP:
+        required: true
+      IDENTITY_TEMP:
+        required: true
+      NOTARIZATION_PASSWORD_TEMP:
+        required: true
+      PROVIDER_TEMP:
+        required: true
+      SIGNING_CERT_TEMP:
+        required: true
+      SIGNING_PASS_TEMP:
+        required: true
+      SIGN_APP:
+        required: true
+
+jobs:
+  setup:
+    steps:
+      - name: Decode signing cert
+        run: base64 -D -o cert.p12 <<< $SIGNING_CERT_TEMP
+      - name: Create new keychain
+        run: security create-keychain -p keychain-pass compose.keychain
+      - name: Import signing cert
+        run: security import ./cert.p12 -t agg -k compose.keychain -P $SIGNING_PASS_TEMP -A
+      - name: Make chain accessible
+        run: |
+          security list-keychains -s "compose.keychain"
+          security list-keychains
+          security default-keychain -s "compose.keychain"
+          security unlock-keychain -p "keychain-pass" "compose.keychain"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k keychain-pass
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up java
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: ${{ inputs.java-version }}
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ inputs.gradle-version }}
+      - name: Create DMG
+        run: ./gradlew packageDmg --stacktrace
+      - name: Notarize DMG
+        run: ./gradlew notarizeDmg
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: build/compose/binaries/main/dmg/

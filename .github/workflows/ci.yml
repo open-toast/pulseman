@@ -41,23 +41,44 @@ jobs:
           name: linux-artifacts
           path: build/compose/binaries/main/deb/
 
+
   mac-build-arm:
+    env:
+      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
+      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
+      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
+      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
+      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
+      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+      SIGN_APP: ${{ secrets.SIGN_APP }}
     name: Mac arm build
     runs-on: macos-latest
-    uses: ./.github/workflows/mac-setup.yml
-    with:
-      gradle-version: "8.1.1"
-      java-version: "17"
-      artifact-name: mac-arm-artifacts
+    steps:
+      - name: Build for mac arm
+        uses: ./.github/workflows/mac-setup.yml
+        with:
+          gradle-version: "8.1.1"
+          java-version: "17"
+          artifact-name: mac-arm-artifacts
 
   mac-build-intel:
+    env:
+      APPLE_ID_TEMP: ${{ secrets.APPLE_ID_TEMP }}
+      IDENTITY_TEMP: ${{ secrets.IDENTITY_TEMP }}
+      NOTARIZATION_PASSWORD_TEMP: ${{ secrets.NOTARIZATION_PASSWORD_TEMP }}
+      PROVIDER_TEMP: ${{ secrets.PROVIDER_TEMP }}
+      SIGNING_CERT_TEMP: ${{ secrets.SIGNING_CERT_TEMP }}
+      SIGNING_PASS_TEMP: ${{ secrets.SIGNING_PASS_TEMP }}
+      SIGN_APP: ${{ secrets.SIGN_APP }}
     name: Mac intel build
     runs-on: macos-13
-    uses: ./.github/workflows/mac-setup.yml
-    with:
-      gradle-version: "8.1.1"
-      java-version: "17"
-      artifact-name: mac-intel-artifacts
+    steps:
+      - name: Build for mac intel
+        uses: ./.github/workflows/mac-setup.yml
+        with:
+          gradle-version: "8.1.1"
+          java-version: "17"
+          artifact-name: mac-intel-artifacts
 
   release:
     if: ${{ github.event_name == 'release' }}

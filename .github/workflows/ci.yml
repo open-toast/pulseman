@@ -43,6 +43,7 @@ jobs:
 
   mac-build-arm:
     name: Mac arm build
+    needs: linux-build
     uses: ./.github/workflows/mac-setup.yml
     with:
       runner-type: macos-latest
@@ -53,6 +54,7 @@ jobs:
 
   mac-build-intel:
     name: Mac intel build
+    needs: linux-build
     uses: ./.github/workflows/mac-setup.yml
     with:
       runner-type: macos-13

@@ -44,7 +44,6 @@ jobs:
   mac-build-arm:
     name: Mac arm build
     runs-on: macos-latest
-    needs: linux-build
     uses: ./.github/workflows/mac-setup.yml
     with:
       gradle-version: "8.1.1"
@@ -62,7 +61,6 @@ jobs:
   mac-build-intel:
     name: Mac intel build
     runs-on: macos-13
-    needs: linux-build
     uses: ./.github/workflows/mac-setup.yml
     with:
       gradle-version: "8.1.1"

@@ -27,7 +27,7 @@ Jar loaders are used.
 
 ```mermaid
 graph LR
-    CJ[Common Jar Loader] --> AJ(Auth Jar Loader) 
+    CJ[Common Jar Loader] --> AJ(Auth Jar Loader)
     AJ --> MJ(Messaging Jar Loader)
     MJ --> T![Tab 1 Jar Loader]
     MJ --> T2[Tab 2 Jar Loader]
@@ -76,6 +76,9 @@ dependencies {
 
 The files are written in `kotlin` scripting. You can add custom repositories and dependencies to the file.  
 The files will be downloaded locally and copied to the projects directories.
+
+Note: Gradle will not work in the release version if you don't have a `Java home` field set in the pulseman UI to a
+valid JDK.
 
 ### Global
 

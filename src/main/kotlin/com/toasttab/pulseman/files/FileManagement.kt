@@ -84,6 +84,15 @@ class FileManagement(homeDirectory: String? = null) {
         action(copiedFile)
     }
 
+    fun getFolderPath(dialogTitle: String, action: (File) -> Unit) {
+        val fileDialog = FileDialog(
+            title = dialogTitle,
+            mode = FileDialogMode.LOAD
+        )
+
+        fileDialog.chooseFolder(action)
+    }
+
     fun deleteFile(file: File) {
         if (file.exists()) {
             if (file.isDirectory) {

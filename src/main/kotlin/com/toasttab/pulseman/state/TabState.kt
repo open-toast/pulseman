@@ -96,6 +96,7 @@ class TabState(
         onChange = ::onChange,
         taskPrefix = pulsarMessageJars.jarFolder.name,
         gradleScript = initialSettings?.gradleScript,
+        javaHome = appState.javaHome,
         fileManagement = appState.fileManagement
     )
 

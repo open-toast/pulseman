@@ -16,7 +16,10 @@
 package com.toasttab.pulseman.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.toasttab.pulseman.AppStrings.LOADED_JAVA_HOME
+import com.toasttab.pulseman.AppStrings.SELECT_JAVA_HOME
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.ClassInfo
 import com.toasttab.pulseman.files.FileManagement
@@ -36,11 +39,12 @@ import org.fife.ui.rtextarea.RTextScrollPane
 class GradleManagement(
     private val setUserFeedback: (String) -> Unit,
     private val commonJarManager: JarManager<ClassInfo>?,
+    private val javaHome: MutableState<String>,
+    private val fileManagement: FileManagement,
     pulsarJarManagers: List<JarManager<out ClassInfo>>,
     onChange: () -> Unit,
     taskPrefix: String,
-    gradleScript: String? = null,
-    fileManagement: FileManagement
+    gradleScript: String? = null
 ) {
     private val taskName = "${taskPrefix}_task"
     private val generateState = mutableStateOf(ButtonState.WAITING)
@@ -63,7 +67,8 @@ class GradleManagement(
         onChange = onChange,
         taskName = taskName,
         filterPulsarJars = filterPulsarJars,
-        fileManagement = fileManagement
+        fileManagement = fileManagement,
+        javaHome = javaHome
     )
 
     fun generateGradleTemplate() {
@@ -98,6 +103,13 @@ class GradleManagement(
         textArea.text = gradleScript
     }
 
+    private fun onSearchSelected() {
+        fileManagement.getFolderPath(dialogTitle = SELECT_JAVA_HOME) {
+            javaHome.value = it.absolutePath
+            setUserFeedback("$LOADED_JAVA_HOME${javaHome.value}")
+        }
+    }
+
     fun getUI(): @Composable () -> Unit {
         return {
             gradleManagementUI(
@@ -111,7 +123,10 @@ class GradleManagement(
                 onFilterPulsarSelected = filterPulsarJars::onStateChange,
                 showFilterToggle = commonJarManager != null,
                 runGradleTask = ::runGradleTask,
-                scrollPane = sp
+                javaHome = javaHome.value,
+                onJavaHomeChange = javaHome::onStateChange,
+                scrollPane = sp,
+                onSearchSelected = ::onSearchSelected
             )
         }
     }

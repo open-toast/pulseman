@@ -1,8 +1,11 @@
 # Changelog
 
-## [1.5.1] - 2025-05-02
-- Add unique Jar loaders per tab, each tab is now fully sandboxed and can have its own set of jars.
-- Add gradle support, you can now add jars to a tab using gradle.
+## [1.5.2] - 2025-05-02
+- Created new Gradle download UI and Gradle scripting support.
+- Updated JAR UI to have a mass delete button.
+- Created a new global jar loader just for Protobuf jars.
+- Updated save file format to contain Gradle scripts.
+- Updated RSyntaxTextArea to use Kotlin style.
 
 ## [1.4.1] - 2024-03-08
 

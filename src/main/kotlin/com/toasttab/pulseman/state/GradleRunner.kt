@@ -15,7 +15,8 @@ class GradleRunner(
     private val taskName: String,
     private val filterPulsarJars: MutableState<Boolean>,
     private val fileManagement: FileManagement,
-    private val projectDir: File = fileManagement.appFolder
+    private val projectDir: File = fileManagement.appFolder,
+    private val javaHome: MutableState<String>
 ) {
 
     fun runGradleTask(gradleScript: String) {
@@ -23,6 +24,7 @@ class GradleRunner(
             projectDir = projectDir,
             taskName = taskName,
             gradleScript = gradleScript,
+            javaHome = javaHome.value,
             setUserFeedback = setUserFeedback
         )
         // commonJarManager must be last in the list so that jars can be added to the filtered lists first

@@ -182,7 +182,8 @@ class GradleRunnerTest {
         taskName = TASK_NAME,
         filterPulsarJars = mutableStateOf(filterPulsar),
         projectDir = tempDir,
-        fileManagement = fileManagement
+        fileManagement = fileManagement,
+        javaHome = mutableStateOf("")
     )
 
     private fun scriptWithDependency(includePulsarAuthImport: Boolean, includeProtoKtMessage: Boolean): String {

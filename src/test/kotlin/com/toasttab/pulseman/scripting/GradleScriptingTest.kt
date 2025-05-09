@@ -32,7 +32,8 @@ class GradleScriptingTest {
             projectDir = tempDir,
             taskName = taskName,
             gradleScript = gradleScript,
-            setUserFeedback = { }
+            setUserFeedback = { },
+            javaHome = null
         )
         val urlFileNames = urls.map {
             it.path.substringAfterLast('/')

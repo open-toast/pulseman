@@ -22,4 +22,10 @@ import org.apache.pulsar.client.api.Message
  */
 interface MessageHandling {
     fun parseMessage(message: Message<ByteArray>)
+
+    fun skipMessage(message: Message<ByteArray>, propertyFilter: Pair<String, String>?): Boolean {
+        return propertyFilter?.let { filter ->
+            message.properties[filter.first] != filter.second
+        } ?: false
+    }
 }

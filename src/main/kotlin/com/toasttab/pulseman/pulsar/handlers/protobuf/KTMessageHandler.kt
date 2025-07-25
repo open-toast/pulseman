@@ -52,9 +52,10 @@ data class KTMessageHandler(
         DefaultMapper.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(cls)
 
     override fun generateClassTemplate(): String {
-        val className = cls.name.split(".").last()
+        val fullName = cls.name.replace("$", ".")
+        val className = fullName.split(".").last()
         val importSet = mutableSetOf<String>()
-        importSet.add(cls.name)
+        importSet.add(fullName)
 
         val variables = StringBuilder()
         getJarLoader()
@@ -86,7 +87,8 @@ data class KTMessageHandler(
             "\$\$delegatedProperties",
             "messageSize\$delegate",
             "unknownFields",
-            "Deserializer"
+            "Deserializer",
+            "\$stable"
         )
     }
 }

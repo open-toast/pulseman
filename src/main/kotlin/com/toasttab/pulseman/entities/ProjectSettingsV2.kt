@@ -35,6 +35,8 @@ data class ProjectSettingsV2(
         return ProjectSettingsV3(
             configVersion = ProjectSettingsV3.CURRENT_VERSION,
             newJarFormatUsed = false,
+            gradleScript = null,
+            javaHome = null,
             tabs = tabs.map { tab ->
                 TabValuesV3(
                     tabName = tab.tabName,
@@ -55,7 +57,8 @@ data class ProjectSettingsV2(
                         selectedEncoding = tab.textSettings?.selectedSendEncoding
                     ),
                     pulsarAdminURL = null,
-                    tabExtension = null
+                    tabExtension = null,
+                    gradleScript = null
                 )
             }
         )

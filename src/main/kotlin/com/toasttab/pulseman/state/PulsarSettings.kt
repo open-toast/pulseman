@@ -23,6 +23,8 @@ import androidx.compose.ui.window.DialogState
 import com.toasttab.pulseman.AppState
 import com.toasttab.pulseman.AppStrings.AUTH
 import com.toasttab.pulseman.AppStrings.COMMON
+import com.toasttab.pulseman.AppStrings.GRADLE
+import com.toasttab.pulseman.AppStrings.MESSAGE
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.view.propertyConfigurationUI
 import com.toasttab.pulseman.view.pulsarSettingsUI
@@ -36,6 +38,7 @@ class PulsarSettings(
     val propertySettings: PropertyConfiguration,
     setUserFeedback: (String) -> Unit,
     val onChange: () -> Unit,
+    globalGradleManagement: GradleManagement,
     initialSettings: TabValuesV3? = null
 ) {
     init {
@@ -54,9 +57,29 @@ class PulsarSettings(
     )
 
     private val commonJarManagement =
-        JarManagement(appState.commonJars, null, setUserFeedback, onChange)
+        JarManagement(
+            jars = appState.commonJars,
+            selectedClass = null,
+            setUserFeedback = setUserFeedback,
+            onChange = onChange,
+            fileManagement = appState.fileManagement
+        )
+    private val pulsarMessageJarManagement =
+        JarManagement(
+            jars = appState.messageJars,
+            selectedClass = null,
+            setUserFeedback = setUserFeedback,
+            onChange = onChange,
+            fileManagement = appState.fileManagement
+        )
     private val authJarManagement =
-        JarManagement(appState.authJars, authSelector.selectedAuthClass, setUserFeedback, onChange)
+        JarManagement(
+            jars = appState.authJars,
+            selectedClass = authSelector.selectedAuthClass,
+            setUserFeedback = setUserFeedback,
+            onChange = onChange,
+            fileManagement = appState.fileManagement
+        )
 
     private val showDiscover = mutableStateOf(false)
     private val showJarManagement = mutableStateOf(false)
@@ -64,10 +87,12 @@ class PulsarSettings(
     private val showPropertySettings = mutableStateOf(false)
 
     private val jarManagementTabs = JarManagementTabs(
-        listOf(
+        jarManagers = listOf(
             Pair(COMMON, commonJarManagement),
+            Pair(MESSAGE, pulsarMessageJarManagement),
             Pair(AUTH, authJarManagement)
-        )
+        ),
+        gradleManagement = Pair(GRADLE, globalGradleManagement)
     )
 
     @ExperimentalFoundationApi

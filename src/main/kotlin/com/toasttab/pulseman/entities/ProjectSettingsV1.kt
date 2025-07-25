@@ -32,7 +32,9 @@ data class ProjectSettingsV1(@Suppress("DEPRECATION") val tabs: List<TabValuesV1
         return ProjectSettingsV3(
             configVersion = ProjectSettingsV3.CURRENT_VERSION,
             newJarFormatUsed = false,
-            tabs.map { tab ->
+            gradleScript = null,
+            javaHome = null,
+            tabs = tabs.map { tab ->
                 TabValuesV3(
                     tabName = tab.tabName,
                     topic = tab.topic,
@@ -52,7 +54,8 @@ data class ProjectSettingsV1(@Suppress("DEPRECATION") val tabs: List<TabValuesV1
                         selectedEncoding = null
                     ),
                     pulsarAdminURL = null,
-                    tabExtension = null
+                    tabExtension = null,
+                    gradleScript = null
                 )
             }
         )

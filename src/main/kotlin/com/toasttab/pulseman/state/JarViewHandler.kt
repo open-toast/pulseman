@@ -13,13 +13,17 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.state.protocol.protobuf
+package com.toasttab.pulseman.state
 
-enum class SelectedProtobufView {
-    SEND,
-    RECEIVE,
-    BYTE_CONVERT,
-    JAR_MANAGEMENT,
-    GRADLE,
-    PROTOBUF_CLASS
+import com.toasttab.pulseman.entities.ClassInfo
+
+/**
+ * A sealed class that represents the different views that can be displayed in the JarManagementTabs.
+ */
+sealed class JarViewHandler(open val title: String) {
+    class JarManagementView(val jarManagement: Pair<String, JarManagement<out ClassInfo>>) :
+        JarViewHandler(jarManagement.first)
+
+    class GradleManagementView(val gradleManagement: Pair<String, GradleManagement>) :
+        JarViewHandler(gradleManagement.first)
 }

@@ -43,7 +43,8 @@ class TabState(
     val tabID: UUID = UUID.randomUUID(),
     newTab: Boolean,
     initialMessage: String? = null,
-    newJarFormat: Boolean
+    newJarFormat: Boolean,
+    globalGradleManagement: GradleManagement
 ) {
     private val pulsarMessageJars = appState.tabJarManager.add(
         tabID = tabID,
@@ -84,21 +85,36 @@ class TabState(
             initialSettings = initialSettings,
             authSelector = authSelector,
             propertySettings = propertySettings,
+            globalGradleManagement = globalGradleManagement,
             onChange = ::onChange
         )
 
+    private val gradleManagement = GradleManagement(
+        setUserFeedback = userFeedback::set,
+        commonJarManager = null,
+        pulsarJarManagers = listOf(pulsarMessageJars),
+        onChange = ::onChange,
+        taskPrefix = pulsarMessageJars.jarFolder.name,
+        gradleScript = initialSettings?.gradleScript,
+        javaHome = appState.javaHome,
+        fileManagement = appState.fileManagement
+    )
+
     private val serializationState = SerializationState(
+        gradleManagement = gradleManagement,
         pulsarMessageJars = pulsarMessageJars,
         initialSettings = initialSettings,
         pulsarSettings = pulsarSettings,
         setUserFeedback = userFeedback::set,
-        onChange = ::onChange
+        onChange = ::onChange,
+        fileManagement = appState.fileManagement
     )
 
     fun cleanUp() {
         appState.tabJarManager.remove(tabID = tabID)
         serializationState.cleanUp()
         userFeedback.close()
+        gradleManagement.cleanUp()
     }
 
     fun tabValues(save: Boolean = false): TabValuesV3 {
@@ -113,7 +129,8 @@ class TabState(
             protobufSettings = serializationState.protobufState.toProtobufTabValues(),
             textSettings = serializationState.textState.toTextTabValues(),
             pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value,
-            tabExtension = pulsarMessageJars.tabFileExtension
+            tabExtension = pulsarMessageJars.tabFileExtension,
+            gradleScript = gradleManagement.currentGradleScript()
         )
 
         if (save) {

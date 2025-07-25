@@ -24,29 +24,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.entities.ClassInfo
-import com.toasttab.pulseman.state.JarManagement
-import java.io.File
+import com.toasttab.pulseman.state.JarViewHandler
 
 /**
  * Groups all the JarManagement views in the project into a tabbed popup
  */
 @Composable
 fun jarManagementTabsUI(
-    loadedJars: List<File>,
-    jarFolder: File,
-    onRemoveJar: (File) -> Unit,
-    onAddJar: (File) -> Unit,
-    jarManagers: List<Pair<String, JarManagement<out ClassInfo>>>,
-    currentView: Pair<String, JarManagement<out ClassInfo>>,
-    setCurrentView: (Pair<String, JarManagement<out ClassInfo>>) -> Unit
+    views: List<JarViewHandler>,
+    currentView: JarViewHandler,
+    setCurrentView: (JarViewHandler) -> Unit,
+    currentViewUI: @Composable () -> Unit
 ) {
     Surface {
         Column {
             Box(Modifier.padding(4.dp)) {
                 Column {
                     selectJarViewUI(
-                        jarManagers = jarManagers,
+                        views = views,
                         currentView = currentView,
                         setCurrentView = setCurrentView
                     )
@@ -55,12 +50,7 @@ fun jarManagementTabsUI(
                             .background(color = AppTheme.colors.backgroundLight)
                             .padding(2.dp)
                     ) {
-                        jarManagementUI(
-                            loadedJars,
-                            jarFolder,
-                            onRemoveJar,
-                            onAddJar
-                        )
+                        currentViewUI()
                     }
                 }
             }

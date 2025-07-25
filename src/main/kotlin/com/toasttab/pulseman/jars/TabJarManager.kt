@@ -29,7 +29,8 @@ import java.util.UUID
 data class TabJarManager(
     private val globalFeedback: GlobalFeedback,
     private val dependentJarLoader: RunTimeJarLoader? = null,
-    val jarManagers: MutableMap<UUID, JarManager<PulsarMessageClassInfo>> = mutableMapOf()
+    val jarManagers: MutableMap<UUID, JarManager<PulsarMessageClassInfo>> = mutableMapOf(),
+    val fileManagement: FileManagement
 ) {
     fun add(tabID: UUID, newJarFormat: Boolean, tabFileExtension: Int?): JarManager<PulsarMessageClassInfo> {
         val runTimeJarLoader = RunTimeJarLoader(dependentJarLoader = dependentJarLoader)
@@ -47,7 +48,8 @@ data class TabJarManager(
             globalFeedback = globalFeedback,
             runTimeJarLoader = runTimeJarLoader,
             originalJarFolderName = if (newJarFormat) null else MESSAGE_JAR_FOLDER,
-            tabFileExtension = finalTabFileExtension
+            tabFileExtension = finalTabFileExtension,
+            fileManagement = fileManagement
         ).also { newJarManager ->
             jarManagers[tabID] = newJarManager
             refresh(printError = true)
@@ -60,9 +62,9 @@ data class TabJarManager(
 
     fun reset() {
         // Search for folders beginning with MESSAGE_JAR_FOLDER and delete them
-        FileManagement.appFolder.listFiles()?.forEach {
+        fileManagement.appFolder.listFiles()?.forEach {
             if (it.isDirectory && it.name.startsWith("${MESSAGE_JAR_FOLDER}_")) {
-                FileManagement.deleteFile(it)
+                fileManagement.deleteFile(it)
             }
         }
         jarManagers.clear()
@@ -75,7 +77,7 @@ data class TabJarManager(
     fun remove(tabID: UUID) {
         val jarManager = jarManagers[tabID] ?: return
         jarManagers.remove(tabID)
-        FileManagement.deleteFile(file = jarManager.jarFolder)
+        fileManagement.deleteFile(file = jarManager.jarFolder)
     }
 
     fun copyTab(fromTabID: UUID, toTabID: UUID) {
@@ -86,7 +88,7 @@ data class TabJarManager(
 
     // This is a recursive function that will find the next available tab number
     private fun getNewTabNumber(tabNumber: Int = 0): Int {
-        return if (File("${FileManagement.APP_FOLDER_NAME}${jarFolderName(tabNumber = tabNumber)}/").exists()) {
+        return if (File("${fileManagement.APP_FOLDER_NAME}${jarFolderName(tabNumber = tabNumber)}/").exists()) {
             getNewTabNumber(tabNumber = tabNumber + 1)
         } else {
             tabNumber

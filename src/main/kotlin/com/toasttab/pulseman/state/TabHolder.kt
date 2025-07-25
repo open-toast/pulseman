@@ -21,7 +21,7 @@ import com.toasttab.pulseman.AppStrings.COPY
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.entities.TabValuesV3
 
-class TabHolder(private val appState: AppState) {
+class TabHolder(private val appState: AppState, private val globalGradleManagement: GradleManagement) {
     private val selection = SingleSelection<TabState>()
     val active: TabState? get() = selection.selected
     val tabState = mutableStateListOf<TabState>()
@@ -35,7 +35,8 @@ class TabHolder(private val appState: AppState) {
             close = ::close,
             initialMessage = initialMessage,
             newTab = true,
-            newJarFormat = true
+            newJarFormat = true,
+            globalGradleManagement = globalGradleManagement
         )
         tabState.add(tab)
         tab.activate()
@@ -57,7 +58,8 @@ class TabHolder(private val appState: AppState) {
                 close = ::close,
                 initialSettings = initialSettings,
                 newTab = false,
-                newJarFormat = newJarFormat
+                newJarFormat = newJarFormat,
+                globalGradleManagement = globalGradleManagement
             )
             tabState.add(tab)
         }
@@ -77,7 +79,8 @@ class TabHolder(private val appState: AppState) {
                     )
                 },
                 newTab = true,
-                newJarFormat = true
+                newJarFormat = true,
+                globalGradleManagement = globalGradleManagement
             )
             tabState.add(copiedTab)
             appState.tabJarManager.copyTab(fromTabID = currentTab.tabID, toTabID = copiedTab.tabID)

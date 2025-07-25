@@ -22,17 +22,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,9 +42,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppStrings.ADD_JAR
+import com.toasttab.pulseman.AppStrings.DELETE_ALL
 import com.toasttab.pulseman.AppStrings.DELETE_JAR
 import com.toasttab.pulseman.AppTheme
-import com.toasttab.pulseman.files.FileManagement.addFileDialog
+import com.toasttab.pulseman.files.FileManagement
 import java.io.File
 
 /**
@@ -54,9 +56,34 @@ fun jarManagementUI(
     loadedJars: List<File>,
     jarFolder: File,
     onRemoveJar: (File) -> Unit,
-    onAddJar: (File) -> Unit
+    onAddJar: (File) -> Unit,
+    onRemoveAllJars: () -> Unit,
+    fileManagement: FileManagement // TODO hoist out of UI
 ) {
-    Surface {
+    Column(modifier = Modifier.fillMaxHeight().fillMaxWidth()) {
+        Row {
+            Button(
+                modifier = Modifier.padding(4.dp),
+                onClick = {
+                    fileManagement.addFileDialog(jarFolder) {
+                        onAddJar(it)
+                    }
+                }
+            ) {
+                Text(ADD_JAR)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                modifier = Modifier.padding(4.dp),
+                onClick = {
+                    onRemoveAllJars()
+                }
+            ) {
+                Text(DELETE_ALL)
+            }
+        }
         Box {
             val stateVertical = rememberScrollState(0)
             Column(modifier = Modifier.verticalScroll(stateVertical)) {
@@ -85,35 +112,6 @@ fun jarManagementUI(
 
                             Spacer(modifier = Modifier.width(8.dp))
                         }
-                    }
-                }
-                Card(
-                    backgroundColor = AppTheme.colors.backgroundMedium,
-                    border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)
-                ) {
-                    Row {
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Text(
-                            text = AnnotatedString(ADD_JAR),
-                            modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        IconButton(
-                            onClick = {
-                                addFileDialog(jarFolder) {
-                                    onAddJar(it)
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = ADD_JAR)
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
             }

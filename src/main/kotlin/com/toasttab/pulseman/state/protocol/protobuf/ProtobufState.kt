@@ -24,9 +24,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
+import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.MessageHandlingClassImpl
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.state.GradleManagement
 import com.toasttab.pulseman.state.JarManagement
 import com.toasttab.pulseman.state.JarManagementTabs
 import com.toasttab.pulseman.state.PulsarSettings
@@ -36,11 +38,13 @@ import com.toasttab.pulseman.view.protocol.protobuf.protobufUI
 import com.toasttab.pulseman.view.selectTabViewUI
 
 class ProtobufState(
+    private val gradleManagement: GradleManagement,
     pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
-    onChange: () -> Unit
+    onChange: () -> Unit,
+    fileManagement: FileManagement
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -60,13 +64,13 @@ class ProtobufState(
             jars = pulsarMessageJars,
             selectedClass = protobufSelector.selectedClass,
             setUserFeedback = setUserFeedback,
-            onChange = onChange
+            onChange = onChange,
+            fileManagement = fileManagement
         )
 
     private val protobufJarManagementTab = JarManagementTabs(
-        listOf(
-            Pair(AppStrings.MESSAGE, protobufJarManagement)
-        )
+        jarManagers = listOf(Pair(AppStrings.MESSAGE, protobufJarManagement)),
+        gradleManagement = null
     )
 
     private val sendMessage = SendProtobufMessage(
@@ -137,6 +141,9 @@ class ProtobufState(
                             Triple(AppStrings.JARS, SelectedProtobufView.JAR_MANAGEMENT) {
                                 selectedView.onStateChange(SelectedProtobufView.JAR_MANAGEMENT)
                             },
+                            Triple(AppStrings.GRADLE, SelectedProtobufView.GRADLE) {
+                                selectedView.onStateChange(SelectedProtobufView.GRADLE)
+                            },
                             Triple(AppStrings.CLASS, SelectedProtobufView.PROTOBUF_CLASS) {
                                 selectedView.onStateChange(SelectedProtobufView.PROTOBUF_CLASS)
                             }
@@ -145,6 +152,7 @@ class ProtobufState(
                     )
                 },
                 protobufJarManagementUI = protobufJarManagementTab.getUI(),
+                gradleUI = gradleManagement.getUI(),
                 byteConversionUI = convertProtoBufMessage.getUI()
             )
         }

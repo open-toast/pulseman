@@ -16,6 +16,8 @@
 
 package com.toasttab.pulseman
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -30,18 +32,29 @@ import com.toasttab.pulseman.jars.LoadedClasses
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.jars.TabJarManager
 import com.toasttab.pulseman.pulsar.filters.AuthClassFilter
+import com.toasttab.pulseman.pulsar.filters.protobuf.GeneratedMessageV3Filter
+import com.toasttab.pulseman.pulsar.filters.protobuf.KTMessageFilter
 import com.toasttab.pulseman.pulsar.handlers.PulsarAuthHandler
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.GlobalFeedback
+import com.toasttab.pulseman.state.GradleManagement
 import com.toasttab.pulseman.state.TabHolder
 
 class AppState {
+    val fileManagement: FileManagement = FileManagement()
+
+    val javaHome: MutableState<String> = mutableStateOf("")
+
     val globalFeedback = GlobalFeedback()
 
     // A common Jar Loader, any jars loaded here will be available to all tabs and auth functionality
     private val commonJarLoader = RunTimeJarLoader()
 
-    // This is used for auth operation, inherits the common jars and will be available in all tabs
+    // This is used for auth operation, inherits the commonJarLoader and will be available in all tabs
     private val authJarLoader = RunTimeJarLoader(dependentJarLoader = commonJarLoader)
+
+    // A jar loader for storing global pulsar message jars, store messages jars here to make them available to all tabs
+    private val messageJarLoader = RunTimeJarLoader(dependentJarLoader = authJarLoader)
 
     val commonJars: JarManager<ClassInfo> = JarManager(
         loadedClasses = LoadedClasses(
@@ -52,7 +65,24 @@ class AppState {
         globalFeedback = globalFeedback,
         runTimeJarLoader = commonJarLoader,
         originalJarFolderName = null,
-        tabFileExtension = null
+        tabFileExtension = null,
+        fileManagement = fileManagement
+    )
+
+    val messageJars: JarManager<PulsarMessageClassInfo> = JarManager(
+        loadedClasses = LoadedClasses(
+            classFilters = listOf(
+                GeneratedMessageV3Filter(runTimeJarLoader = messageJarLoader),
+                KTMessageFilter(runTimeJarLoader = messageJarLoader)
+            ),
+            runTimeJarLoader = messageJarLoader
+        ),
+        jarFolderName = GLOBAL_MESSAGE_JAR_FOLDER,
+        globalFeedback = globalFeedback,
+        runTimeJarLoader = messageJarLoader,
+        originalJarFolderName = null,
+        tabFileExtension = null,
+        fileManagement = fileManagement
     )
 
     val authJars: JarManager<PulsarAuthHandler> = JarManager(
@@ -67,26 +97,39 @@ class AppState {
         globalFeedback = globalFeedback,
         runTimeJarLoader = authJarLoader,
         originalJarFolderName = null,
-        tabFileExtension = null
+        tabFileExtension = null,
+        fileManagement = fileManagement
     )
 
     val tabJarManager = TabJarManager(
         globalFeedback = globalFeedback,
-        dependentJarLoader = authJarLoader
+        dependentJarLoader = messageJarLoader,
+        fileManagement = fileManagement
     )
 
-    private val jarManagers = listOf(authJars, commonJars)
+    private val jarManagers = listOf(authJars, commonJars, messageJars)
 
-    val requestTabs = TabHolder(appState = this)
+    private val gradleManagement = GradleManagement(
+        setUserFeedback = globalFeedback::set,
+        commonJarManager = commonJars,
+        pulsarJarManagers = listOf(messageJars, authJars),
+        onChange = { }, // TODO make it possible to notify about global state changes
+        taskPrefix = GLOBAL_GRADLE_TASK_NAME,
+        gradleScript = null, // Is loaded by loadFile below
+        javaHome = javaHome,
+        fileManagement = fileManagement
+    )
+
+    val requestTabs = TabHolder(appState = this, globalGradleManagement = gradleManagement)
 
     fun loadFile(loadDefault: Boolean) {
         globalFeedback.reset()
-        FileManagement.getProjectFile(loadDefault)?.let { projectFile ->
+        fileManagement.getProjectFile(loadDefault)?.let { projectFile ->
             jarManagers.forEach { it.deleteAllJars() }
             tabJarManager.deleteAllJars()
             tabJarManager.reset()
             val projectSettings =
-                FileManagement.loadProject(file = projectFile, setUserFeedback = globalFeedback::set)
+                fileManagement.loadProject(file = projectFile, setUserFeedback = globalFeedback::set)
                     ?.let { loadedProject ->
                         loadConfig(project = loadedProject)
                     }
@@ -100,6 +143,15 @@ class AppState {
                     tabSettings = projectSettings.tabs,
                     newJarFormat = projectSettings.newJarFormatUsed ?: false
                 )
+            }
+            projectSettings?.gradleScript?.let {
+                gradleManagement.loadGradleScript(it)
+            } ?: gradleManagement.generateGradleTemplate()
+
+            projectSettings?.javaHome?.let {
+                javaHome.value = it
+            } ?: run {
+                javaHome.value = ""
             }
         }
     }
@@ -130,11 +182,13 @@ class AppState {
     }
 
     fun save(quickSave: Boolean) {
-        FileManagement.saveProject(
+        fileManagement.saveProject(
             tabsJson = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(
                     ProjectSettingsV3(
                         configVersion = ProjectSettingsV3.CURRENT_VERSION,
+                        gradleScript = gradleManagement.currentGradleScript(),
+                        javaHome = javaHome.value,
                         tabs = requestTabs.allTabValues(),
                         newJarFormatUsed = true
                     )
@@ -158,5 +212,7 @@ class AppState {
     companion object {
         private const val AUTH_JAR_FOLDER = "auth_jars"
         private const val DEPENDENCY_JAR_FOLDER = "dependency_jars"
+        private const val GLOBAL_MESSAGE_JAR_FOLDER = "global_message_jars"
+        private const val GLOBAL_GRADLE_TASK_NAME = "global"
     }
 }

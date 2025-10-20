@@ -27,7 +27,7 @@ import org.apache.pulsar.client.api.Authentication
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
-import java.net.URL
+import java.net.URI
 
 // If running these tests through an IDE
 // Run "./gradlew createTestJar" to generate test jars before running this test.
@@ -114,7 +114,7 @@ class LoadedClassesTest {
         }
 
         // Add a fake url, so it has a new url list and needs to rebuild the classes
-        jarLoader.addJar(URL("file:jar1"))
+        jarLoader.addJar(URI("file:jar1").toURL())
         loadedClasses.filter("")
         verify(exactly = 3) {
             ktMessageFilter.getClasses(any())

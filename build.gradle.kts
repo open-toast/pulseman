@@ -56,9 +56,6 @@ configurations {
     }
 }
 
-val tempBuildDir = "$buildDir/temp/"
-val pulsarClientJar = "pulsar-client-$pulsarVersion.jar"
-
 dependencies {
     implementation(compose.desktop.currentOs)
 
@@ -93,6 +90,7 @@ dependencies {
      */
     compileOnly("com.google.api.grpc:proto-google-common-protos:$googleCommonProtos")
     compileOnly("com.toasttab.protokt.thirdparty:proto-google-common-protos:$protoktVersion")
+    compileOnly("com.toasttab.protokt.thirdparty:proto-google-common-protos-extensions-lite:$protoktVersion")
 
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.apache.pulsar:pulsar-client-admin-original:$pulsarVersion")
@@ -123,14 +121,14 @@ ktlint {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         allWarningsAsErrors.set(true)
     }
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 

@@ -24,6 +24,7 @@ import com.toasttab.pulseman.AppStrings.CLEARED_HISTORY
 import com.toasttab.pulseman.AppStrings.CONNECTION_CLOSED
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CLOSE_PULSAR
 import com.toasttab.pulseman.AppStrings.FAIL_TO_SUBSCRIBE
+import com.toasttab.pulseman.AppStrings.PROPERTY_FILTER
 import com.toasttab.pulseman.AppStrings.SUBSCRIBED
 import com.toasttab.pulseman.entities.ButtonState
 import com.toasttab.pulseman.entities.ReceivedMessages
@@ -45,7 +46,7 @@ class ReceiveMessage(
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val messageHandling: MessageHandling,
     private val runTimeJarLoader: RunTimeJarLoader,
-    private val propertyFilter: MutableState<Pair<String, String>?>
+    private val propertyFilter: MutableState<Map<String, String>>
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -53,14 +54,14 @@ class ReceiveMessage(
     private val clearState = mutableStateOf(ButtonState.WAITING)
     private val closeState = mutableStateOf(ButtonState.WAITING)
 
-    private val propertyFilterSelectorUI = DropdownSelector(
-        options = pulsarSettings.propertySettings.propertyMap(setUserFeedback).keys.toList(),
-        onSelected = { selectedKey ->
-            pulsarSettings.propertySettings.propertyMap(setUserFeedback)[selectedKey]?.let { selectedValue ->
-                propertyFilter.value = Pair(selectedKey, selectedValue)
-            }
+    private val propertyFilterSelectorUI = MultiSelectDropdown(
+        label = PROPERTY_FILTER,
+        optionsProvider = { pulsarSettings.propertySettings.propertyMap(setUserFeedback) },
+        selectedItems = { propertyFilter.value.keys },
+        onSelectionChanged = { selectedMap ->
+            propertyFilter.value = selectedMap
         }
-    ).getUI(currentlySelected = "")
+    ).getUI()
 
     private val pulsar: MutableState<Pulsar?> = mutableStateOf(null)
     private var consumer: Consumer<ByteArray>? = null

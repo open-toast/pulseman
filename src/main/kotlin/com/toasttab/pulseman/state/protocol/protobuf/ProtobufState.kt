@@ -82,11 +82,11 @@ class ProtobufState(
         onChange = onChange
     )
 
-    private val propertyFilter: MutableState<Pair<String, String>?> = mutableStateOf(null)
+    private val propertyFilter: MutableState<Map<String, String>> = mutableStateOf(emptyMap())
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
     private val messageHandling = MessageHandlingClassImpl(
         selectedProtoClass = protobufSelector.selectedClass,
-        propertyFilter = propertyFilter.value,
+        propertyFilter = { propertyFilter.value },
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )

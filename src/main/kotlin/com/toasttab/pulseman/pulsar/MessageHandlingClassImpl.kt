@@ -31,14 +31,15 @@ import java.time.Instant
  */
 class MessageHandlingClassImpl(
     private val selectedProtoClass: SingleSelection<PulsarMessageClassInfo>,
-    private val propertyFilter: Pair<String, String>?,
+    private val propertyFilter: () -> Map<String, String>,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val setUserFeedback: (String) -> Unit
 ) : MessageHandling {
 
     override fun parseMessage(message: Message<ByteArray>) {
         try {
-            if (skipMessage(message, propertyFilter)) {
+            val currentFilter = propertyFilter()
+            if (skipMessage(message, currentFilter)) {
                 return
             }
             val proto = selectedProtoClass.selected ?: run {

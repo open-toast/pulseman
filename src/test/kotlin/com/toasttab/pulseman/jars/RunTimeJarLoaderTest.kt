@@ -18,6 +18,7 @@ package com.toasttab.pulseman.jars
 import com.toasttab.pulseman.entities.JarLoaderType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.net.URI
 import java.net.URL
 
 class RunTimeJarLoaderTest {
@@ -120,14 +121,15 @@ class RunTimeJarLoaderTest {
     }
 
     companion object {
-        private val url1 = URL("file:jar1")
-        private val url2 = URL("file:jar2")
-        private val url3 = URL("file:jar3")
+        private val url1 = URI("file:jar1").toURL()
+        private val url2 = URI("file:jar2").toURL()
+        private val url3 = URI("file:jar3").toURL()
 
         private const val GOOGLE_COMMON = "proto-google-common-protos-original.jar"
         private const val PROTOKT_COMMON = "proto-google-common-protos-protoKT.jar"
         private const val PROTOKT_COMMON_LITE = "proto-google-common-protos-lite-protoKT.jar"
+        private const val PROTOKT_COMMON_EXTENSIONS_LITE = "proto-google-common-protos-extensions-lite-protoKT.jar"
         private val expectedGoogleURLs = listOf(GOOGLE_COMMON)
-        private val expectedProtoKTURls = listOf(PROTOKT_COMMON, PROTOKT_COMMON_LITE)
+        private val expectedProtoKTURls = listOf(PROTOKT_COMMON, PROTOKT_COMMON_LITE, PROTOKT_COMMON_EXTENSIONS_LITE)
     }
 }

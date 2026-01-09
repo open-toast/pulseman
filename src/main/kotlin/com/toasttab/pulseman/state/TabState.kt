@@ -124,7 +124,7 @@ class TabState(
             serviceUrl = pulsarSettings.serviceUrl.value,
             selectedAuthClass = authSelector.selectedAuthClass.selected?.cls?.name,
             authJsonParameters = authSelector.authJsonParameters(),
-            propertyMap = propertySettings.propertyMap(),
+            propertyMap = propertySettings.propertyText(),
             serializationFormat = serializationFormat.value,
             protobufSettings = serializationState.protobufState.toProtobufTabValues(),
             textSettings = serializationState.textState.toTextTabValues(),

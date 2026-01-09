@@ -105,6 +105,7 @@ object AppStrings {
     const val PROJECT_FILE_DIALOG_TITLE = "Select Project File"
     const val PROTO_CLASS_NOT_SELECTED = "Proto class not selected"
     const val PROPERTIES = "Properties"
+    const val PROPERTY_FILTER = "Property Filter"
     const val PULSAR_URL = "Pulsar URL"
     const val PULSEMAN = "Pulseman"
     const val RECEIVE = "Receive"

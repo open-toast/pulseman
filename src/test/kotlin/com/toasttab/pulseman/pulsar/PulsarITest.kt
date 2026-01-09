@@ -61,7 +61,7 @@ class PulsarITest : PulsarITestSupport() {
             every { serviceUrl } returns mutableStateOf(pulsarContainer.pulsarBrokerUrl)
             every { topic } returns mutableStateOf(testTopic)
             every { propertySettings } returns mockk(relaxed = true) {
-                every { propertyMap() } returns testPropertyString
+                every { propertyMap(any()) } returns mapOf("key1" to "value1", "key2" to "value2")
             }
         }
         runTimeJarLoader = RunTimeJarLoader()

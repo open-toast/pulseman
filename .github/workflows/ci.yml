@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: corretto
-          java-version: 17
+          java-version: 21
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -48,7 +48,7 @@ jobs:
     with:
       runner-type: macos-latest
       gradle-version: "8.1.1"
-      java-version: "17"
+      java-version: "21"
       artifact-name: mac-arm-artifacts
     secrets: inherit
 
@@ -59,7 +59,7 @@ jobs:
     with:
       runner-type: macos-13
       gradle-version: "8.1.1"
-      java-version: "17"
+      java-version: "21"
       artifact-name: mac-intel-artifacts
     secrets: inherit
 

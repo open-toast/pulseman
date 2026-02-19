@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TESTCONTAINERS_RYUK_DISABLED: true
+      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+      TESTCONTAINERS_HOST_OVERRIDE: localhost
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,6 +26,10 @@ jobs:
           java-version: 21
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+      - name: Verify Docker
+        run: |
+          docker version
+          docker ps
       - name: Run lint check
         run: ./gradlew ktlintCheck
       - name: Run tests

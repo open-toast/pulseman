@@ -31,7 +31,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import org.jetbrains.skia.Image
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
@@ -49,6 +48,7 @@ import com.toasttab.pulseman.AppStrings.SAVE_AS
 import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_MESSAGE
 import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_TITLE
 import com.toasttab.pulseman.view.tabHolderUI
+import org.jetbrains.skia.Image
 import javax.swing.JFrame
 import javax.swing.JOptionPane
 

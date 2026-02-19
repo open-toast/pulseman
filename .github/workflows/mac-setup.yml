@@ -7,9 +7,6 @@ on:
       artifact-name:
         required: true
         type: string
-      gradle-version:
-        required: true
-        type: string
       java-version:
         required: true
         type: string
@@ -63,8 +60,6 @@ jobs:
           java-version: ${{ inputs.java-version }}
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: ${{ inputs.gradle-version }}
       - name: Create DMG
         run: ./gradlew packageDmg --stacktrace
       - name: Notarize DMG

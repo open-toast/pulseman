@@ -12,10 +12,6 @@ jobs:
   linux-build:
     name: Linux build
     runs-on: ubuntu-latest
-    env:
-      TESTCONTAINERS_RYUK_DISABLED: true
-      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
-      TESTCONTAINERS_HOST_OVERRIDE: localhost
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

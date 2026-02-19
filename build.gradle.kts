@@ -32,7 +32,6 @@ repositories {
     mavenCentral()
     maven { url = uri("https://maven.google.com") }
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 
 val assertJVersion: String by rootProject

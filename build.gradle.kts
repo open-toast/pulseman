@@ -17,9 +17,9 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.21"
-    id("org.jetbrains.compose") version "1.6.11"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
+    kotlin("jvm") version "2.3.10"
+    id("org.jetbrains.compose") version "1.8.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.3.10"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
 }
 
@@ -32,10 +32,10 @@ repositories {
     mavenCentral()
     maven { url = uri("https://maven.google.com") }
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
 
 val assertJVersion: String by rootProject
-val composeVersion: String by rootProject
 val googleCommonProtos: String by rootProject
 val jacksonVersion: String by rootProject
 val jUnitVersion: String by rootProject
@@ -58,6 +58,7 @@ configurations {
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation(compose.materialIconsExtended)
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -70,7 +71,6 @@ dependencies {
     implementation("org.apache.pulsar:pulsar-client:$pulsarVersion")
     implementation("org.apache.pulsar:pulsar-client-admin:$pulsarVersion")
     implementation("org.gradle:gradle-tooling-api:$toolingApiVersion")
-    implementation("org.jetbrains.compose.material:material-icons-extended:$composeVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$kotlinVersion")

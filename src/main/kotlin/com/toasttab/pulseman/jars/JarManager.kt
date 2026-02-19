@@ -142,8 +142,8 @@ data class JarManager<T : ClassInfo>(
         removeJar(jar)
         var feedback = "$REMOVED ${jar.path}"
         if (selectedClass?.selected?.cls?.protectionDomain?.codeSource?.location?.path == jar.path) {
-            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass?.selected?.cls?.name}"
-            selectedClass?.selected = null
+            feedback += "\n$DELETED_CLASS_FEEDBACK. ${selectedClass.selected?.cls?.name}"
+            selectedClass.selected = null
         }
         setUserFeedback(feedback)
         onChange()

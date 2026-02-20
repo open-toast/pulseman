@@ -25,9 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.MenuBar
@@ -47,6 +48,7 @@ import com.toasttab.pulseman.AppStrings.SAVE_AS
 import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_MESSAGE
 import com.toasttab.pulseman.AppStrings.UNSAVED_CHANGES_DIALOG_TITLE
 import com.toasttab.pulseman.view.tabHolderUI
+import org.jetbrains.skia.Image
 import javax.swing.JFrame
 import javax.swing.JOptionPane
 
@@ -91,10 +93,17 @@ fun main() = application {
         }
     }
 
+    val appIcon = remember {
+        val resourceStream = Thread.currentThread().contextClassLoader.getResourceAsStream(PULSE_LOGO)
+        resourceStream?.use { stream ->
+            BitmapPainter(Image.makeFromEncoded(stream.readBytes()).toComposeImageBitmap())
+        } ?: error("Failed to load $PULSE_LOGO")
+    }
+
     Window(
         onCloseRequest = promptForUnsavedChanges,
         title = PULSEMAN,
-        icon = painterResource(PULSE_LOGO),
+        icon = appIcon,
         state = rememberWindowState(width = 900.dp, height = 1200.dp)
     ) {
         MaterialTheme(colors = AppTheme.colors.material) {

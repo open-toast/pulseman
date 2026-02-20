@@ -63,7 +63,7 @@ You can import Jars through gradle by creating a `build.gradle.kt` configuration
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.3.10"
 }
 
 repositories {

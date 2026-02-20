@@ -213,7 +213,7 @@ object GradleScripting {
 
     val gradleTemplate = """
             plugins {
-                kotlin("jvm") version "2.0.21"
+                kotlin("jvm") version "2.3.10"
             }
 
             repositories {

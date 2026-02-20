@@ -58,7 +58,7 @@ jobs:
     needs: linux-build
     uses: ./.github/workflows/mac-setup.yml
     with:
-      runner-type: macos-13
+      runner-type: macos-15-intel
       java-version: "21"
       artifact-name: mac-intel-artifacts
     secrets: inherit

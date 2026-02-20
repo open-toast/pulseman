@@ -30,6 +30,7 @@ import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
 import com.toasttab.pulseman.state.GradleManagement
 import com.toasttab.pulseman.state.JarManagement
 import com.toasttab.pulseman.state.JarManagementTabs
+import com.toasttab.pulseman.state.MultiSelectDropdown
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.ReceiveMessage
 import com.toasttab.pulseman.state.onStateChange
@@ -43,7 +44,9 @@ class ProtobufState(
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit,
-    fileManagement: FileManagement
+    fileManagement: FileManagement,
+    propertyFilter: () -> Map<String, String>,
+    propertyFilterSelectorUI: MultiSelectDropdown
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -84,6 +87,7 @@ class ProtobufState(
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
     private val messageHandling = MessageHandlingClassImpl(
         selectedProtoClass = protobufSelector.selectedClass,
+        propertyFilter = propertyFilter,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -93,7 +97,8 @@ class ProtobufState(
         pulsarSettings = pulsarSettings,
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
-        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader
+        runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
+        propertyFilterSelectorUI = propertyFilterSelectorUI
     )
 
     private val convertProtoBufMessage = ConvertProtobufMessage(

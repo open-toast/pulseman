@@ -19,7 +19,7 @@ import com.toasttab.pulseman.state.protocol.protobuf.ProtobufTabValuesV3
 import com.toasttab.pulseman.state.protocol.text.TextTabValuesV3
 
 /**
- * Stores the settings for each tab, will be serialized to a json string and saved in the project zip.
+ * Stores the settings for each tab, will be serialized to a JSON string and saved in the project zip.
  */
 data class TabValuesV3(
     val tabName: String?,
@@ -33,5 +33,6 @@ data class TabValuesV3(
     val textSettings: TextTabValuesV3?,
     val pulsarAdminURL: String?,
     val tabExtension: Int?,
-    val gradleScript: String?
+    val gradleScript: String?,
+    val propertyFilters: List<String> = emptyList()
 )

@@ -55,7 +55,8 @@ data class ProjectSettingsV1(@Suppress("DEPRECATION") val tabs: List<TabValuesV1
                     ),
                     pulsarAdminURL = null,
                     tabExtension = null,
-                    gradleScript = null
+                    gradleScript = null,
+                    propertyFilters = emptyList()
                 )
             }
         )

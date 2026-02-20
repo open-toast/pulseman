@@ -76,7 +76,7 @@ class TabState(
             onChange = ::onChange
         )
 
-    private val propertySettings = PropertyConfiguration(::onChange, initialSettings)
+    private val propertySettings = PropertyConfiguration(::onChange, initialSettings, userFeedback::set)
 
     private val pulsarSettings =
         PulsarSettings(
@@ -107,7 +107,8 @@ class TabState(
         pulsarSettings = pulsarSettings,
         setUserFeedback = userFeedback::set,
         onChange = ::onChange,
-        fileManagement = appState.fileManagement
+        fileManagement = appState.fileManagement,
+        propertyConfiguration = propertySettings
     )
 
     fun cleanUp() {
@@ -124,13 +125,14 @@ class TabState(
             serviceUrl = pulsarSettings.serviceUrl.value,
             selectedAuthClass = authSelector.selectedAuthClass.selected?.cls?.name,
             authJsonParameters = authSelector.authJsonParameters(),
-            propertyMap = propertySettings.propertyMap(),
+            propertyMap = propertySettings.propertyText(),
             serializationFormat = serializationFormat.value,
             protobufSettings = serializationState.protobufState.toProtobufTabValues(),
             textSettings = serializationState.textState.toTextTabValues(),
             pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value,
             tabExtension = pulsarMessageJars.tabFileExtension,
-            gradleScript = gradleManagement.currentGradleScript()
+            gradleScript = gradleManagement.currentGradleScript(),
+            propertyFilters = propertySettings.currentPropertyFilters()
         )
 
         if (save) {

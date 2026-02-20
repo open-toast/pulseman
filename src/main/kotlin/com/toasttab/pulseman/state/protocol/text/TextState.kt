@@ -25,6 +25,7 @@ import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.MessageHandlingImpl
+import com.toasttab.pulseman.state.MultiSelectDropdown
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.ReceiveMessage
 import com.toasttab.pulseman.state.onStateChange
@@ -36,7 +37,9 @@ class TextState(
     pulsarSettings: PulsarSettings,
     runTimeJarLoader: RunTimeJarLoader,
     setUserFeedback: (String) -> Unit,
-    onChange: () -> Unit
+    onChange: () -> Unit,
+    propertyFilter: () -> Map<String, String>,
+    propertyFilterSelectorUI: MultiSelectDropdown
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -63,6 +66,7 @@ class TextState(
 
     private val messageHandling = MessageHandlingImpl(
         messageType = serializationTypeSelector.selectedEncoding,
+        propertyFilter = propertyFilter,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -72,7 +76,8 @@ class TextState(
         pulsarSettings = pulsarSettings,
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
-        runTimeJarLoader = runTimeJarLoader
+        runTimeJarLoader = runTimeJarLoader,
+        propertyFilterSelectorUI = propertyFilterSelectorUI
     )
 
     fun toTextTabValues() = TextTabValuesV3(

@@ -17,24 +17,24 @@ package com.toasttab.pulseman.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import com.toasttab.pulseman.view.dropdownSelectorUI
+import com.toasttab.pulseman.view.multiSelectDropdownUI
 
-class DropdownSelector(
-    private val options: List<String>,
-    private val onSelected: (String) -> Unit
+class MultiSelectDropdown(
+    private val label: String,
+    private val options: () -> Map<String, String>,
+    private val selectedValues: () -> Set<String>,
+    private val onSelectionChanged: (Set<String>) -> Unit
 ) {
     private val expanded = mutableStateOf(false)
 
-    fun getUI(currentlySelected: String?, noOptionSelected: String = ""): @Composable () -> Unit {
-        return {
-            dropdownSelectorUI(
-                expanded = expanded.value,
-                currentlySelected = currentlySelected,
-                noOptionSelected = noOptionSelected,
-                options = options,
-                onChangeExpanded = expanded::onChange,
-                onSelectedOption = onSelected
-            )
-        }
+    fun getUI(): @Composable () -> Unit = {
+        multiSelectDropdownUI(
+            label = label,
+            expanded = expanded.value,
+            onChangeExpanded = { expanded.value = !expanded.value },
+            options = options(),
+            selectedValues = selectedValues(),
+            onSelectionChanged = onSelectionChanged
+        )
     }
 }

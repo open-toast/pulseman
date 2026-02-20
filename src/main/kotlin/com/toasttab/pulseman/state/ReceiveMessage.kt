@@ -44,7 +44,8 @@ class ReceiveMessage(
     private val pulsarSettings: PulsarSettings,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val messageHandling: MessageHandling,
-    private val runTimeJarLoader: RunTimeJarLoader
+    private val runTimeJarLoader: RunTimeJarLoader,
+    private val propertyFilterSelectorUI: MultiSelectDropdown
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -83,6 +84,7 @@ class ReceiveMessage(
 
     private fun onClear() {
         receivedMessages.clear()
+        messageHandling.resetSkippedMessages()
         setUserFeedback(CLEARED_HISTORY)
     }
 
@@ -117,7 +119,9 @@ class ReceiveMessage(
                 onClear = ::onClear,
                 onCloseConnection = ::onCloseConnection,
                 receivedMessages = receivedMessages,
-                scrollState = stateVertical
+                scrollState = stateVertical,
+                propertyFilterSelectorUI = propertyFilterSelectorUI.getUI(),
+                skippedMessages = messageHandling.skippedMessages
             )
         }
     }

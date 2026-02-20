@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.toasttab.pulseman.view
 
 import androidx.compose.foundation.background
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -38,16 +38,16 @@ import androidx.compose.ui.unit.dp
 import com.toasttab.pulseman.AppStrings
 
 /**
- * This view allows the user to select from a list of options
+ * This view allows the user to select multiple options from a dropdown list
  */
 @Composable
-fun dropdownSelectorUI(
+fun multiSelectDropdownUI(
+    label: String,
     expanded: Boolean,
-    currentlySelected: String?,
-    noOptionSelected: String = "",
-    options: List<String>,
     onChangeExpanded: () -> Unit,
-    onSelectedOption: (String) -> Unit
+    options: Map<String, String>,
+    selectedValues: Set<String>,
+    onSelectionChanged: (Set<String>) -> Unit
 ) {
     Box {
         IconButton(
@@ -59,11 +59,13 @@ fun dropdownSelectorUI(
                     .border(width = 0.8.dp, color = Color.White.copy(alpha = 0.5f), shape = RoundedCornerShape(8.dp))
             ) {
                 Row(modifier = Modifier.background(Color.Transparent).padding(8.dp, 8.dp)) {
-                    if (currentlySelected != null) {
-                        Text(currentlySelected)
-                    } else {
-                        Text(noOptionSelected)
-                    }
+                    Text(
+                        text = if (selectedValues.isEmpty()) {
+                            label
+                        } else {
+                            "$label (${selectedValues.size})"
+                        }
+                    )
                     Icon(Icons.Filled.ArrowDropDown, contentDescription = AppStrings.CHOOSE_OPTION)
                 }
             }
@@ -72,19 +74,32 @@ fun dropdownSelectorUI(
             expanded = expanded,
             onDismissRequest = { onChangeExpanded() }
         ) {
-            options.forEachIndexed { index, format ->
+            options.keys.forEachIndexed { index, key ->
                 DropdownMenuItem(
                     onClick = {
-                        onSelectedOption(format)
-                        onChangeExpanded()
+                        val newSelection = if (selectedValues.contains(key)) {
+                            selectedValues - key
+                        } else {
+                            selectedValues + key
+                        }
+                        onSelectionChanged(newSelection)
                     }
                 ) {
-                    Text(
-                        text = format,
-                        modifier = Modifier.weight(1F).align(Alignment.CenterVertically),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        modifier = Modifier.weight(1F),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selectedValues.contains(key),
+                            onCheckedChange = null
+                        )
+                        Text(
+                            text = key,
+                            modifier = Modifier.padding(start = 8.dp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
 
                 if (index < options.size - 1) {

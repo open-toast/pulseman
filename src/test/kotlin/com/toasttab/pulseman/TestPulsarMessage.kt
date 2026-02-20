@@ -13,25 +13,25 @@
  * limitations under the License.
  */
 
-package com.toasttab.pulseman.pulsar
+package com.toasttab.pulseman
 
-import org.apache.pulsar.client.api.Message
+import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
 
 /**
- * This interface handles printing received pulsar messages
+ * Test implementation of PulsarMessage
  */
-interface MessageHandling {
-    val skippedMessages: Int
+class TestPulsarMessage : PulsarMessage {
+    var deserializeResult: String = "Deserialized text message"
+    var shouldThrowOnDeserialize: Boolean = false
 
-    fun resetSkippedMessages()
+    override fun serialize(cls: Any): ByteArray = ByteArray(0)
 
-    fun parseMessage(message: Message<ByteArray>)
-
-    fun skipMessage(message: Message<ByteArray>, propertyFilter: Map<String, String>): Boolean {
-        if (propertyFilter.isEmpty()) return false
-        // Skip if none of the filters match (OR semantics)
-        return propertyFilter.none { (filterKey, filterValue) ->
-            message.properties[filterKey] == filterValue
+    override fun deserialize(bytes: ByteArray): String {
+        if (shouldThrowOnDeserialize) {
+            throw RuntimeException("Deserialization error")
         }
+        return deserializeResult
     }
+
+    override fun prettyPrint(cls: Any): String = cls.toString()
 }

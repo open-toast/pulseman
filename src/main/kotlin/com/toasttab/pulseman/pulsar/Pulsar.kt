@@ -15,16 +15,12 @@
 
 package com.toasttab.pulseman.pulsar
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.toasttab.pulseman.AppStrings.COULD_NOT_TRANSMIT_TOPIC
 import com.toasttab.pulseman.AppStrings.CREATING_NEW_PRODUCER
 import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CLOSE_PULSAR
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_CONSUMER
 import com.toasttab.pulseman.AppStrings.FAILED_TO_CREATE_PRODUCER
-import com.toasttab.pulseman.AppStrings.FAILED_TO_DESERIALIZE_PROPERTIES
 import com.toasttab.pulseman.AppStrings.FAILED_TO_SETUP_PULSAR
 import com.toasttab.pulseman.AppStrings.MESSAGE_SENT_ID
 import com.toasttab.pulseman.AppStrings.NO_CLASS_GENERATED_TO_SEND
@@ -129,18 +125,6 @@ class Pulsar(
         }
     }
 
-    private fun properties(): Map<String, String> {
-        val propertiesJsonMap = pulsarSettings.propertySettings.propertyMap()
-        if (propertiesJsonMap.isNotBlank()) {
-            try {
-                return mapper.readValue(propertiesJsonMap, mapTypeRef)
-            } catch (ex: Exception) {
-                setUserFeedback("$FAILED_TO_DESERIALIZE_PROPERTIES=$propertiesJsonMap. $EXCEPTION=$ex")
-            }
-        }
-        return emptyMap()
-    }
-
     fun sendMessage(message: ByteArray?): Boolean {
         var wrongSettings = false
         if (pulsarSettings.serviceUrl.value.isBlank()) {
@@ -165,7 +149,7 @@ class Pulsar(
                 ?.newMessage()
                 ?.value(message)
                 ?.eventTime(System.currentTimeMillis())
-                ?.properties(properties())
+                ?.properties(pulsarSettings.propertySettings.propertyMap())
                 ?.send()
                 ?.let { messageId ->
                     setUserFeedback("$MESSAGE_SENT_ID $messageId $ON_TOPIC $topic")
@@ -178,8 +162,6 @@ class Pulsar(
     }
 
     companion object {
-        private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
-        private val mapTypeRef = object : TypeReference<Map<String, String>>() {}
         private const val SUBSCRIPTION_NAME = "pulseman-subscription-"
         private const val SEND_TIMEOUT = 5000
     }

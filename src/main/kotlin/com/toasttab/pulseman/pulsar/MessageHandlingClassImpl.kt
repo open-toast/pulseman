@@ -36,13 +36,15 @@ class MessageHandlingClassImpl(
     private val setUserFeedback: (String) -> Unit
 ) : MessageHandling {
 
-    override val skippedMessages = mutableStateOf(0)
+    private val _skippedMessages = mutableStateOf(0)
+    override val skippedMessages: Int get() = _skippedMessages.value
+    override fun resetSkippedMessages() { _skippedMessages.value = 0 }
 
     override fun parseMessage(message: Message<ByteArray>) {
         try {
             val currentFilter = propertyFilter()
             if (skipMessage(message, currentFilter)) {
-                skippedMessages.value++
+                _skippedMessages.value++
                 return
             }
             val proto = selectedProtoClass.selected ?: run {

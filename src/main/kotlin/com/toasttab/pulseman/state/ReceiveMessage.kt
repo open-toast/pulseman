@@ -84,7 +84,7 @@ class ReceiveMessage(
 
     private fun onClear() {
         receivedMessages.clear()
-        messageHandling.skippedMessages.value = 0
+        messageHandling.resetSkippedMessages()
         setUserFeedback(CLEARED_HISTORY)
     }
 
@@ -121,7 +121,7 @@ class ReceiveMessage(
                 receivedMessages = receivedMessages,
                 scrollState = stateVertical,
                 propertyFilterSelectorUI = propertyFilterSelectorUI.getUI(),
-                skippedMessages = messageHandling.skippedMessages.value
+                skippedMessages = messageHandling.skippedMessages
             )
         }
     }

@@ -15,14 +15,15 @@
 
 package com.toasttab.pulseman.pulsar
 
-import androidx.compose.runtime.MutableState
 import org.apache.pulsar.client.api.Message
 
 /**
  * This interface handles printing received pulsar messages
  */
 interface MessageHandling {
-    val skippedMessages: MutableState<Int>
+    val skippedMessages: Int
+
+    fun resetSkippedMessages()
 
     fun parseMessage(message: Message<ByteArray>)
 

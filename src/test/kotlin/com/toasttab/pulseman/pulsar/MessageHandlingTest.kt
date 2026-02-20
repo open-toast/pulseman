@@ -15,7 +15,6 @@
 
 package com.toasttab.pulseman.pulsar
 
-import androidx.compose.runtime.mutableStateOf
 import io.mockk.every
 import io.mockk.mockk
 import org.apache.pulsar.client.api.Message
@@ -25,7 +24,8 @@ import org.junit.jupiter.api.Test
 class MessageHandlingTest {
 
     private val messageHandling = object : MessageHandling {
-        override val skippedMessages = mutableStateOf(0)
+        override val skippedMessages: Int = 0
+        override fun resetSkippedMessages() {}
         override fun parseMessage(message: Message<ByteArray>) {
             // No-op implementation for testing
         }

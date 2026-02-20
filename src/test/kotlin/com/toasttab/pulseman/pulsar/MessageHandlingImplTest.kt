@@ -54,7 +54,7 @@ class MessageHandlingImplTest {
 
     @Test
     fun `skippedMessages is zero initially`() {
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(0)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
     }
 
     @Test
@@ -64,7 +64,7 @@ class MessageHandlingImplTest {
 
         messageHandling.parseMessage(message)
 
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(1)
+        assertThat(messageHandling.skippedMessages).isEqualTo(1)
     }
 
     @Test
@@ -74,7 +74,7 @@ class MessageHandlingImplTest {
 
         repeat(3) { messageHandling.parseMessage(message) }
 
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(3)
+        assertThat(messageHandling.skippedMessages).isEqualTo(3)
     }
 
     @Test
@@ -85,7 +85,7 @@ class MessageHandlingImplTest {
 
         messageHandling.parseMessage(message)
 
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(0)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
     }
 
     @Test
@@ -215,7 +215,7 @@ class MessageHandlingImplTest {
     fun `parseMessage skips when multiple filter properties dont match`() {
         val message = TestMessage(
             messageProperties = mapOf(
-                "environment" to "production",
+                "environment" to "staging",
                 "version" to "1.0"
             )
         )

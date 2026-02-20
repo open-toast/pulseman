@@ -49,7 +49,7 @@ class PulsarTextMessageITest : PulsarITestSupport() {
             every { serviceUrl } returns mutableStateOf(pulsarContainer.pulsarBrokerUrl)
             every { topic } returns mutableStateOf(testTopic)
             every { propertySettings } returns mockk(relaxed = true) {
-                every { propertyMap() } returns testPropertyString
+                every { propertyMap() } returns emptyMap()
             }
         }
         runTimeJarLoader = RunTimeJarLoader()
@@ -86,14 +86,5 @@ class PulsarTextMessageITest : PulsarITestSupport() {
         val messageReceived = textHandler.deserialize(message.data)
 
         assertThat(messageReceived).isEqualTo(expectedOutput)
-    }
-
-    companion object {
-        private val testPropertyString =
-            """{
-             "key1": "value1",
-             "key2": "value2"
-            }
-            """.trimIndent()
     }
 }

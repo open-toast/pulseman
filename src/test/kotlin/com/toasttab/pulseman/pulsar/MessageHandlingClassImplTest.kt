@@ -78,7 +78,7 @@ class MessageHandlingClassImplTest {
 
     @Test
     fun `skippedMessages is zero initially`() {
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(0)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
     }
 
     @Test
@@ -88,7 +88,7 @@ class MessageHandlingClassImplTest {
 
         messageHandling.parseMessage(message)
 
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(1)
+        assertThat(messageHandling.skippedMessages).isEqualTo(1)
     }
 
     @Test
@@ -98,7 +98,7 @@ class MessageHandlingClassImplTest {
 
         repeat(3) { messageHandling.parseMessage(message) }
 
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(3)
+        assertThat(messageHandling.skippedMessages).isEqualTo(3)
     }
 
     @Test
@@ -112,7 +112,7 @@ class MessageHandlingClassImplTest {
 
         messageHandling.parseMessage(message)
 
-        assertThat(messageHandling.skippedMessages.value).isEqualTo(0)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
     }
 
     @Test

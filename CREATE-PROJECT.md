@@ -196,6 +196,17 @@ Each message decoded will show the pulsar properties of the message also.
    Note: Selecting Base64 will convert your text from base64, the other selections only decode a specific character set.
 2. In the **Receive** tab every message on the topic will be decoded with the serialization method selected in step one.
 
+### Filtering messages by property
+
+You can filter incoming messages by their Pulsar message properties using the **Property Filter** dropdown in the **Receive** tab.
+
+1. Define the properties you want to filter on in the **Properties** JSON editor (see [Define properties](#define-properties)).
+2. Open the **Property Filter** dropdown and select one or more properties to filter on.
+3. Messages are shown if their properties match **at least one** of the selected key-value pairs. Messages that match none are silently dropped.
+4. Deselect all filters to show every incoming message again.
+
+The **Skipped** counter next to the dropdown shows how many messages have been dropped since the last subscribe or clear.
+
 ## Convert logs
 
 ### Protobuf

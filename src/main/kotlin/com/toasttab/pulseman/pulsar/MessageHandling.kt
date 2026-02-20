@@ -15,19 +15,22 @@
 
 package com.toasttab.pulseman.pulsar
 
+import androidx.compose.runtime.MutableState
 import org.apache.pulsar.client.api.Message
 
 /**
  * This interface handles printing received pulsar messages
  */
 interface MessageHandling {
+    val skippedMessages: MutableState<Int>
+
     fun parseMessage(message: Message<ByteArray>)
 
     fun skipMessage(message: Message<ByteArray>, propertyFilter: Map<String, String>): Boolean {
         if (propertyFilter.isEmpty()) return false
-        // Skip if any filter doesn't match
-        return propertyFilter.any { (filterKey, filterValue) ->
-            message.properties[filterKey] != filterValue
+        // Skip if none of the filters match (OR semantics)
+        return propertyFilter.none { (filterKey, filterValue) ->
+            message.properties[filterKey] == filterValue
         }
     }
 }

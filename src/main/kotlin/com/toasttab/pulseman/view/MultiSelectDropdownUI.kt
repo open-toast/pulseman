@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.toasttab.pulseman.view
 
 import androidx.compose.foundation.background
@@ -45,10 +44,10 @@ import com.toasttab.pulseman.AppStrings
 fun multiSelectDropdownUI(
     label: String,
     expanded: Boolean,
-    selectedKeys: Set<String>,
-    options: Map<String, String>,
     onChangeExpanded: () -> Unit,
-    onSelectionChanged: (Set<String>) -> Unit
+    options: Map<String, String>,
+    selectedValues: Set<String>,
+    onSelectionChanged: (Set<String>) -> Unit,
 ) {
     Box {
         IconButton(
@@ -61,10 +60,10 @@ fun multiSelectDropdownUI(
             ) {
                 Row(modifier = Modifier.background(Color.Transparent).padding(8.dp, 8.dp)) {
                     Text(
-                        text = if (selectedKeys.isEmpty()) {
+                        text = if (selectedValues.isEmpty()) {
                             label
                         } else {
-                            "$label (${selectedKeys.size})"
+                            "$label (${selectedValues.size})"
                         }
                     )
                     Icon(Icons.Filled.ArrowDropDown, contentDescription = AppStrings.CHOOSE_OPTION)
@@ -75,13 +74,13 @@ fun multiSelectDropdownUI(
             expanded = expanded,
             onDismissRequest = { onChangeExpanded() }
         ) {
-            options.entries.forEachIndexed { index, (key, value) ->
+            options.keys.forEachIndexed { index, key ->
                 DropdownMenuItem(
                     onClick = {
-                        val newSelection = if (selectedKeys.contains(key)) {
-                            selectedKeys - key
+                        val newSelection = if (selectedValues.contains(key)) {
+                            selectedValues - key
                         } else {
-                            selectedKeys + key
+                            selectedValues + key
                         }
                         onSelectionChanged(newSelection)
                     }
@@ -91,7 +90,7 @@ fun multiSelectDropdownUI(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
-                            checked = selectedKeys.contains(key),
+                            checked = selectedValues.contains(key),
                             onCheckedChange = null
                         )
                         Text(

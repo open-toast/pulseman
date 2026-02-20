@@ -17,7 +17,6 @@ package com.toasttab.pulseman.state.protocol.text
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -26,6 +25,7 @@ import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.MessageHandlingImpl
+import com.toasttab.pulseman.state.MultiSelectDropdown
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.ReceiveMessage
 import com.toasttab.pulseman.state.onStateChange
@@ -37,7 +37,9 @@ class TextState(
     pulsarSettings: PulsarSettings,
     runTimeJarLoader: RunTimeJarLoader,
     setUserFeedback: (String) -> Unit,
-    onChange: () -> Unit
+    onChange: () -> Unit,
+    propertyFilter: () -> Map<String, String>,
+    propertyFilterSelectorUI : MultiSelectDropdown,
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -60,12 +62,11 @@ class TextState(
         onChange = onChange
     )
 
-    private val propertyFilter: MutableState<Map<String, String>> = mutableStateOf(emptyMap())
     private val receivedMessages: SnapshotStateList<ReceivedMessages> = mutableStateListOf()
 
     private val messageHandling = MessageHandlingImpl(
         messageType = serializationTypeSelector.selectedEncoding,
-        propertyFilter = { propertyFilter.value },
+        propertyFilter = propertyFilter,
         receivedMessages = receivedMessages,
         setUserFeedback = setUserFeedback
     )
@@ -76,7 +77,7 @@ class TextState(
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
         runTimeJarLoader = runTimeJarLoader,
-        propertyFilter = propertyFilter
+        propertyFilterSelectorUI = propertyFilterSelectorUI,
     )
 
     fun toTextTabValues() = TextTabValuesV3(

@@ -36,7 +36,8 @@ class SerializationState(
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit,
-    fileManagement: FileManagement
+    fileManagement: FileManagement,
+    propertyConfiguration: PropertyConfiguration,
 ) {
     fun cleanUp() {
         protobufState.cleanUp()
@@ -50,7 +51,9 @@ class SerializationState(
         pulsarSettings = pulsarSettings,
         setUserFeedback = setUserFeedback,
         onChange = onChange,
-        fileManagement = fileManagement
+        fileManagement = fileManagement,
+        propertyFilter = { propertyConfiguration.filter.filterState.value },
+        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown,
     )
 
     val textState = TextState(
@@ -58,7 +61,9 @@ class SerializationState(
         pulsarSettings = pulsarSettings,
         runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
         setUserFeedback = setUserFeedback,
-        onChange = onChange
+        onChange = onChange,
+        propertyFilter = { propertyConfiguration.filter.filterState.value },
+        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown,
     )
 
     @ExperimentalFoundationApi

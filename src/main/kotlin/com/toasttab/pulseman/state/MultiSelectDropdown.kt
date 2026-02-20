@@ -21,40 +21,20 @@ import com.toasttab.pulseman.view.multiSelectDropdownUI
 
 class MultiSelectDropdown(
     private val label: String,
-    private val optionsProvider: () -> Map<String, String>,
-    private val selectedItems: () -> Set<String>,
-    private val onSelectionChanged: (Map<String, String>) -> Unit
+    private val options: () -> Map<String, String>,
+    private val selectedValues: () -> Set<String>,
+    private val onSelectionChanged: (Set<String>) -> Unit,
 ) {
     private val expanded = mutableStateOf(false)
 
-    fun getUI(): @Composable () -> Unit {
-        return {
-            val currentOptions = optionsProvider()
-            val currentSelectedKeys = selectedItems()
-
-            // Clean up selected items that no longer exist in options
-            val validSelectedKeys = currentSelectedKeys.filter { it in currentOptions.keys }
-            if (validSelectedKeys.size != currentSelectedKeys.size) {
-                // Notify about the cleaned selection
-                val selectedMap = validSelectedKeys.associateWith { key ->
-                    currentOptions[key] ?: ""
-                }.filterValues { it.isNotEmpty() }
-                onSelectionChanged(selectedMap)
-            }
-
-            multiSelectDropdownUI(
-                label = label,
-                expanded = expanded.value,
-                selectedKeys = validSelectedKeys.toSet(),
-                options = currentOptions,
-                onChangeExpanded = { expanded.value = !expanded.value },
-                onSelectionChanged = { selectedKeys ->
-                    val selectedMap = selectedKeys.associateWith { key ->
-                        currentOptions[key] ?: ""
-                    }.filterValues { it.isNotEmpty() }
-                    onSelectionChanged(selectedMap)
-                }
-            )
-        }
+    fun getUI(): @Composable () -> Unit = {
+        multiSelectDropdownUI(
+            label = label,
+            expanded = expanded.value,
+            onChangeExpanded = { expanded.value = !expanded.value },
+            options = options(),
+            selectedValues = selectedValues(),
+            onSelectionChanged = onSelectionChanged,
+        )
     }
 }

@@ -42,12 +42,6 @@ class PulsarITest : PulsarITestSupport() {
     private lateinit var pulsarSettings: PulsarSettings
     private lateinit var runTimeJarLoader: RunTimeJarLoader
 
-    private val testPropertyString =
-        """{
-             "key1": "value1",
-             "key2": "value2"
-           }
-        """.trimIndent()
     private val testProperties = mapOf("key1" to "value1", "key2" to "value2")
 
     @BeforeAll
@@ -61,7 +55,7 @@ class PulsarITest : PulsarITestSupport() {
             every { serviceUrl } returns mutableStateOf(pulsarContainer.pulsarBrokerUrl)
             every { topic } returns mutableStateOf(testTopic)
             every { propertySettings } returns mockk(relaxed = true) {
-                every { propertyMap(any()) } returns mapOf("key1" to "value1", "key2" to "value2")
+                every { propertyMap() } returns mapOf("key1" to "value1", "key2" to "value2")
             }
         }
         runTimeJarLoader = RunTimeJarLoader()

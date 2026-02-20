@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.AppStrings.CLEAR
 import com.toasttab.pulseman.AppStrings.CLEARING
 import com.toasttab.pulseman.AppStrings.CLOSE_CONNECTION
@@ -77,10 +78,11 @@ fun receiveMessageUI(
     onCloseConnection: () -> Unit,
     receivedMessages: List<ReceivedMessages>,
     scrollState: ScrollState,
-    propertyFilterSelectorUI: @Composable () -> Unit
+    propertyFilterSelectorUI: @Composable () -> Unit,
+    skippedMessages: Int,
 ) {
     Column {
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             threadedButton(
                 scope = scope,
                 activeText = SUBSCRIBING,
@@ -112,6 +114,8 @@ fun receiveMessageUI(
             }
 
             propertyFilterSelectorUI()
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = "${AppStrings.MESSAGES_SKIPPED}: $skippedMessages")
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.verticalScroll(scrollState)) {

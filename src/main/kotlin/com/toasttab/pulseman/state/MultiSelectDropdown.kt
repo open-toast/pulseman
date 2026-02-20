@@ -23,7 +23,7 @@ class MultiSelectDropdown(
     private val label: String,
     private val options: () -> Map<String, String>,
     private val selectedValues: () -> Set<String>,
-    private val onSelectionChanged: (Set<String>) -> Unit,
+    private val onSelectionChanged: (Set<String>) -> Unit
 ) {
     private val expanded = mutableStateOf(false)
 
@@ -34,7 +34,7 @@ class MultiSelectDropdown(
             onChangeExpanded = { expanded.value = !expanded.value },
             options = options(),
             selectedValues = selectedValues(),
-            onSelectionChanged = onSelectionChanged,
+            onSelectionChanged = onSelectionChanged
         )
     }
 }

@@ -108,7 +108,7 @@ class TabState(
         setUserFeedback = userFeedback::set,
         onChange = ::onChange,
         fileManagement = appState.fileManagement,
-        propertyConfiguration = propertySettings,
+        propertyConfiguration = propertySettings
     )
 
     fun cleanUp() {

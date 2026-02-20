@@ -105,7 +105,7 @@ class MessageHandlingClassImplTest {
     fun `skippedMessages does not increment when message is processed`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production"),
-            messageData = ByteArray(10),
+            messageData = ByteArray(10)
         )
         propertyFilterMap = mapOf("environment" to "production")
         selectedProtoClass.selected = testProtoClassInfo
@@ -130,7 +130,7 @@ class MessageHandlingClassImplTest {
     fun `parseMessage processes message when filter matches`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production"),
-            messageData = ByteArray(10),
+            messageData = ByteArray(10)
         )
         propertyFilterMap = mapOf("environment" to "production")
         testProtoClassInfo.prettyPrintResult = "Deserialized message content"
@@ -148,7 +148,7 @@ class MessageHandlingClassImplTest {
     fun `parseMessage processes message when filter is empty`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production"),
-            messageData = ByteArray(10),
+            messageData = ByteArray(10)
         )
         testProtoClassInfo.prettyPrintResult = "Deserialized message content"
         selectedProtoClass.selected = testProtoClassInfo
@@ -213,7 +213,7 @@ class MessageHandlingClassImplTest {
     fun `parseMessage processes message when all multiple filters match`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production", "region" to "us-east-1"),
-            messageData = ByteArray(10),
+            messageData = ByteArray(10)
         )
         propertyFilterMap = mapOf("environment" to "production", "region" to "us-east-1")
         selectedProtoClass.selected = testProtoClassInfo
@@ -227,7 +227,7 @@ class MessageHandlingClassImplTest {
     fun `parseMessage processes message when one of multiple filters matches`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production", "region" to "eu-west-1"),
-            messageData = ByteArray(10),
+            messageData = ByteArray(10)
         )
         propertyFilterMap = mapOf("environment" to "production", "region" to "us-east-1")
         selectedProtoClass.selected = testProtoClassInfo
@@ -240,7 +240,7 @@ class MessageHandlingClassImplTest {
     @Test
     fun `parseMessage skips message when none of multiple filters match`() {
         val message = TestMessage(
-            messageProperties = mapOf("environment" to "staging", "region" to "eu-west-1"),
+            messageProperties = mapOf("environment" to "staging", "region" to "eu-west-1")
         )
         propertyFilterMap = mapOf("environment" to "production", "region" to "us-east-1")
 
@@ -263,7 +263,7 @@ class MessageHandlingClassImplTest {
     fun `parseMessage processes message when message has extra properties beyond filter`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production", "region" to "us-east-1"),
-            messageData = ByteArray(10),
+            messageData = ByteArray(10)
         )
         propertyFilterMap = mapOf("environment" to "production")
         selectedProtoClass.selected = testProtoClassInfo

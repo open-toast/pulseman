@@ -59,7 +59,7 @@ data class ProjectSettingsV2(
                     pulsarAdminURL = null,
                     tabExtension = null,
                     gradleScript = null,
-                    propertyFilters = emptyList(),
+                    propertyFilters = emptyList()
                 )
             }
         )

@@ -37,7 +37,7 @@ class SerializationState(
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit,
     fileManagement: FileManagement,
-    propertyConfiguration: PropertyConfiguration,
+    propertyConfiguration: PropertyConfiguration
 ) {
     fun cleanUp() {
         protobufState.cleanUp()
@@ -53,7 +53,7 @@ class SerializationState(
         onChange = onChange,
         fileManagement = fileManagement,
         propertyFilter = { propertyConfiguration.filter.filterState.value },
-        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown,
+        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown
     )
 
     val textState = TextState(
@@ -63,7 +63,7 @@ class SerializationState(
         setUserFeedback = setUserFeedback,
         onChange = onChange,
         propertyFilter = { propertyConfiguration.filter.filterState.value },
-        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown,
+        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown
     )
 
     @ExperimentalFoundationApi

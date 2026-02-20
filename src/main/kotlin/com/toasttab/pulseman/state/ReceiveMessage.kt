@@ -45,7 +45,7 @@ class ReceiveMessage(
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
     private val messageHandling: MessageHandling,
     private val runTimeJarLoader: RunTimeJarLoader,
-    private val propertyFilterSelectorUI : MultiSelectDropdown,
+    private val propertyFilterSelectorUI: MultiSelectDropdown
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 

@@ -23,7 +23,7 @@ import org.apache.pulsar.client.api.Message
 class TestMessage(
     private val messageProperties: Map<String, String> = mapOf("environment" to "test"),
     private val messageData: ByteArray = ByteArray(10),
-    private val messagePublishTime: Long = 1234567890000L,
+    private val messagePublishTime: Long = 1234567890000L
 ) : Message<ByteArray> {
     override fun getProperties(): Map<String, String> = messageProperties
     override fun getData(): ByteArray = messageData

@@ -21,15 +21,15 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.thirdparty.rsyntaxtextarea.RSyntaxTextArea
-import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import org.fife.ui.rtextarea.RTextScrollPane
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
 
 class PropertyConfiguration(
     onChange: () -> Unit,
     initialSettings: TabValuesV3?,
-    private val setUserFeedback: (String) -> Unit,
+    private val setUserFeedback: (String) -> Unit
 ) {
     // TODO allow comments in json dialogs
     private val defaultJsonParameters = "{\n}"
@@ -37,22 +37,22 @@ class PropertyConfiguration(
     private val textArea =
         RSyntaxTextArea.textArea(
             initialSettings?.propertyMap ?: defaultJsonParameters,
-            SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS,
-    ) {
-        filter.update(propertyMap())
-        onChange()
-    }.also {
-        it.addFocusListener(object : FocusListener {
-            override fun focusGained(e: FocusEvent?) {}
-            override fun focusLost(e: FocusEvent?) = reportParseError()
-        })
-    }
+            SyntaxConstants.SYNTAX_STYLE_JSON_WITH_COMMENTS
+        ) {
+            filter.update(propertyMap())
+            onChange()
+        }.also {
+            it.addFocusListener(object : FocusListener {
+                override fun focusGained(e: FocusEvent?) {}
+                override fun focusLost(e: FocusEvent?) = reportParseError()
+            })
+        }
 
     val sp = RTextScrollPane(textArea)
 
     val filter = PropertyFilter(
         initialFilters = initialSettings?.propertyFilters.orEmpty(),
-        initialOptions = propertyMap(),
+        initialOptions = propertyMap()
     )
 
     // Cache last error text to avoid repeating the same error if user focuses in/out without changing

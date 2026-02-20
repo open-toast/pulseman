@@ -34,7 +34,7 @@ class PropertyConfigurationTest {
         pulsarAdminURL = null,
         tabExtension = null,
         gradleScript = null,
-        propertyFilters = emptyList(),
+        propertyFilters = emptyList()
     )
 
     @Test

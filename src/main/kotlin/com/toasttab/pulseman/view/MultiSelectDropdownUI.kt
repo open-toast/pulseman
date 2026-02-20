@@ -47,7 +47,7 @@ fun multiSelectDropdownUI(
     onChangeExpanded: () -> Unit,
     options: Map<String, String>,
     selectedValues: Set<String>,
-    onSelectionChanged: (Set<String>) -> Unit,
+    onSelectionChanged: (Set<String>) -> Unit
 ) {
     Box {
         IconButton(

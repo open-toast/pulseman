@@ -21,7 +21,7 @@ import com.toasttab.pulseman.AppStrings.PROPERTY_FILTER
 
 class PropertyFilter(
     initialFilters: List<String>,
-    initialOptions: Map<String, String> = emptyMap(),
+    initialOptions: Map<String, String> = emptyMap()
 ) {
     val optionsState: MutableState<Map<String, String>> = mutableStateOf(initialOptions)
 

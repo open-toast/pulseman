@@ -79,7 +79,7 @@ fun receiveMessageUI(
     receivedMessages: List<ReceivedMessages>,
     scrollState: ScrollState,
     propertyFilterSelectorUI: @Composable () -> Unit,
-    skippedMessages: Int,
+    skippedMessages: Int
 ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {

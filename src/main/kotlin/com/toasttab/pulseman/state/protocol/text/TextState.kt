@@ -39,7 +39,7 @@ class TextState(
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit,
     propertyFilter: () -> Map<String, String>,
-    propertyFilterSelectorUI : MultiSelectDropdown,
+    propertyFilterSelectorUI: MultiSelectDropdown
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -77,7 +77,7 @@ class TextState(
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
         runTimeJarLoader = runTimeJarLoader,
-        propertyFilterSelectorUI = propertyFilterSelectorUI,
+        propertyFilterSelectorUI = propertyFilterSelectorUI
     )
 
     fun toTextTabValues() = TextTabValuesV3(

@@ -46,7 +46,7 @@ class ProtobufState(
     onChange: () -> Unit,
     fileManagement: FileManagement,
     propertyFilter: () -> Map<String, String>,
-    propertyFilterSelectorUI: MultiSelectDropdown,
+    propertyFilterSelectorUI: MultiSelectDropdown
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -98,7 +98,7 @@ class ProtobufState(
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
         runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
-        propertyFilterSelectorUI = propertyFilterSelectorUI,
+        propertyFilterSelectorUI = propertyFilterSelectorUI
     )
 
     private val convertProtoBufMessage = ConvertProtobufMessage(

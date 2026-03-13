@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -44,7 +45,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindow
+import androidx.compose.ui.window.rememberDialogState
 import com.toasttab.pulseman.AppStrings
+import com.toasttab.pulseman.AppStrings.BODY_FILTER
 import com.toasttab.pulseman.AppStrings.CLEAR
 import com.toasttab.pulseman.AppStrings.CLEARING
 import com.toasttab.pulseman.AppStrings.CLOSE_CONNECTION
@@ -79,8 +83,12 @@ fun receiveMessageUI(
     receivedMessages: List<ReceivedMessages>,
     scrollState: ScrollState,
     propertyFilterSelectorUI: @Composable () -> Unit,
-    skippedMessages: Int
+    skippedMessages: Int,
+    showBodyFilter: Boolean,
+    onShowBodyFilterChange: (Boolean) -> Unit,
+    bodyFilterUI: @Composable () -> Unit
 ) {
+    val bodyFilterDialogState = rememberDialogState(width = 900.dp)
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             threadedButton(
@@ -111,6 +119,22 @@ fun receiveMessageUI(
                 onButtonStateChange = onCloseStateChange
             ) {
                 onCloseConnection()
+            }
+
+            Button(
+                modifier = Modifier.padding(4.dp),
+                onClick = { onShowBodyFilterChange(true) }
+            ) {
+                Text(BODY_FILTER)
+            }
+            if (showBodyFilter) {
+                DialogWindow(
+                    onCloseRequest = { onShowBodyFilterChange(false) },
+                    title = BODY_FILTER,
+                    state = bodyFilterDialogState
+                ) {
+                    bodyFilterUI()
+                }
             }
 
             propertyFilterSelectorUI()

@@ -128,6 +128,53 @@ class KTMessageHandlerTest {
 
         assertThat(result).contains("\"data\" : \"hello world\"")
     }
+
+    @Test
+    fun `generateFilterTemplate generates predicate with default values for primitives`() {
+        val handler = KTMessageHandler(TestMessageWithPrimitives::class.java, runTimeJarLoader)
+        val template = handler.generateFilterTemplate()
+
+        assertThat(template).contains("// Must return a Boolean")
+        assertThat(template).contains("{ body: TestMessageWithPrimitives ->")
+        assertThat(template).contains("body.intField == 0")
+        assertThat(template).contains("body.booleanField == false")
+        assertThat(template).contains("body.doubleField == 0.0")
+        assertThat(template).contains("body.stringField == \"\"")
+    }
+
+    @Test
+    fun `generateFilterTemplate uses safe calls for nested KtMessage fields`() {
+        val handler = KTMessageHandler(TestMessageWithNestedField::class.java, runTimeJarLoader)
+        val template = handler.generateFilterTemplate()
+
+        assertThat(template).contains("body.nested?.innerField")
+    }
+
+    @Test
+    fun `generateFilterTemplate filters out ignored fields`() {
+        val handler = KTMessageHandler(TestMessageWithIgnoredFields::class.java, runTimeJarLoader)
+        val template = handler.generateFilterTemplate()
+
+        assertThat(template).contains("body.name == \"\"")
+        assertThat(template).contains("body.value == 0")
+        assertThat(template).doesNotContain("unknownFields")
+        assertThat(template).doesNotContain("Deserializer")
+    }
+
+    @Test
+    fun `generateFilterTemplate recurses through 3 levels of nested messages`() {
+        val handler = KTMessageHandler(TestLevel1::class.java, runTimeJarLoader)
+        val template = handler.generateFilterTemplate()
+
+        // Level 1 -> Level 2
+        assertThat(template).contains("body.level2?.name == \"\"")
+        // Level 2 -> Level 3
+        assertThat(template).contains("body.level2?.level3?.value == 0")
+        // Level 3 leaf field
+        assertThat(template).contains("body.level2?.level3?.active == false")
+        // Level 1 own field
+        assertThat(template).contains("body.id == \"\"")
+    }
 }
 
 // Test classes that demonstrate the inner class handling
@@ -170,6 +217,31 @@ data class TestMessageWithPrimitives(
     val booleanField: Boolean,
     val doubleField: Double,
     val stringField: String,
+    override val messageSize: Int = 0
+) : KtMessage {
+    override fun serialize(serializer: KtMessageSerializer) {}
+}
+
+// Test messages for 3-level nesting
+data class TestLevel1(
+    val id: String,
+    val level2: TestLevel2?,
+    override val messageSize: Int = 0
+) : KtMessage {
+    override fun serialize(serializer: KtMessageSerializer) {}
+}
+
+data class TestLevel2(
+    val name: String,
+    val level3: TestLevel3?,
+    override val messageSize: Int = 0
+) : KtMessage {
+    override fun serialize(serializer: KtMessageSerializer) {}
+}
+
+data class TestLevel3(
+    val value: Int,
+    val active: Boolean,
     override val messageSize: Int = 0
 ) : KtMessage {
     override fun serialize(serializer: KtMessageSerializer) {}

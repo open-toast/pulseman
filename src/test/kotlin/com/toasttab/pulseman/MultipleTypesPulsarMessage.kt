@@ -35,6 +35,8 @@ class MultipleTypesPulsarMessage(
 
     override fun generateClassTemplate(): String = "MultipleTypes()"
 
+    override fun generateFilterTemplate(): String = "{ body: MultipleTypes -> true }"
+
     override fun getJarLoader(): JarLoader {
         return runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.BASE)
     }

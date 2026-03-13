@@ -34,5 +34,6 @@ data class TabValuesV3(
     val pulsarAdminURL: String?,
     val tabExtension: Int?,
     val gradleScript: String?,
-    val propertyFilters: List<String> = emptyList()
+    val propertyFilters: List<String> = emptyList(),
+    val bodyFilterScript: String? = null
 )

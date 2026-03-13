@@ -15,8 +15,10 @@
 
 package com.toasttab.pulseman.scripting
 
+import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.MultipleTypes
 import com.toasttab.pulseman.MultipleTypesPulsarMessage
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
@@ -73,5 +75,52 @@ class KotlinScriptingTest {
 
         val recompiledClass = MultipleTypes.fromBytes(recompiledBytes?.bytes!!)
         assertThat(recompiledClass).isEqualTo(MultipleTypes())
+    }
+
+    @Test
+    fun `compilePredicate returns a working predicate`() {
+        val jarLoader = RunTimeJarLoader().getJarLoader(JarLoaderType.BASE)
+        val feedback = mutableListOf<String>()
+
+        val predicate = KotlinScripting.compilePredicate(
+            code = "{ body: Any -> body is String }",
+            jarLoader = jarLoader,
+            setUserFeedback = { feedback.add(it) }
+        )
+
+        assertThat(predicate).isNotNull()
+        assertThat(predicate!!("hello")).isTrue()
+        assertThat(predicate(123)).isFalse()
+        assertThat(feedback).contains(AppStrings.SUCCESSFULLY_COMPILED_PREDICATE)
+    }
+
+    @Test
+    fun `compilePredicate returns null on compilation error`() {
+        val jarLoader = RunTimeJarLoader().getJarLoader(JarLoaderType.BASE)
+        val feedback = mutableListOf<String>()
+
+        val predicate = KotlinScripting.compilePredicate(
+            code = "this is not valid kotlin",
+            jarLoader = jarLoader,
+            setUserFeedback = { feedback.add(it) }
+        )
+
+        assertThat(predicate).isNull()
+        assertThat(feedback.any { it.contains(AppStrings.EXCEPTION) }).isTrue()
+    }
+
+    @Test
+    fun `compilePredicate returns null when result is not a function`() {
+        val jarLoader = RunTimeJarLoader().getJarLoader(JarLoaderType.BASE)
+        val feedback = mutableListOf<String>()
+
+        val predicate = KotlinScripting.compilePredicate(
+            code = "\"not a function\"",
+            jarLoader = jarLoader,
+            setUserFeedback = { feedback.add(it) }
+        )
+
+        assertThat(predicate).isNull()
+        assertThat(feedback).contains(AppStrings.FAILED_TO_COMPILE_PREDICATE)
     }
 }

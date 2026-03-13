@@ -76,9 +76,89 @@ data class KTMessageHandler(
         return "$imports\n$className {\n$variables}"
     }
 
-    override fun getJarLoader(): JarLoader {
-        return runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.PROTOKT)
+    override fun generateFilterTemplate(): String {
+        val fullName = cls.name.replace("$", ".")
+        val className = fullName.split(".").last()
+        val importSet = mutableSetOf<String>()
+        importSet.add(fullName)
+
+        val jarLoader = getJarLoader()
+        val clazz = jarLoader.loadClass(cls.name)
+        val fields = clazz.declaredFields.filter { it.name !in IGNORE_FIELDS }
+
+        val visited = mutableSetOf<String>()
+        visited.add(cls.name)
+        val fieldLines = generateFieldLines(fields, "body", jarLoader, visited)
+
+        val imports = importSet.sorted().joinToString("\n") { "$IMPORT $it" }
+
+        return "$imports\n\n// Must return a Boolean\n{ body: $className ->\n${fieldLines.ifEmpty { "    true" }}\n}"
     }
+
+    private fun generateFieldLines(
+        fields: List<java.lang.reflect.Field>,
+        accessor: String,
+        jarLoader: JarLoader,
+        visited: MutableSet<String>,
+        nullable: Boolean = false
+    ): String {
+        val sep = if (nullable) "?." else "."
+        return fields.joinToString(" &&\n") { field ->
+            val fieldAccess = "$accessor$sep${field.name}"
+            when {
+                Map::class.java.isAssignableFrom(field.type) ->
+                    "    $fieldAccess?.entries?.all { true } != false"
+                List::class.java.isAssignableFrom(field.type) || Iterable::class.java.isAssignableFrom(field.type) -> {
+                    val elementType = resolveListElementType(field)
+                    if (elementType != null && KtMessage::class.java.isAssignableFrom(elementType) && elementType.name !in visited) {
+                        visited.add(elementType.name)
+                        val nested = jarLoader.loadClass(elementType.name).declaredFields.filter { it.name !in IGNORE_FIELDS }
+                        val inner = generateFieldLines(nested, "it", jarLoader, visited, nullable = false)
+                        if (inner.isEmpty()) {
+                            "    $fieldAccess?.all { true } != false"
+                        } else {
+                            "    $fieldAccess?.all {\n$inner\n    } != false"
+                        }
+                    } else {
+                        "    $fieldAccess?.all { it == ${defaultValue(field.type)} } != false"
+                    }
+                }
+                KtMessage::class.java.isAssignableFrom(field.type) -> {
+                    if (field.type.name in visited) {
+                        "    true"
+                    } else {
+                        visited.add(field.type.name)
+                        val nested = jarLoader.loadClass(field.type.name).declaredFields.filter { it.name !in IGNORE_FIELDS }
+                        val inner = generateFieldLines(nested, fieldAccess, jarLoader, visited, nullable = true)
+                        inner.ifEmpty { "    true" }
+                    }
+                }
+                else -> "    $fieldAccess == ${defaultValue(field.type)}"
+            }
+        }
+    }
+
+    private fun defaultValue(type: Class<*>): String {
+        return when (type.name) {
+            "java.lang.String", "kotlin.String" -> "\"\""
+            "boolean", "java.lang.Boolean", "kotlin.Boolean" -> "false"
+            "int", "java.lang.Integer", "kotlin.Int" -> "0"
+            "long", "java.lang.Long", "kotlin.Long" -> "0L"
+            "float", "java.lang.Float", "kotlin.Float" -> "0.0f"
+            "double", "java.lang.Double", "kotlin.Double" -> "0.0"
+            else -> if (type.isEnum) "\"${type.enumConstants?.firstOrNull() ?: ""}\"" else "TODO()"
+        }
+    }
+
+    private fun resolveListElementType(field: java.lang.reflect.Field): Class<*>? {
+        val genericType = field.genericType as? java.lang.reflect.ParameterizedType ?: return null
+        val typeArg = genericType.actualTypeArguments.firstOrNull() ?: return null
+        return typeArg as? Class<*>
+    }
+
+    private val cachedJarLoader by lazy { runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.PROTOKT) }
+
+    override fun getJarLoader(): JarLoader = cachedJarLoader
 
     companion object {
         private const val IMPORT = "import"

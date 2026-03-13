@@ -18,6 +18,7 @@ package com.toasttab.pulseman.pulsar
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings
 import com.toasttab.pulseman.TestMessage
+import com.toasttab.pulseman.entities.ActiveBodyFilter
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.jars.JarLoader
@@ -72,6 +73,8 @@ class MessageHandlingClassImplTest {
         override fun prettyPrint(cls: Any): String = prettyPrintResult
 
         override fun generateClassTemplate(): String = ""
+
+        override fun generateFilterTemplate(): String = ""
 
         override fun getJarLoader(): JarLoader = throw UnsupportedOperationException()
     }
@@ -287,6 +290,108 @@ class MessageHandlingClassImplTest {
         assertThat(body).contains("environment=production")
         assertThat(body).contains("version=1.0")
         assertThat(body).contains("region=us-east-1")
+    }
+
+    @Test
+    fun `body filter skips message when predicate returns false`() {
+        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
+        selectedProtoClass.selected = testProtoClassInfo
+        val bodyFilter = ActiveBodyFilter({ false })
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { bodyFilter }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).isEmpty()
+        assertThat(messageHandling.skippedMessages).isEqualTo(1)
+    }
+
+    @Test
+    fun `body filter passes message when predicate returns true`() {
+        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
+        selectedProtoClass.selected = testProtoClassInfo
+        val bodyFilter = ActiveBodyFilter({ true })
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { bodyFilter }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).hasSize(1)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
+    }
+
+    @Test
+    fun `body filter handles type mismatch gracefully`() {
+        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
+        selectedProtoClass.selected = testProtoClassInfo
+        val bodyFilter = ActiveBodyFilter({ body -> (body as Int) > 0 })
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { bodyFilter }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).hasSize(1)
+        assertThat(userFeedback.any { it.contains(AppStrings.BODY_FILTER_TYPE_MISMATCH) }).isTrue()
+    }
+
+    @Test
+    fun `property filter skips before body filter runs`() {
+        val message = TestMessage(messageProperties = mapOf("env" to "staging"))
+        propertyFilterMap = mapOf("env" to "production")
+        selectedProtoClass.selected = testProtoClassInfo
+        var bodyFilterCalled = false
+        val bodyFilter = ActiveBodyFilter({ bodyFilterCalled = true; true })
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { bodyFilter }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).isEmpty()
+        assertThat(bodyFilterCalled).isFalse()
+        assertThat(messageHandling.skippedMessages).isEqualTo(1)
+    }
+
+    @Test
+    fun `disabled body filter does not skip messages even with reject-all predicate`() {
+        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
+        selectedProtoClass.selected = testProtoClassInfo
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { null }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).hasSize(1)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
     }
 
     companion object {

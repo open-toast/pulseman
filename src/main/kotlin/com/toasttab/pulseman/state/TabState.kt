@@ -132,7 +132,8 @@ class TabState(
             pulsarAdminURL = pulsarSettings.pulsarAdminUrl.value,
             tabExtension = pulsarMessageJars.tabFileExtension,
             gradleScript = gradleManagement.currentGradleScript(),
-            propertyFilters = propertySettings.currentPropertyFilters()
+            propertyFilters = propertySettings.currentPropertyFilters(),
+            bodyFilterScript = serializationState.currentBodyFilterScript()
         )
 
         if (save) {

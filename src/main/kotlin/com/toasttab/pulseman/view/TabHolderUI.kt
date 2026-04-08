@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.toasttab.pulseman.state.Tab
@@ -33,8 +34,10 @@ fun tabHolderUI(
     Column(Modifier.fillMaxSize()) {
         tabHeaderUI(tabs, openTab)
         activeTab?.let { tab ->
-            Box(Modifier.weight(1f)) {
-                tab.ui()
+            key(tab.tabID) {
+                Box(Modifier.weight(1f)) {
+                    tab.ui()
+                }
             }
         }
     }

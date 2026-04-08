@@ -62,10 +62,13 @@ class MessageHandlingClassImpl(
                     _skippedMessages.value++
                     return
                 }
-                try {
+                val result = try {
                     activeBodyFilter.predicate(deserializedObj)
                 } catch (ex: Throwable) {
                     setUserFeedback("$BODY_FILTER_TYPE_MISMATCH ${deserializedObj.javaClass.name}: $ex")
+                    false
+                }
+                if (!result) {
                     _skippedMessages.value++
                     return
                 }

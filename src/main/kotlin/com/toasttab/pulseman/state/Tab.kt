@@ -18,8 +18,10 @@ package com.toasttab.pulseman.state
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.toasttab.pulseman.entities.TabValuesV3
+import java.util.UUID
 
 data class Tab(
+    val tabID: UUID,
     val tabName: String,
     val close: () -> Unit,
     val unsavedChanges: Boolean,

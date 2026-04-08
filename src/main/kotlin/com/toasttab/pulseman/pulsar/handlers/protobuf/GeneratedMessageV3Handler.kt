@@ -87,12 +87,16 @@ data class GeneratedMessageV3Handler(
                         } else {
                             visited.add(nested.fullName)
                             val inner = generateFieldLines(nested.fields, "it", visited)
+                            visited.remove(nested.fullName)
                             if (inner.isEmpty()) {
                                 "    $accessor.${field.jsonName}List.all { true }"
                             } else {
                                 "    $accessor.${field.jsonName}List.all {\n$inner\n    }"
                             }
                         }
+                    } else if (field.javaType == FieldDescriptor.JavaType.ENUM) {
+                        val enumValue = field.enumType.values.firstOrNull()?.name ?: ""
+                        "    $accessor.${field.jsonName}List.all { it.name == \"$enumValue\" }"
                     } else {
                         "    $accessor.${field.jsonName}List.all { it == ${defaultValue(field)} }"
                     }
@@ -104,8 +108,13 @@ data class GeneratedMessageV3Handler(
                     } else {
                         visited.add(nested.fullName)
                         val inner = generateFieldLines(nested.fields, "$accessor.${field.jsonName}", visited)
+                        visited.remove(nested.fullName)
                         inner.ifEmpty { "    true" }
                     }
+                }
+                field.javaType == FieldDescriptor.JavaType.ENUM -> {
+                    val enumValue = field.enumType.values.firstOrNull()?.name ?: ""
+                    "    $accessor.${field.jsonName}.name == \"$enumValue\""
                 }
                 else -> "    $accessor.${field.jsonName} == ${defaultValue(field)}"
             }

@@ -114,14 +114,22 @@ data class KTMessageHandler(
                         visited.add(elementType.name)
                         val nested = jarLoader.loadClass(elementType.name).declaredFields.filter { it.name !in IGNORE_FIELDS }
                         val inner = generateFieldLines(nested, "it", jarLoader, visited, nullable = false)
+                        visited.remove(elementType.name)
                         if (inner.isEmpty()) {
                             "    $fieldAccess?.all { true } != false"
                         } else {
                             "    $fieldAccess?.all {\n$inner\n    } != false"
                         }
+                    } else if (elementType != null && elementType.isEnum) {
+                        val enumValue = elementType.enumConstants?.firstOrNull() ?: ""
+                        "    $fieldAccess?.all { it.name == \"$enumValue\" } != false"
                     } else {
                         "    $fieldAccess?.all { it == ${defaultValue(field.type)} } != false"
                     }
+                }
+                field.type.isEnum -> {
+                    val enumValue = field.type.enumConstants?.firstOrNull() ?: ""
+                    "    $fieldAccess?.name == \"$enumValue\""
                 }
                 KtMessage::class.java.isAssignableFrom(field.type) -> {
                     if (field.type.name in visited) {
@@ -130,6 +138,7 @@ data class KTMessageHandler(
                         visited.add(field.type.name)
                         val nested = jarLoader.loadClass(field.type.name).declaredFields.filter { it.name !in IGNORE_FIELDS }
                         val inner = generateFieldLines(nested, fieldAccess, jarLoader, visited, nullable = true)
+                        visited.remove(field.type.name)
                         inner.ifEmpty { "    true" }
                     }
                 }

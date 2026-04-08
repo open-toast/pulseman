@@ -348,7 +348,8 @@ class MessageHandlingClassImplTest {
 
         messageHandling.parseMessage(message)
 
-        assertThat(receivedMessages).hasSize(1)
+        assertThat(receivedMessages).isEmpty()
+        assertThat(messageHandling.skippedMessages).isEqualTo(1)
         assertThat(userFeedback.any { it.contains(AppStrings.BODY_FILTER_TYPE_MISMATCH) }).isTrue()
     }
 

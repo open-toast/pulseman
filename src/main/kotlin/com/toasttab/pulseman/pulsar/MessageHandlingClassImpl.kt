@@ -18,6 +18,7 @@ package com.toasttab.pulseman.pulsar
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings.BODY_FILTER_TYPE_MISMATCH
+import com.toasttab.pulseman.AppStrings.EXCEPTION
 import com.toasttab.pulseman.AppStrings.FAILED_TO_DESERIALIZE_PULSAR
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED_DESERIALIZE
 import com.toasttab.pulseman.AppStrings.PROPERTIES
@@ -57,13 +58,14 @@ class MessageHandlingClassImpl(
 
             val deserializedObj = proto.deserialize(message.data)
             bodyFilter()?.let { activeBodyFilter ->
-                val passes = try {
+                if (deserializedObj is String && deserializedObj.startsWith(EXCEPTION)) {
+                    _skippedMessages.value++
+                    return
+                }
+                try {
                     activeBodyFilter.predicate(deserializedObj)
                 } catch (ex: Throwable) {
                     setUserFeedback("$BODY_FILTER_TYPE_MISMATCH ${deserializedObj.javaClass.name}: $ex")
-                    true
-                }
-                if (!passes) {
                     _skippedMessages.value++
                     return
                 }

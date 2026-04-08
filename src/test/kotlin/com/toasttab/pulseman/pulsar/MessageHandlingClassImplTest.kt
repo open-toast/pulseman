@@ -376,6 +376,47 @@ class MessageHandlingClassImplTest {
     }
 
     @Test
+    fun `body filter skips message when deserialization returns exception string`() {
+        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
+        testProtoClassInfo.deserializeResult = "${AppStrings.EXCEPTION}:java.lang.RuntimeException: parse error"
+        selectedProtoClass.selected = testProtoClassInfo
+        val bodyFilter = ActiveBodyFilter({ true })
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { bodyFilter }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).isEmpty()
+        assertThat(messageHandling.skippedMessages).isEqualTo(1)
+    }
+
+    @Test
+    fun `deserialization exception string still shown when body filter is disabled`() {
+        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
+        testProtoClassInfo.deserializeResult = "${AppStrings.EXCEPTION}:java.lang.RuntimeException: parse error"
+        selectedProtoClass.selected = testProtoClassInfo
+
+        messageHandling = MessageHandlingClassImpl(
+            selectedProtoClass = selectedProtoClass,
+            propertyFilter = { propertyFilterMap },
+            receivedMessages = receivedMessages,
+            setUserFeedback = { userFeedback.add(it) },
+            bodyFilter = { null }
+        )
+
+        messageHandling.parseMessage(message)
+
+        assertThat(receivedMessages).hasSize(1)
+        assertThat(messageHandling.skippedMessages).isEqualTo(0)
+    }
+
+    @Test
     fun `disabled body filter does not skip messages even with reject-all predicate`() {
         val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
         selectedProtoClass.selected = testProtoClassInfo

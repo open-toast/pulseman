@@ -24,6 +24,7 @@ import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import java.lang.reflect.Field
 
 data class KTMessageHandler(
     override val cls: Class<out KtMessage>,
@@ -96,7 +97,7 @@ data class KTMessageHandler(
     }
 
     private fun generateFieldLines(
-        fields: List<java.lang.reflect.Field>,
+        fields: List<Field>,
         accessor: String,
         jarLoader: JarLoader,
         visited: MutableSet<String>,
@@ -148,14 +149,15 @@ data class KTMessageHandler(
     }
 
     private fun defaultValue(type: Class<*>): String {
-        return when (type.name) {
-            "java.lang.String", "kotlin.String" -> "\"\""
-            "boolean", "java.lang.Boolean", "kotlin.Boolean" -> "false"
-            "int", "java.lang.Integer", "kotlin.Int" -> "0"
-            "long", "java.lang.Long", "kotlin.Long" -> "0L"
-            "float", "java.lang.Float", "kotlin.Float" -> "0.0f"
-            "double", "java.lang.Double", "kotlin.Double" -> "0.0"
-            else -> if (type.isEnum) "\"${type.enumConstants?.firstOrNull() ?: ""}\"" else "TODO()"
+        return when {
+            type == String::class.java -> "\"\""
+            type == Boolean::class.javaPrimitiveType || type == Boolean::class.javaObjectType -> "false"
+            type == Int::class.javaPrimitiveType || type == Int::class.javaObjectType -> "0"
+            type == Long::class.javaPrimitiveType || type == Long::class.javaObjectType -> "0L"
+            type == Float::class.javaPrimitiveType || type == Float::class.javaObjectType -> "0.0f"
+            type == Double::class.javaPrimitiveType || type == Double::class.javaObjectType -> "0.0"
+            type.isEnum -> "\"${type.enumConstants?.firstOrNull() ?: ""}\""
+            else -> "$TODO()"
         }
     }
 

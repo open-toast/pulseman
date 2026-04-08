@@ -17,8 +17,10 @@ package com.toasttab.pulseman.pulsar
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.toasttab.pulseman.AppStrings.BODY_FILTER_TYPE_MISMATCH
 import com.toasttab.pulseman.AppStrings.FAILED_TO_DESERIALIZE_PULSAR
 import com.toasttab.pulseman.AppStrings.PROPERTIES
+import com.toasttab.pulseman.entities.ActiveBodyFilter
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessage
@@ -32,7 +34,8 @@ class MessageHandlingImpl(
     private val messageType: SingleSelection<PulsarMessage>,
     private val propertyFilter: () -> Map<String, String>,
     private val receivedMessages: SnapshotStateList<ReceivedMessages>,
-    private val setUserFeedback: (String) -> Unit
+    private val setUserFeedback: (String) -> Unit,
+    private val bodyFilter: () -> ActiveBodyFilter? = { null }
 ) : MessageHandling {
 
     private val _skippedMessages = mutableStateOf(0)
@@ -47,6 +50,19 @@ class MessageHandlingImpl(
                 return
             }
             val messageString = messageType.selected?.deserialize(message.data)
+            val activeBodyFilter = bodyFilter()
+            if (messageString != null && activeBodyFilter != null) {
+                val passes = try {
+                    activeBodyFilter.predicate(messageString)
+                } catch (ex: Throwable) {
+                    setUserFeedback("$BODY_FILTER_TYPE_MISMATCH ${messageString.javaClass.name}: $ex")
+                    true
+                }
+                if (!passes) {
+                    _skippedMessages.value++
+                    return
+                }
+            }
             val publishTime = Instant.ofEpochMilli(message.publishTime)
             receivedMessages.add(
                 ReceivedMessages(

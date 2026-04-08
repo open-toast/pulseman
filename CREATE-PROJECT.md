@@ -198,14 +198,59 @@ Each message decoded will show the pulsar properties of the message also.
 
 ### Filtering messages by property
 
-You can filter incoming messages by their Pulsar message properties using the **Property Filter** dropdown in the **Receive** tab.
+You can filter incoming messages by their Pulsar message properties using the **Property Filter** dropdown in the 
+**Receive** tab.
 
-1. Define the properties you want to filter on in the **Properties** JSON editor (see [Define properties](#define-properties)).
+1. Define the properties you want to filter on in the **Properties** JSON editor 
+   (see [Define properties](#define-properties)).
 2. Open the **Property Filter** dropdown and select one or more properties to filter on.
-3. Messages are shown if their properties match **at least one** of the selected key-value pairs. Messages that match none are silently dropped.
+3. Messages are shown if their properties match **at least one** of the selected key-value pairs. Messages that match
+   none are silently dropped.
 4. Deselect all filters to show every incoming message again.
 
-The **Skipped** counter next to the dropdown shows how many messages have been dropped since the last subscribe or clear.
+The **Skipped** counter next to the dropdown shows how many messages have been dropped since the last subscribe or
+clear.
+
+### Filtering messages by body content
+
+You can filter incoming messages based on the deserialized body content using the **Body Filter** button in the *
+*Receive** tab. This uses Kotlin scripting to compile a predicate that is evaluated against each incoming message.
+
+1. In the **Receive** tab, click the **Body Filter** button to open the filter dialog.
+2. Click **Generate** to auto-generate a predicate template based on the currently selected message class. The template
+   lists all fields with default values and compiles immediately out of the box.
+3. Edit the predicate to match the messages you want to see. The predicate must return a `Boolean` — `true` to show the
+   message, `false` to skip it.
+4. Click **Compile** to compile the predicate. If compilation fails, any previously compiled predicate is cleared.
+5. Toggle the **Enabled** switch to activate the filter. Disabling the toggle stops filtering without losing your
+   compiled predicate.
+
+The body filter works alongside the property filter — a message must pass both filters to be displayed.
+
+#### Examples
+
+Protobuf message filtering:
+
+```kotlin
+import com.example.MyMessage
+
+// Must return a Boolean
+{ body: MyMessage ->
+    body.status == "ACTIVE" &&
+            body.amount > 100
+}
+```
+
+Text message filtering:
+
+```kotlin
+// Must return a Boolean
+{ body: String ->
+    body.contains("error")
+}
+```
+
+The body filter script is saved with the project, so it persists across sessions.
 
 ## Convert logs
 

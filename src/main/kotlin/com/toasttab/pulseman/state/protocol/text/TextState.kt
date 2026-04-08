@@ -21,10 +21,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.MessageHandlingImpl
+import com.toasttab.pulseman.state.BodyFilter
 import com.toasttab.pulseman.state.MultiSelectDropdown
 import com.toasttab.pulseman.state.PulsarSettings
 import com.toasttab.pulseman.state.ReceiveMessage
@@ -35,11 +37,12 @@ import com.toasttab.pulseman.view.selectTabViewUI
 class TextState(
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
-    runTimeJarLoader: RunTimeJarLoader,
+    private val runTimeJarLoader: RunTimeJarLoader,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit,
     propertyFilter: () -> Map<String, String>,
-    propertyFilterSelectorUI: MultiSelectDropdown
+    propertyFilterSelectorUI: MultiSelectDropdown,
+    bodyFilter: BodyFilter
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -68,7 +71,8 @@ class TextState(
         messageType = serializationTypeSelector.selectedEncoding,
         propertyFilter = propertyFilter,
         receivedMessages = receivedMessages,
-        setUserFeedback = setUserFeedback
+        setUserFeedback = setUserFeedback,
+        bodyFilter = { bodyFilter.activeFilter }
     )
 
     private val receiveMessage = ReceiveMessage(
@@ -77,7 +81,10 @@ class TextState(
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
         runTimeJarLoader = runTimeJarLoader,
-        propertyFilterSelectorUI = propertyFilterSelectorUI
+        propertyFilterSelectorUI = propertyFilterSelectorUI,
+        bodyFilter = bodyFilter,
+        onBodyFilterGenerate = { bodyFilter.generateTemplate(AppStrings.DEFAULT_TEXT_FILTER_SCRIPT) },
+        onBodyFilterCompile = { bodyFilter.compilePredicate(runTimeJarLoader.getJarLoader(JarLoaderType.BASE)) }
     )
 
     fun toTextTabValues() = TextTabValuesV3(

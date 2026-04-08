@@ -37,6 +37,15 @@ interface PulsarMessageClassInfo : PulsarMessage, ClassInfo {
     fun generateClassTemplate(): String
 
     /**
+     * Generates a kotlin scripting predicate template for filtering received messages by body content.
+     * The lambda parameter is typed to the concrete class and all fields are listed with default values.
+     * Nested message fields are recursed into and nullable fields use safe calls.
+     *
+     * @return A string predicate template for the class.
+     */
+    fun generateFilterTemplate(): String
+
+    /**
      * protoKT has overridden the package path for types like google.type.Money we need
      * separate classloaders to prevent conflicts between these imports
      *     com.google.api.grpc:proto-google-common-protos

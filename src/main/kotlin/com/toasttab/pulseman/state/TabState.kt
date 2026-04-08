@@ -193,6 +193,7 @@ class TabState(
     @Composable
     fun toTab(popupState: DialogState): Tab {
         return Tab(
+            tabID = tabID,
             tabName = tabName.value,
             close = { close(this) },
             unsavedChanges = unsavedChanges.value,

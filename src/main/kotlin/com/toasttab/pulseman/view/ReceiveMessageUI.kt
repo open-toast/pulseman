@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Button
@@ -157,8 +158,7 @@ fun receiveMessageUI(
         }
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(state = lazyListState) {
-                items(receivedMessages.size) { index ->
-                    val receivedMessage = receivedMessages[index]
+                items(items = receivedMessages) { receivedMessage ->
                     Card(
                         backgroundColor = AppTheme.colors.backgroundMedium,
                         border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)

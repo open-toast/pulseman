@@ -24,6 +24,7 @@ import com.toasttab.pulseman.jars.JarLoader
 import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.pulsar.handlers.DefaultMapper
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import java.lang.reflect.Field
 
 data class KTMessageHandler(
     override val cls: Class<out KtMessage>,
@@ -76,9 +77,99 @@ data class KTMessageHandler(
         return "$imports\n$className {\n$variables}"
     }
 
-    override fun getJarLoader(): JarLoader {
-        return runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.PROTOKT)
+    override fun generateFilterTemplate(): String {
+        val fullName = cls.name.replace("$", ".")
+        val className = fullName.split(".").last()
+        val importSet = mutableSetOf<String>()
+        importSet.add(fullName)
+
+        val jarLoader = getJarLoader()
+        val clazz = jarLoader.loadClass(cls.name)
+        val fields = clazz.declaredFields.filter { it.name !in IGNORE_FIELDS }
+
+        val visited = mutableSetOf<String>()
+        visited.add(cls.name)
+        val fieldLines = generateFieldLines(fields, "body", jarLoader, visited)
+
+        val imports = importSet.sorted().joinToString("\n") { "$IMPORT $it" }
+
+        return "$imports\n\n// Must return a Boolean\n{ body: $className ->\n${fieldLines.ifEmpty { "    true" }}\n}"
     }
+
+    private fun generateFieldLines(
+        fields: List<Field>,
+        accessor: String,
+        jarLoader: JarLoader,
+        visited: MutableSet<String>,
+        nullable: Boolean = false
+    ): String {
+        val sep = if (nullable) "?." else "."
+        return fields.joinToString(" &&\n") { field ->
+            val fieldAccess = "$accessor$sep${field.name}"
+            when {
+                Map::class.java.isAssignableFrom(field.type) ->
+                    "    $fieldAccess?.entries?.all { true } != false"
+                List::class.java.isAssignableFrom(field.type) || Iterable::class.java.isAssignableFrom(field.type) -> {
+                    val elementType = resolveListElementType(field)
+                    if (elementType != null && KtMessage::class.java.isAssignableFrom(elementType) && elementType.name !in visited) {
+                        visited.add(elementType.name)
+                        val nested = jarLoader.loadClass(elementType.name).declaredFields.filter { it.name !in IGNORE_FIELDS }
+                        val inner = generateFieldLines(nested, "it", jarLoader, visited, nullable = false)
+                        visited.remove(elementType.name)
+                        if (inner.isEmpty()) {
+                            "    $fieldAccess?.all { true } != false"
+                        } else {
+                            "    $fieldAccess?.all {\n$inner\n    } != false"
+                        }
+                    } else if (elementType != null && elementType.isEnum) {
+                        val enumValue = elementType.enumConstants?.firstOrNull() ?: ""
+                        "    $fieldAccess?.all { it.name == \"$enumValue\" } != false"
+                    } else {
+                        "    $fieldAccess?.all { it == ${defaultValue(field.type)} } != false"
+                    }
+                }
+                field.type.isEnum -> {
+                    val enumValue = field.type.enumConstants?.firstOrNull() ?: ""
+                    "    $fieldAccess?.name == \"$enumValue\""
+                }
+                KtMessage::class.java.isAssignableFrom(field.type) -> {
+                    if (field.type.name in visited) {
+                        "    true"
+                    } else {
+                        visited.add(field.type.name)
+                        val nested = jarLoader.loadClass(field.type.name).declaredFields.filter { it.name !in IGNORE_FIELDS }
+                        val inner = generateFieldLines(nested, fieldAccess, jarLoader, visited, nullable = true)
+                        visited.remove(field.type.name)
+                        inner.ifEmpty { "    true" }
+                    }
+                }
+                else -> "    $fieldAccess == ${defaultValue(field.type)}"
+            }
+        }
+    }
+
+    private fun defaultValue(type: Class<*>): String {
+        return when {
+            type == String::class.java -> "\"\""
+            type == Boolean::class.javaPrimitiveType || type == Boolean::class.javaObjectType -> "false"
+            type == Int::class.javaPrimitiveType || type == Int::class.javaObjectType -> "0"
+            type == Long::class.javaPrimitiveType || type == Long::class.javaObjectType -> "0L"
+            type == Float::class.javaPrimitiveType || type == Float::class.javaObjectType -> "0.0f"
+            type == Double::class.javaPrimitiveType || type == Double::class.javaObjectType -> "0.0"
+            type.isEnum -> "\"${type.enumConstants?.firstOrNull() ?: ""}\""
+            else -> "$TODO()"
+        }
+    }
+
+    private fun resolveListElementType(field: java.lang.reflect.Field): Class<*>? {
+        val genericType = field.genericType as? java.lang.reflect.ParameterizedType ?: return null
+        val typeArg = genericType.actualTypeArguments.firstOrNull() ?: return null
+        return typeArg as? Class<*>
+    }
+
+    private val cachedJarLoader by lazy { runTimeJarLoader.getJarLoader(jarLoaderType = JarLoaderType.PROTOKT) }
+
+    override fun getJarLoader(): JarLoader = cachedJarLoader
 
     companion object {
         private const val IMPORT = "import"

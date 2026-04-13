@@ -21,12 +21,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.toasttab.pulseman.AppStrings
+import com.toasttab.pulseman.entities.JarLoaderType
 import com.toasttab.pulseman.entities.ReceivedMessages
 import com.toasttab.pulseman.entities.TabValuesV3
 import com.toasttab.pulseman.files.FileManagement
 import com.toasttab.pulseman.jars.JarManager
 import com.toasttab.pulseman.pulsar.MessageHandlingClassImpl
 import com.toasttab.pulseman.pulsar.handlers.PulsarMessageClassInfo
+import com.toasttab.pulseman.state.BodyFilter
 import com.toasttab.pulseman.state.GradleManagement
 import com.toasttab.pulseman.state.JarManagement
 import com.toasttab.pulseman.state.JarManagementTabs
@@ -39,14 +41,15 @@ import com.toasttab.pulseman.view.selectTabViewUI
 
 class ProtobufState(
     private val gradleManagement: GradleManagement,
-    pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
+    private val pulsarMessageJars: JarManager<PulsarMessageClassInfo>,
     initialSettings: TabValuesV3? = null,
     pulsarSettings: PulsarSettings,
     setUserFeedback: (String) -> Unit,
     onChange: () -> Unit,
     fileManagement: FileManagement,
     propertyFilter: () -> Map<String, String>,
-    propertyFilterSelectorUI: MultiSelectDropdown
+    propertyFilterSelectorUI: MultiSelectDropdown,
+    bodyFilter: BodyFilter
 ) {
     fun cleanUp() {
         receiveMessage.close()
@@ -89,7 +92,8 @@ class ProtobufState(
         selectedProtoClass = protobufSelector.selectedClass,
         propertyFilter = propertyFilter,
         receivedMessages = receivedMessages,
-        setUserFeedback = setUserFeedback
+        setUserFeedback = setUserFeedback,
+        bodyFilter = { bodyFilter.activeFilter }
     )
 
     private val receiveMessage = ReceiveMessage(
@@ -98,7 +102,20 @@ class ProtobufState(
         receivedMessages = receivedMessages,
         messageHandling = messageHandling,
         runTimeJarLoader = pulsarMessageJars.runTimeJarLoader,
-        propertyFilterSelectorUI = propertyFilterSelectorUI
+        propertyFilterSelectorUI = propertyFilterSelectorUI,
+        bodyFilter = bodyFilter,
+        onBodyFilterGenerate = {
+            protobufSelector.selectedClass.selected?.let {
+                bodyFilter.generateTemplate(it.generateFilterTemplate())
+                setUserFeedback(AppStrings.GENERATED_FILTER_TEMPLATE)
+            } ?: setUserFeedback(AppStrings.NO_CLASS_SELECTED)
+        },
+        onBodyFilterCompile = {
+            bodyFilter.compilePredicate(
+                protobufSelector.selectedClass.selected?.getJarLoader()
+                    ?: pulsarMessageJars.runTimeJarLoader.getJarLoader(JarLoaderType.BASE)
+            )
+        }
     )
 
     private val convertProtoBufMessage = ConvertProtobufMessage(

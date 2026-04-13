@@ -16,9 +16,11 @@
 package com.toasttab.pulseman.scripting
 
 import com.toasttab.pulseman.AppStrings.EXCEPTION
+import com.toasttab.pulseman.AppStrings.FAILED_TO_COMPILE_PREDICATE
 import com.toasttab.pulseman.AppStrings.GENERATED_CLASS_NOT_SAME_AS_SELECTED
 import com.toasttab.pulseman.AppStrings.NO_CLASS_SELECTED
 import com.toasttab.pulseman.AppStrings.SUCCESSFULLY_COMPILED_CLASS
+import com.toasttab.pulseman.AppStrings.SUCCESSFULLY_COMPILED_PREDICATE
 import com.toasttab.pulseman.entities.CompileResult
 import com.toasttab.pulseman.entities.SingleSelection
 import com.toasttab.pulseman.jars.JarLoader
@@ -105,5 +107,26 @@ object KotlinScripting {
         }
     }
 
+    fun compilePredicate(
+        code: String,
+        jarLoader: JarLoader,
+        setUserFeedback: (String) -> Unit
+    ): ((Any) -> Boolean)? {
+        return try {
+            ThreadUtil.run(jarLoader) {
+                val engine = ScriptEngineManager(jarLoader).getEngineByExtension(KTS_EXTENSION)
+                val wrappedCode = "$FILE_SUPPRESS_WARNINGS\n$code"
+                @Suppress("UNCHECKED_CAST")
+                (engine.eval(wrappedCode) as? Function1<Any, Boolean>)
+                    ?.also { setUserFeedback(SUCCESSFULLY_COMPILED_PREDICATE) }
+                    ?: run { setUserFeedback(FAILED_TO_COMPILE_PREDICATE); null }
+            }
+        } catch (ex: Throwable) {
+            setUserFeedback("$EXCEPTION:\n$ex")
+            null
+        }
+    }
+
     private const val KTS_EXTENSION = "kts"
+    private const val FILE_SUPPRESS_WARNINGS = "@file:Suppress(\"warnings\")"
 }

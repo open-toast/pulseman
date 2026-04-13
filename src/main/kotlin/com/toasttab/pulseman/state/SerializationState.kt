@@ -44,6 +44,14 @@ class SerializationState(
         textState.cleanUp()
     }
 
+    private val bodyFilter = BodyFilter(
+        initialScript = initialSettings?.bodyFilterScript,
+        setUserFeedback = setUserFeedback,
+        onChange = onChange
+    )
+
+    fun currentBodyFilterScript() = bodyFilter.currentScript()
+
     val protobufState = ProtobufState(
         gradleManagement = gradleManagement,
         pulsarMessageJars = pulsarMessageJars,
@@ -53,7 +61,8 @@ class SerializationState(
         onChange = onChange,
         fileManagement = fileManagement,
         propertyFilter = { propertyConfiguration.filter.filterState.value },
-        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown
+        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown,
+        bodyFilter = bodyFilter
     )
 
     val textState = TextState(
@@ -63,7 +72,8 @@ class SerializationState(
         setUserFeedback = setUserFeedback,
         onChange = onChange,
         propertyFilter = { propertyConfiguration.filter.filterState.value },
-        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown
+        propertyFilterSelectorUI = propertyConfiguration.filter.dropdown,
+        bodyFilter = bodyFilter
     )
 
     @ExperimentalFoundationApi

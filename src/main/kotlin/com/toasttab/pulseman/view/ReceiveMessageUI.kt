@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -46,15 +47,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindow
+import androidx.compose.ui.window.rememberDialogState
 import com.toasttab.pulseman.AppStrings
+import com.toasttab.pulseman.AppStrings.BODY_FILTER
 import com.toasttab.pulseman.AppStrings.CLEAR
 import com.toasttab.pulseman.AppStrings.CLEARING
 import com.toasttab.pulseman.AppStrings.CLOSE_CONNECTION
 import com.toasttab.pulseman.AppStrings.CLOSING
 import com.toasttab.pulseman.AppStrings.COLLAPSE
 import com.toasttab.pulseman.AppStrings.EARLIEST
-import com.toasttab.pulseman.AppStrings.LATEST
 import com.toasttab.pulseman.AppStrings.EXPAND
+import com.toasttab.pulseman.AppStrings.LATEST
 import com.toasttab.pulseman.AppStrings.SUBSCRIBE
 import com.toasttab.pulseman.AppStrings.SUBSCRIBING
 import com.toasttab.pulseman.AppTheme
@@ -85,8 +89,12 @@ fun receiveMessageUI(
     propertyFilterSelectorUI: @Composable () -> Unit,
     subscribeLatest: Boolean,
     onSubscribeLatestChange: (Boolean) -> Unit,
-    skippedMessages: Int
+    skippedMessages: Int,
+    showBodyFilter: Boolean,
+    onShowBodyFilterChange: (Boolean) -> Unit,
+    bodyFilterUI: @Composable () -> Unit
 ) {
+    val bodyFilterDialogState = rememberDialogState(width = 900.dp)
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             threadedButton(
@@ -126,6 +134,22 @@ fun receiveMessageUI(
                 onCheckedChange = onSubscribeLatestChange,
                 colors = SwitchDefaults.colors(checkedThumbColor = AppTheme.colors.backgroundDark)
             )
+
+            Button(
+                modifier = Modifier.padding(4.dp),
+                onClick = { onShowBodyFilterChange(true) }
+            ) {
+                Text(BODY_FILTER)
+            }
+            if (showBodyFilter) {
+                DialogWindow(
+                    onCloseRequest = { onShowBodyFilterChange(false) },
+                    title = BODY_FILTER,
+                    state = bodyFilterDialogState
+                ) {
+                    bodyFilterUI()
+                }
+            }
 
             propertyFilterSelectorUI()
             Spacer(modifier = Modifier.width(8.dp))

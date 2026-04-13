@@ -15,7 +15,7 @@
 
 package com.toasttab.pulseman.state
 
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.apache.pulsar.client.api.Consumer
+import org.apache.pulsar.client.api.SubscriptionInitialPosition
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
@@ -53,10 +54,11 @@ class ReceiveMessage(
     private val clearState = mutableStateOf(ButtonState.WAITING)
     private val closeState = mutableStateOf(ButtonState.WAITING)
 
+    private val subscribeLatest = mutableStateOf(true)
     private val pulsar: MutableState<Pulsar?> = mutableStateOf(null)
     private var consumer: Consumer<ByteArray>? = null
 
-    private val stateVertical = ScrollState(0)
+    private val stateVertical = LazyListState()
     private var subscribeFuture: CompletableFuture<Consumer<ByteArray>>? = null
 
     private fun onSubscribe() {
@@ -69,7 +71,12 @@ class ReceiveMessage(
         )
 
         try {
-            subscribeFuture = pulsar.value?.createNewConsumer(messageHandling::parseMessage)
+            val position = if (subscribeLatest.value) {
+                SubscriptionInitialPosition.Latest
+            } else {
+                SubscriptionInitialPosition.Earliest
+            }
+            subscribeFuture = pulsar.value?.createNewConsumer(messageHandling::parseMessage, position)
             subscribeFuture?.get(90, TimeUnit.SECONDS)?.let {
                 consumer = it
                 consumer?.let {
@@ -119,8 +126,10 @@ class ReceiveMessage(
                 onClear = ::onClear,
                 onCloseConnection = ::onCloseConnection,
                 receivedMessages = receivedMessages,
-                scrollState = stateVertical,
+                lazyListState = stateVertical,
                 propertyFilterSelectorUI = propertyFilterSelectorUI.getUI(),
+                subscribeLatest = subscribeLatest.value,
+                onSubscribeLatestChange = { subscribeLatest.value = it },
                 skippedMessages = messageHandling.skippedMessages
             )
         }

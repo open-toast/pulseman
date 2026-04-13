@@ -22,6 +22,7 @@ import com.toasttab.pulseman.jars.RunTimeJarLoader
 import com.toasttab.pulseman.state.PulsarSettings
 import io.mockk.every
 import io.mockk.mockk
+import org.apache.pulsar.client.api.SubscriptionInitialPosition
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -81,11 +82,13 @@ class PulsarITest : PulsarITestSupport() {
         lateinit var receivedProperties: Map<String, String>
 
         val countDownLatch = CountDownLatch(1)
-        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer {
-            receivedBytes = it.data
-            receivedProperties = it.properties
-            countDownLatch.countDown()
-        }
+        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer(
+            handleMessage = { m ->
+                receivedBytes = m.data
+                receivedProperties = m.properties
+                countDownLatch.countDown()
+            }
+        )
 
         subscribeFuture?.get(10, TimeUnit.SECONDS)
 
@@ -93,6 +96,43 @@ class PulsarITest : PulsarITestSupport() {
         sendMessage(messageToSend.toBytes(), testTopic, testProperties)
 
         countDownLatch.await()
+
+        val messageReceived = MultipleTypes.fromBytes(receivedBytes)
+        assertThat(receivedProperties).isEqualTo(testProperties)
+        assertThat(messageReceived).isEqualTo(messageToSend)
+    }
+
+    @Test
+    fun `Successfully receive an earlier message with Earliest subscription`() {
+        val earliestTopic = initialTopicList[1]
+        val earliestSettings = mockk<PulsarSettings>(relaxed = true) {
+            every { authSelector } returns mockk(relaxed = true) {
+                every { selectedAuthClass } returns SingleSelection()
+            }
+            every { serviceUrl } returns mutableStateOf(pulsarContainer.pulsarBrokerUrl)
+            every { topic } returns mutableStateOf(earliestTopic)
+            every { propertySettings } returns mockk(relaxed = true) {
+                every { propertyMap() } returns testProperties
+            }
+        }
+
+        val messageToSend = MultipleTypes()
+        sendMessage(messageToSend.toBytes(), earliestTopic, testProperties)
+
+        lateinit var receivedBytes: ByteArray
+        lateinit var receivedProperties: Map<String, String>
+        val countDownLatch = CountDownLatch(1)
+        val subscribeFuture = Pulsar(earliestSettings, runTimeJarLoader) {}.createNewConsumer(
+            handleMessage = { m ->
+                receivedBytes = m.data
+                receivedProperties = m.properties
+                countDownLatch.countDown()
+            },
+            subscriptionInitialPosition = SubscriptionInitialPosition.Earliest
+        )
+
+        subscribeFuture?.get(10, TimeUnit.SECONDS)
+        countDownLatch.await(10, TimeUnit.SECONDS)
 
         val messageReceived = MultipleTypes.fromBytes(receivedBytes)
         assertThat(receivedProperties).isEqualTo(testProperties)

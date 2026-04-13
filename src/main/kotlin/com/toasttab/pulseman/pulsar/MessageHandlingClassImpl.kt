@@ -54,9 +54,6 @@ class MessageHandlingClassImpl(
 
             val messageString = proto.prettyPrint(proto.deserialize(message.data))
             val publishTime = Instant.ofEpochMilli(message.publishTime)
-            if (receivedMessages.size > MAX_MESSAGES_STORED) {
-                receivedMessages.removeFirst()
-            }
             receivedMessages.add(
                 ReceivedMessages(
                     "$messageString\n$PROPERTIES:\n${message.properties}",
@@ -67,9 +64,5 @@ class MessageHandlingClassImpl(
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_DESERIALIZE_PULSAR:$ex.")
         }
-    }
-
-    companion object {
-        private const val MAX_MESSAGES_STORED = 500
     }
 }

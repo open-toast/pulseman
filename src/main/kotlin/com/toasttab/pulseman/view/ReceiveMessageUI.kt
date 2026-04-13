@@ -16,7 +16,6 @@
 package com.toasttab.pulseman.view
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,13 +27,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Switch
+import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -50,6 +52,8 @@ import com.toasttab.pulseman.AppStrings.CLEARING
 import com.toasttab.pulseman.AppStrings.CLOSE_CONNECTION
 import com.toasttab.pulseman.AppStrings.CLOSING
 import com.toasttab.pulseman.AppStrings.COLLAPSE
+import com.toasttab.pulseman.AppStrings.EARLIEST
+import com.toasttab.pulseman.AppStrings.LATEST
 import com.toasttab.pulseman.AppStrings.EXPAND
 import com.toasttab.pulseman.AppStrings.SUBSCRIBE
 import com.toasttab.pulseman.AppStrings.SUBSCRIBING
@@ -77,8 +81,10 @@ fun receiveMessageUI(
     onClear: () -> Unit,
     onCloseConnection: () -> Unit,
     receivedMessages: List<ReceivedMessages>,
-    scrollState: ScrollState,
+    lazyListState: LazyListState,
     propertyFilterSelectorUI: @Composable () -> Unit,
+    subscribeLatest: Boolean,
+    onSubscribeLatestChange: (Boolean) -> Unit,
     skippedMessages: Int
 ) {
     Column {
@@ -113,13 +119,22 @@ fun receiveMessageUI(
                 onCloseConnection()
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = if (subscribeLatest) LATEST else EARLIEST)
+            Switch(
+                checked = subscribeLatest,
+                onCheckedChange = onSubscribeLatestChange,
+                colors = SwitchDefaults.colors(checkedThumbColor = AppTheme.colors.backgroundDark)
+            )
+
             propertyFilterSelectorUI()
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "${AppStrings.MESSAGES_SKIPPED}: $skippedMessages")
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.verticalScroll(scrollState)) {
-                receivedMessages.forEach { receivedMessage ->
+            LazyColumn(state = lazyListState) {
+                items(receivedMessages.size) { index ->
+                    val receivedMessage = receivedMessages[index]
                     Card(
                         backgroundColor = AppTheme.colors.backgroundMedium,
                         border = BorderStroke(1.dp, AppTheme.colors.backgroundDark)
@@ -163,7 +178,7 @@ fun receiveMessageUI(
             }
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-                adapter = rememberScrollbarAdapter(scrollState)
+                adapter = rememberScrollbarAdapter(lazyListState)
             )
         }
     }

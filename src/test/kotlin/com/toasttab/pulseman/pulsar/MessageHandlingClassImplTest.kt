@@ -183,33 +183,6 @@ class MessageHandlingClassImplTest {
     }
 
     @Test
-    fun `parseMessage removes oldest message when max messages exceeded`() {
-        // Removal triggers when size > MAX_MESSAGES_STORED (500), i.e. on the 502nd insert
-        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
-        testProtoClassInfo.prettyPrintResult = "content"
-        selectedProtoClass.selected = testProtoClassInfo
-
-        repeat(MAX_MESSAGES_STORED + 2) {
-            messageHandling.parseMessage(message)
-        }
-
-        assertThat(receivedMessages).hasSize(MAX_MESSAGES_STORED + 1)
-    }
-
-    @Test
-    fun `parseMessage does not evict at exactly max messages stored`() {
-        val message = TestMessage(messageProperties = emptyMap(), messageData = ByteArray(10))
-        testProtoClassInfo.prettyPrintResult = "content"
-        selectedProtoClass.selected = testProtoClassInfo
-
-        repeat(MAX_MESSAGES_STORED) {
-            messageHandling.parseMessage(message)
-        }
-
-        assertThat(receivedMessages).hasSize(MAX_MESSAGES_STORED)
-    }
-
-    @Test
     fun `parseMessage processes message when all multiple filters match`() {
         val message = TestMessage(
             messageProperties = mapOf("environment" to "production", "region" to "us-east-1"),
@@ -287,9 +260,5 @@ class MessageHandlingClassImplTest {
         assertThat(body).contains("environment=production")
         assertThat(body).contains("version=1.0")
         assertThat(body).contains("region=us-east-1")
-    }
-
-    companion object {
-        private const val MAX_MESSAGES_STORED = 500
     }
 }

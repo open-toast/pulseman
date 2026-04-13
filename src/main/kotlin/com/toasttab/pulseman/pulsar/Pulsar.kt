@@ -36,6 +36,7 @@ import org.apache.pulsar.client.api.MessageRoutingMode
 import org.apache.pulsar.client.api.Producer
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
+import org.apache.pulsar.client.api.SubscriptionInitialPosition
 import org.apache.pulsar.client.api.SubscriptionMode
 import org.apache.pulsar.client.api.SubscriptionType
 import java.util.UUID
@@ -106,7 +107,10 @@ class Pulsar(
         }
     }
 
-    fun createNewConsumer(handleMessage: (Message<ByteArray>) -> Unit): CompletableFuture<Consumer<ByteArray>>? {
+    fun createNewConsumer(
+        handleMessage: (Message<ByteArray>) -> Unit,
+        subscriptionInitialPosition: SubscriptionInitialPosition = SubscriptionInitialPosition.Latest
+    ): CompletableFuture<Consumer<ByteArray>>? {
         return try {
             pulsarClient?.newConsumer()
                 ?.consumerName("$SUBSCRIPTION_NAME${UUID.randomUUID()}")
@@ -118,6 +122,7 @@ class Pulsar(
                     handleMessage(m)
                 }
                 ?.subscriptionName("$SUBSCRIPTION_NAME${UUID.randomUUID()}")
+                ?.subscriptionInitialPosition(subscriptionInitialPosition)
                 ?.subscribeAsync()
         } catch (ex: Throwable) {
             setUserFeedback("$FAILED_TO_CREATE_CONSUMER:$ex")

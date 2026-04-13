@@ -98,10 +98,12 @@ class BodyFilterITest : PulsarITestSupport() {
         // Count down once per Pulsar message delivered (regardless of filter outcome)
         val allDelivered = CountDownLatch(2)
 
-        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer { message ->
-            messageHandling.parseMessage(message)
-            allDelivered.countDown()
-        }
+        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer(
+            handleMessage = { message ->
+                messageHandling.parseMessage(message)
+                allDelivered.countDown()
+            }
+        )
         subscribeFuture?.get(10, TimeUnit.SECONDS)
 
         // This message has b=false — should be skipped by the predicate
@@ -143,10 +145,12 @@ class BodyFilterITest : PulsarITestSupport() {
 
         val allDelivered = CountDownLatch(2)
 
-        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer { message ->
-            messageHandling.parseMessage(message)
-            allDelivered.countDown()
-        }
+        val subscribeFuture = Pulsar(pulsarSettings, runTimeJarLoader) {}.createNewConsumer(
+            handleMessage = { message ->
+                messageHandling.parseMessage(message)
+                allDelivered.countDown()
+            }
+        )
         subscribeFuture?.get(10, TimeUnit.SECONDS)
 
         sendMessage(MultipleTypes().toBytes(), testTopic, emptyMap())

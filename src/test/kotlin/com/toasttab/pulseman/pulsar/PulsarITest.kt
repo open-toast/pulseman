@@ -104,7 +104,7 @@ class PulsarITest : PulsarITestSupport() {
 
     @Test
     fun `Successfully receive an earlier message with Earliest subscription`() {
-        val earliestTopic = initialTopicList[1]
+        val earliestTopic = initialTopicList[2]
         val earliestSettings = mockk<PulsarSettings>(relaxed = true) {
             every { authSelector } returns mockk(relaxed = true) {
                 every { selectedAuthClass } returns SingleSelection()

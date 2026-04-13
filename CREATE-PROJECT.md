@@ -183,6 +183,16 @@ however be wary of conflicts.
 
 Each message decoded will show the pulsar properties of the message also.
 
+### Subscription position
+
+By default, Pulseman subscribes with the **Latest** position, meaning only new messages published after subscribing are
+received.  
+You can toggle this to **Earliest** using the switch in the **Receive** tab to replay all existing messages on
+the topic from the beginning. This is useful for inspecting historical messages.  
+
+The toggle only takes effect on the next subscribe, changing it while already subscribed does not affect the current
+subscription.  
+
 ### Protobuf
 
 1. Import the message jar you wish to deserialize messages with.
